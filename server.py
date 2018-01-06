@@ -1,23 +1,74 @@
 import socket
 import pickle
+import time
 from sys import exit
 
 ENCODING = 'UTF-8'
 
+class Log:
+    def __init__(self, debug=False):
+        self.ledger = []
+        self.debug = debug
+
+    def log(self, *event):
+        event = tuple(map(str, event))
+        item = (self.get_time(), ' '.join(event))
+        if self.debug:
+            print(item)
+        self.ledger.append(item)
+
+    @staticmethod
+    def get_time():
+        timestamp = time.strftime('%y/%m/%d %H:%M:%S')
+        return timestamp
+
+
 class Response:
+    @staticmethod
+    def code404(*args):
+        """Not found"""
+        return 'HTTP/1.1 404 Not Found'
+
+    @staticmethod
+    def code301(*args):
+        """Permanently moved"""
+        if len(args) < 1:
+            raise TypeError("301 Error must include redirect address")
+        return 'HTTP/1.1 301 Moved Permanently\r\nLocation: /%s' % args[0]
+
+    @staticmethod
+    def code200():
+        """Success"""
+        return 'HTTP/1.1 200 OK'
+
+    @staticmethod
+    def code204():
+        """Not returning any body"""
+        return 'HTTP/1.1 204 No Content'
+
     def __init__(self, body):
-        self.header = ['HTTP/1.1 200 OK\n']
+        self.header = ['HTTP/1.1 200 OK']
         self.cookie = []
         self.body = body
 
     def add_header_term(self, string):
-        self.header.append('\n%s' % string.encode(ENCODING))
+        self.header.append('%s' % string)
 
     def add_cookie(self, key, value, *flags):
         self.cookie.append(("Set-Cookie: %s=%s; " % (key, value)) + '; '.join(flags))
 
-    def get_response(self):
-        return '\n'.join(self.header).encode(ENCODING) + '\n' + '\n'.join(self.cookie).encode(ENCODING)
+    def set_status_code(self, integer):
+        self.header[0] = 'HTTP/1.1 %d OK'
+
+    def compile(self):
+        return self.__bytes__()
+
+    def __bytes__(self):
+        try:
+            return '\r\n'.join(self.header).encode(ENCODING) + b'\r\n' + '\r\n'.join(self.cookie).encode(ENCODING) + b'\r\n' + self.body.encode(ENCODING)
+        except AttributeError:
+            return '\r\n'.join(self.header).encode(ENCODING) + b'\r\n' + '\r\n'.join(self.cookie).encode(ENCODING) + b'\r\n' + self.body
+
 
 class Server:
     def __init__(self):
@@ -35,18 +86,23 @@ class Server:
         # On-board data management if needed
         self.state = {}
         self.data = {}
+        self.log = Log(True)
+        self.log.log("Server initialized successfully.")
 
     def close(self):
         self.socket.close()
+        self.log.log("Server closed successfully.")
 
     def send(self, msg):
         try:
             if type(msg) != type(bytes()):
                 self.connection.send(msg.encode(ENCODING))
+            elif isinstance(msg, Response):
+                self.connection.send(bytes(msg))
             else:
                 self.connection.send(msg)
         except AttributeError:
-            print("Error: tried to send with no client connected")
+            self.log.log("Error: tried to send with no client connected.")
             return 1
         return 0
 
@@ -61,9 +117,13 @@ class Server:
         elif ext2 in ('.css',) or ext1 in ('.js',):
             faddr = self.get_script_or_style(faddr)
 
-        f = open(faddr, 'rb')
-        self.send(f.read())
-        f.close()
+        try:
+            f = open(faddr, 'rb')
+            self.send(Response(f.read()).compile())
+            f.close()
+        except FileNotFoundError:
+            self.log.log("Client requested non-existent file, returned 404.")
+            self.send(Response.code404())
 
     @classmethod
     def get_image(cls, fname):
@@ -81,19 +141,28 @@ class Server:
         try:
             return self.connection.recv(self.buffer).decode(ENCODING)
         except AttributeError:
-            print("Error: tried to receive with no client connected")
+            self.log.log("Error: tried to receive with no client connected.")
             return 1
 
     def open(self):
         self.socket.listen(1)
+        self.log.log("Server open, listening...")
         while True:
             self.connection, self.c_address = self.socket.accept()
-            self.handle_request(self, self.connection, self.c_address, self.parse(self.recv()))
+            parsed_req = self.parse(self.recv())
+            if parsed_req == 'ERROR_0':
+                self.log.log('Client request is empty, ignoring.')
+                continue
+            else:
+                self.handle_request(self, self.connection, self.c_address, parsed_req)
             self.handled_counter += 1
 
     def parse(self, request):
-        request = request.split(' ')  # reduces GET xx HTTP to xx
-        request = [request[0], request[1][1:]]
+        request = request.split(' ')
+        try:
+            request = [request[0], request[1][1:]]# reduces GET xx HTTP to xx
+        except IndexError:
+            return 'ERROR_0'
         request[1].split('/')
         return request
 
@@ -107,14 +176,14 @@ if __name__ == "__main__":
     s = Server()
 
     def handle(self, conn, addr, req):
-        print(req)
+        self.log.log("Client request:", req)
         if req[1] == '':
-            self.send_file("test.html")
+            self.send(Response.code301('test.html'))
         else:
             self.send_file(req[1])
-        print("Connection!", addr)
+        # self.log.log("Client connection:", addr)
         conn.close()
+        # self.log.log("Client connection closed")
 
     s.set_request_handler(handle)
-    print("Server open, listening...")
     s.open()
