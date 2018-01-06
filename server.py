@@ -109,7 +109,7 @@ if __name__ == "__main__":
     def handle(self, conn, addr, req):
         print(req)
         if req[1] == '':
-            self.send_file("home.html")
+            self.send_file("test.html")
         else:
             self.send_file(req[1])
         print("Connection!", addr)

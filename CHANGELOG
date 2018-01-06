@@ -3,4 +3,10 @@ ALPHA v0.0.0.0
         - Added ability to send files (including images)
         - Streamlined file sending to automatically locate files in designated folders
     - Set up <file home.html>, mostly for testing at this point
-    - Added bunch of other stuff
+    - Added a bunch of files, most empty, in preparation for future construction
+
+ALPHA v0.0.0.1
+    - Renamed <file home.html> to <file test.html>
+    - Created a new <file home.html> for actual home-page use
+
+    - Implemented formal <class Response> in <file server.py> for better compatibility
