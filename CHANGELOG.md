@@ -11,3 +11,13 @@ ALPHA v0.0.0.1
     - Added proper response codes for the server in <class Response>
     - Added <class Log> in server.py to track events
     - Gave .md extensions to README and CHANGELOG
+
+ALPHA v0.0.0.2
+    - Minor edits to README.md
+    - Changed <class Log> to write to a new file (timestamped) when it dumps
+        - Created logs folder, deleted log.log.
+    - Copied current test code over to main.py
+    - Commented server.py
+    - Added cookie support to parse() in <class Server> (really should have had that all along)
+
+ALPHA v0.0.0.3
