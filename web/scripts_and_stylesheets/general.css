@@ -1,19 +1,70 @@
 body{
     background-color: #FFF;
-    font-family: "Verdana";
+    font-family: "Corbel";
     font-size: 100%
+}
+
+button {
+    outline: none;
+    color: #EEE;
+    width: 180px;
+    height: 45px;
+    font-size: 1.35em;
+    text-align: center;
+    border: 1px solid #AAA;
+    transition-duration: 0.1s;
+}
+
+.green-button{
+    background-color: #260D;
+
+}
+
+.green-button:hover{
+    background-color: #150E;
+}
+
+.green-button:active{
+    background-color: #040F;
+
+}
+
+.blue-button{
+    background-color: #147D;
+}
+
+.blue-button:hover{
+    background-color: #036E;
+}
+
+.blue-button:active{
+    background-color: #024F;
+
+}
+
+.red-button{
+    background-color: #721D;
+}
+
+.red-button:hover{
+    background-color: #6A1111E0;
+}
+
+.red-button:active{
+    background-color: #500F;
+
 }
 
 .nav-bar{
     list-style-type: none;
     margin: 0px -8px;
     padding: 0;
-    background-color: #FF4343;
+    background-color: #EE3535;
     position: fixed;
     top: 0;
     width: 100%;
     height: 70px;
-    border-bottom: 3px solid #99F;
+    /*border-bottom: 3px solid #99F;*/
 }
 
 .nav-bar .page-title{
