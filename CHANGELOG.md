@@ -21,3 +21,5 @@ ALPHA v0.0.0.2
     - Added cookie support to parse() in <class Server> (really should have had that all along)
 
 ALPHA v0.0.0.3
+    - Fixed some issues with cookie management
+    - Work has begun on home.html (recommend we continue in a real web editor, manual CSS will be tough)

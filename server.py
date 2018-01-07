@@ -69,7 +69,7 @@ class Response:
         """Not returning any body"""
         return 'HTTP/1.1 204 No Content'
 
-    def __init__(self, body):
+    def __init__(self, body=''):
         self.header = ['HTTP/1.1 200 OK']
         self.cookie = []
         self.body = body
@@ -90,15 +90,20 @@ class Response:
     def set_header(self, string):
         self.header[0] = string
 
+    # Sets body if you changed your mind after init
+    def set_body(self, string):
+        self.body = string
+
     # Throws together the header, cookies, and body, encoding them and adding whitespace
     def compile(self):
         return self.__bytes__()
 
     def __bytes__(self):
         try:
-            return '\r\n'.join(self.header).encode(ENCODING) + b'\r\n' + '\r\n'.join(self.cookie).encode(ENCODING) + b'\r\n' + self.body.encode(ENCODING)
+            b = self.body.encode(ENCODING)
         except AttributeError:
-            return '\r\n'.join(self.header).encode(ENCODING) + b'\r\n' + '\r\n'.join(self.cookie).encode(ENCODING) + b'\r\n' + self.body
+            b = self.body
+        return '\r\n'.join(self.header).encode(ENCODING) + b'\r\n' + '\r\n'.join(self.cookie).encode(ENCODING) + b'\r\n' * (2 if self.cookie else 1) + b
 
 
 class Server:
@@ -143,7 +148,7 @@ class Server:
         return 0
 
     # Easy way to send a file
-    def send_file(self, faddr):
+    def send_file(self, faddr, custom_response=None):
         # Automatically assume folder for certain file types; should only supply file name in parameters
         ext1 = faddr[-3:]
         ext2 = faddr[-4:]
@@ -158,7 +163,12 @@ class Server:
         # Actual send
         try:
             f = open(faddr, 'rb')
-            self.send(Response(f.read()).compile())
+            if custom_response:
+                custom_response.set_body(f.read())
+                r = custom_response
+            else:
+                r = Response(f.read())
+            self.send(r.compile())
             f.close()
         except FileNotFoundError:
             self.log.log("Client requested non-existent file, returned 404.")
@@ -207,7 +217,7 @@ class Server:
         cookie = ''
         for field in p.split('\n'):
             if 'Cookie' in field:
-                cookie = field
+                cookie = field.strip()
         # Reduce the request to a list
         request = request.split(' ')
         try:
@@ -225,7 +235,7 @@ class Server:
     def handle_request(self, IGNORE_THIS_PARAMETER, conn, addr, req):
         return 0
 
-
+"""
 if __name__ == "__main__":
     s = Server()
 
@@ -241,3 +251,4 @@ if __name__ == "__main__":
 
     s.set_request_handler(handle)
     s.open()
+"""
