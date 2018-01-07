@@ -1,5 +1,5 @@
 from server import *
-from user import *
+from account import *
 import pickle
 from sys import exit
 

@@ -15,46 +15,6 @@ button {
     transition-duration: 0.1s;
 }
 
-.green-button{
-    background-color: #260D;
-
-}
-
-.green-button:hover{
-    background-color: #150E;
-}
-
-.green-button:active{
-    background-color: #040F;
-
-}
-
-.blue-button{
-    background-color: #147D;
-}
-
-.blue-button:hover{
-    background-color: #036E;
-}
-
-.blue-button:active{
-    background-color: #024F;
-
-}
-
-.red-button{
-    background-color: #721D;
-}
-
-.red-button:hover{
-    background-color: #6A1111E0;
-}
-
-.red-button:active{
-    background-color: #500F;
-
-}
-
 .nav-bar{
     list-style-type: none;
     margin: 0px -8px;

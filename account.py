@@ -4,7 +4,7 @@ class Account:
         self.balance = 0
 
     def pay(self, amt, account):
-        if amt <= self.balanc:
+        if amt <= self.balance:
             account.balance += amt
             if self.id != '1377':
                 self.balance -= amt

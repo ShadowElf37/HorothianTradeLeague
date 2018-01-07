@@ -22,7 +22,7 @@ ALPHA v0.0.0.2
 
 ALPHA v0.0.0.3
     - Fixed some issues with cookie management
-    - Work has begun on home.html (recommend we continue in a real web editor, manual CSS will be tough)
+    - Work has begun on home.html
 
 ALPHA v0.0.0.4
     - Created neat red, green, and blue buttons for the site
@@ -33,3 +33,7 @@ ALPHA v0.0.0.5
     - Created <class Account> in user.py
     - Added account loading and saving in main.py
     - Created transactions.log for logging payments
+
+ALPHA v0.0.0.6
+    - Renamed user.py to account.py to avoid confusion, fixed a typo inside
+    - Button CSS moved to buttons.css
