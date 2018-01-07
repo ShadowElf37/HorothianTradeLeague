@@ -6,15 +6,24 @@ ENCODING = 'UTF-8'
 
 
 class Log:
+    STATUS = 'STATUS'
+    INFO = 'INFO'
+    WARNING = 'WARNING'
+    ERROR = 'ERROR'
+
     """For tracking information; use over print for the automatic timestamps."""
-    def __init__(self, debug=False):
+    def __init__(self, debug=False, include_level=False):
         self.ledger = []
         self.debug = debug
+        self.include_level = include_level
 
     # Logs any number of strings in its ledger
-    def log(self, *event):
+    def log(self, *event, lvl=INFO):
         event = tuple(map(str, event))
-        item = (self.get_time(), ' '.join(event))
+        if self.include_level:
+            item = (lvl, self.get_time(), ' '.join(event))
+        else:
+            item = (self.get_time(), ' '.join(event))
         if self.debug:
             print(item)
         self.ledger.append(item)
@@ -35,7 +44,7 @@ class Log:
     # Gets a timestamp
     @staticmethod
     def get_time():
-        timestamp = time.strftime('%d/%m/%y %H:%M:%S')
+        timestamp = time.strftime('%d %H:%M:%S')
         return timestamp
 
     # Gets a timestamp (made for dump())
@@ -51,6 +60,11 @@ class Response:
     def code404(*args):
         """Not found"""
         return 'HTTP/1.1 404 Not Found'
+
+    @staticmethod
+    def code451(*args):
+        """Unavailable for legal reasons"""
+        return 'HTTP/1.1 451 Unavailable For Legal Reasons'
 
     @staticmethod
     def code301(*args):
@@ -107,7 +121,7 @@ class Response:
 
 
 class Server:
-    def __init__(self):
+    def __init__(self, debug=False, include_debug_level=False):
         # Socket init stuff
         self.host = socket.gethostbyname(socket.gethostname())
         self.port = 80
@@ -123,13 +137,13 @@ class Server:
         # On-board data management if needed
         self.state = {}
         self.data = {}
-        self.log = Log(True)
-        self.log.log("Server initialized successfully.")
+        self.log = Log(debug, include_debug_level)
+        self.log.log("Server initialized successfully.", lvl=Log.STATUS)
 
     # Closes the server, ends program
     def close(self):
         self.socket.close()
-        self.log.log("Server closed successfully.")
+        self.log.log(Log.STATUS, "Server closed successfully.", lvl=Log.STATUS)
         self.log.dump()
         exit()
 
@@ -143,7 +157,7 @@ class Server:
             else:
                 self.connection.send(msg)
         except AttributeError:
-            self.log.log("Error: tried to send with no client connected.")
+            self.log.log("Tried to send with no client connected.", lvl=Log.ERROR)
             return 1
         return 0
 
@@ -171,7 +185,7 @@ class Server:
             self.send(r.compile())
             f.close()
         except FileNotFoundError:
-            self.log.log("Client requested non-existent file, returned 404.")
+            self.log.log("Client requested non-existent file, returned 404.", lvl=Log.WARNING)
             self.send(Response.code404())
 
     @classmethod
@@ -191,18 +205,18 @@ class Server:
         try:
             return self.connection.recv(self.buffer).decode(ENCODING)
         except AttributeError:
-            self.log.log("Error: tried to receive with no client connected.")
+            self.log.log("Tried to receive with no client connected.", lvl=Log.ERROR)
             return 1
 
     # Opens the server to requests
     def open(self):
         self.socket.listen(1)
-        self.log.log("Server open, listening...")
+        self.log.log("Server open, listening...", lvl=Log.STATUS)
         while True:
             self.connection, self.c_address = self.socket.accept()
             parsed_req = self.parse(self.recv())
             if parsed_req == 'ERROR_0':
-                self.log.log('Client request is empty, ignoring.')
+                self.log.log('Client request is empty, ignoring.', lvl=Log.INFO)
                 continue
             else:
                 # Requests come in a list format, starting with 'GET' etc. and followed by the page address

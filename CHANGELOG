@@ -27,3 +27,9 @@ ALPHA v0.0.0.3
 ALPHA v0.0.0.4
     - Created neat red, green, and blue buttons for the site
     - Renamed project to Project Mercury
+
+ALPHA v0.0.0.5
+    - Added optional severity levels to <class Log> output
+    - Created <class Account> in user.py
+    - Added account loading and saving in main.py
+    - Created transactions.log for logging payments
