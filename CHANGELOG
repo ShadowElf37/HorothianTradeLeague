@@ -47,4 +47,4 @@ ALPHA v0.0.0.7
     - Response codes now wrap themselves in Responses, so you can still attach cookies and stuff with every code
 
 ALPHA v0.0.0.8
-    -
+    - Accounts now have usernames and passwords

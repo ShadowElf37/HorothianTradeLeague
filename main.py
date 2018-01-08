@@ -15,14 +15,12 @@ def load_users():
     try:
         users = pickle.load(userfile)
     except EOFError:
-        users = [Account('1377')]
+        users = [Account('Central Bank', 'password', '1377')]
     return users
 
 def save_users():
     userfile = open('users.dat', 'wb')
     pickle.dump(accounts, userfile)
-
-accounts = load_users()
 
 def parse_cookie(s):
     cookieA = s[8:].split(';')
@@ -35,6 +33,12 @@ def parse_cookie(s):
             return dict()
         cookieB[term[:sep]] = term[sep + 1:]
     return cookieB
+
+accounts = load_users()
+
+
+# ---------------------------------
+
 
 def handle(self, conn, addr, req):
     self.log.log("Client request:", req)
@@ -63,6 +67,7 @@ def handle(self, conn, addr, req):
 
     print(cookies)
     conn.close()
+
 
 print(accounts)
 
