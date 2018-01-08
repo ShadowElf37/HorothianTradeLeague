@@ -37,3 +37,4 @@ ALPHA v0.0.0.5
 ALPHA v0.0.0.6
     - Renamed user.py to account.py to avoid confusion, fixed a typo inside
     - Button CSS moved to buttons.css
+    - Additions to home.html (central text div, background)

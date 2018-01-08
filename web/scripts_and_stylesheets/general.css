@@ -1,7 +1,10 @@
 body{
     background-color: #FFF;
     font-family: "Corbel";
-    font-size: 100%
+    font-size: 100%;
+    background-image: url("red_background.png");
+    background-size: 100%;
+    background-repeat: no-repeat;
 }
 
 button {
@@ -15,12 +18,33 @@ button {
     transition-duration: 0.1s;
 }
 
+#big-center-text{
+  text-align: center;
+  position: absolute;
+  top: 20%;
+  left: 25%;
+  color: #EE3535;
+  box-shadow: 0 0 20px #FF0000;
+  border-radius: 20px;
+  padding: 15px;
+  line-height: 40px;
+  height: 60%;
+  width: 50%;
+  background-color: #FAFAFA;
+}
+
+h1{
+  font-size: 5.0em;
+}
+h3{
+  font-size: 3.0em;
+}
+
 .nav-bar{
     list-style-type: none;
     margin: 0px -8px;
     padding: 0;
     background-color: #EE3535;
-    position: fixed;
     top: 0;
     width: 100%;
     height: 70px;
