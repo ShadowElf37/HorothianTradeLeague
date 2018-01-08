@@ -9,6 +9,8 @@ from account import *
 import pickle
 from sys import exit
 
+def client_error_msg(msg):
+    return '<html>' + msg + '<br><a href="home.html">Go back.</a></html>'
 
 def load_users():
     userfile = open('users.dat', 'rb')
@@ -31,7 +33,7 @@ def parse_cookie(s):
             sep = lt.index('=')
         except ValueError:
             return dict()
-        cookieB[term[:sep]] = term[sep + 1:]
+        cookieB[term[:sep].strip()] = term[sep + 1:].strip()
     return cookieB
 
 accounts = load_users()
@@ -42,6 +44,13 @@ accounts = load_users()
 
 def handle(self, conn, addr, req):
     self.log.log("Client request:", req)
+    # Miles is not allowed to connect
+    if addr[1] in ['10.1.3.179']:
+        self.send("Your IP address has been banned temporarily.\
+         For more information please visit haha you thought there would be more info but there's not bye loser.")
+        self.log.log("Client IP was found banned -", addr[1])
+        return
+
     cookies = parse_cookie(req[2])
 
     if req[1] == '':
@@ -54,9 +63,10 @@ def handle(self, conn, addr, req):
         self.send(r)
 
     elif req[1] == 'treaty.html':
-        print(cookies.get('tester'))
+        print(cookies)
+        print(cookies.get('tester_restrictions'))
         if cookies.get('tester_restrictions') == 'true':
-            self.send(Response('Not right now.'))
+            self.send(Response(client_error_msg('Nothing here now.')))
         else:
             self.send(Response.code307('https://drive.google.com/open?id=1vylaFRMUhj0fCGqDVhn0RC7xXmOegabodKs9YK-8zbs'))
 
@@ -65,7 +75,6 @@ def handle(self, conn, addr, req):
         r.attach_file(req[1])
         self.send(r)
 
-    print(cookies)
     conn.close()
 
 

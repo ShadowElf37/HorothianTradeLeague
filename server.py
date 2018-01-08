@@ -152,7 +152,7 @@ class Response:
             self.set_body(f.read())
             f.close()
         except FileNotFoundError:
-            self = Response.code404()
+            self.set_header('HTTP/1.1 404 Not Found')
 
     # Throws together the header, cookies, and body, encoding them and adding whitespace
     def compile(self):
