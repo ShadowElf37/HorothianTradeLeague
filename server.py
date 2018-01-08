@@ -1,3 +1,9 @@
+"""
+server.py
+Project Mercury
+Yovel Key-Cohen
+"""
+
 import socket
 import time
 from sys import exit

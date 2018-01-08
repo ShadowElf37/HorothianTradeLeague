@@ -45,3 +45,6 @@ ALPHA v0.0.0.7
     - Added response code 307 to alleviate annoyances with code 301
     - Server.send() now automatically wraps strings in Responses
     - Response codes now wrap themselves in Responses, so you can still attach cookies and stuff with every code
+
+ALPHA v0.0.0.8
+    -

@@ -1,3 +1,9 @@
+"""
+main.py
+Project Mercury
+Yovel Key-Cohen
+"""
+
 from server import *
 from account import *
 import pickle
