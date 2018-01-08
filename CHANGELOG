@@ -35,6 +35,13 @@ ALPHA v0.0.0.5
     - Created transactions.log for logging payments
 
 ALPHA v0.0.0.6
-    - Renamed user.py to account.py to avoid confusion, fixed a typo inside
+    - Renamed user.py to account.py to avoid confusion
     - Button CSS moved to buttons.css
     - Additions to home.html (central text div, background)
+
+ALPHA v0.0.0.7
+    - Added cookie support to main.py
+    - Added attach_file() to <class Response> if you don't want to send_file()
+    - Added response code 307 to alleviate annoyances with code 301
+    - Server.send() now automatically wraps strings in Responses
+    - Response codes now wrap themselves in Responses, so you can still attach cookies and stuff with every code

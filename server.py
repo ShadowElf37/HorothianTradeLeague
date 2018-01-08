@@ -59,29 +59,49 @@ class Response:
     @staticmethod
     def code404(*args):
         """Not found"""
-        return 'HTTP/1.1 404 Not Found'
+        r = Response()
+        r.set_header('HTTP/1.1 404 Not Found')
+        return r
 
     @staticmethod
     def code451(*args):
         """Unavailable for legal reasons"""
-        return 'HTTP/1.1 451 Unavailable For Legal Reasons'
+        r = Response()
+        r.set_header('HTTP/1.1 451 Unavailable For Legal Reasons')
+        return r
 
     @staticmethod
     def code301(*args):
         """Permanently moved"""
+        r = Response()
         if len(args) < 1:
-            raise TypeError("301 Error must include redirect address")
-        return 'HTTP/1.1 301 Moved Permanently\r\nLocation: /%s' % args[0]
+            raise TypeError("301 Errors must include redirect address")
+        r.set_header('HTTP/1.1 301 Moved Permanently')
+        r.add_header_term('Location: %s' % args[0])
+        return r
+
+    def code307(*args):
+        """Temporarily moved"""
+        r = Response()
+        if len(args) < 1:
+            raise TypeError("307 Errors must include redirect address")
+        r.set_header('HTTP/1.1 307 Temporary Redirect')
+        r.add_header_term('Location: %s' % args[0])
+        return r
 
     @staticmethod
     def code200():
         """Success"""
-        return 'HTTP/1.1 200 OK'
+        r = Response()
+        r.set_header('HTTP/1.1 200 OK')
+        return r
 
     @staticmethod
     def code204():
         """Not returning any body"""
-        return 'HTTP/1.1 204 No Content'
+        r = Response()
+        r.set_header('HTTP/1.1 204 No Content')
+        return r
 
     def __init__(self, body=''):
         self.header = ['HTTP/1.1 200 OK']
@@ -97,8 +117,8 @@ class Response:
         self.cookie.append(("Set-Cookie: %s=%s; " % (key, value)) + '; '.join(flags))
 
     # Sets the status code; should only be used if no preset is available
-    def set_status_code(self, integer):
-        self.header[0] = 'HTTP/1.1 %d' % integer
+    def set_status_code(self, code):
+        self.header[0] = 'HTTP/1.1 %s' % code
 
     # Sets the header; use if there's no other way
     def set_header(self, string):
@@ -107,6 +127,26 @@ class Response:
     # Sets body if you changed your mind after init
     def set_body(self, string):
         self.body = string
+
+    # Puts a file in the body if you don't want to use Server's send_file()
+    def attach_file(self, faddr):
+        ext1 = faddr[-3:]
+        ext2 = faddr[-4:]
+        ext3 = faddr[-5:]
+        if ext2 in ('.png', '.jpg', '.gif', '.ico',) or ext3 in ('.jpeg',):
+            faddr = Server.get_image(faddr)
+        elif ext2 in ('.htm',) or ext3 in ('.html',):
+            faddr = Server.get_page(faddr)
+        elif ext2 in ('.css',) or ext1 in ('.js',):
+            faddr = Server.get_script_or_style(faddr)
+
+        # Actual send
+        try:
+            f = open(faddr, 'rb')
+            self.set_body(f.read())
+            f.close()
+        except FileNotFoundError:
+            self = Response.code404()
 
     # Throws together the header, cookies, and body, encoding them and adding whitespace
     def compile(self):
@@ -150,8 +190,8 @@ class Server:
     # Sends a message; recommended to use Response class as a wrapper
     def send(self, msg):
         try:
-            if type(msg) != type(bytes()):
-                self.connection.send(msg.encode(ENCODING))
+            if type(msg) != type(bytes()) and not isinstance(msg, Response):
+                self.connection.send(Response(msg).compile())
             elif isinstance(msg, Response):
                 self.connection.send(msg.compile())
             else:
@@ -184,7 +224,7 @@ class Server:
                 r = Response(f.read())
             self.send(r.compile())
             f.close()
-        except FileNotFoundError:
+        except (FileNotFoundError, OSError):
             self.log.log("Client requested non-existent file, returned 404.", lvl=Log.WARNING)
             self.send(Response.code404())
 
