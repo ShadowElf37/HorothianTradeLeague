@@ -37,7 +37,7 @@ ALPHA v0.0.0.5
 ALPHA v0.0.0.6
     - Renamed user.py to account.py to avoid confusion
     - Button CSS moved to buttons.css
-    - Additions to home.html (central text div, background)
+    - Actual work to home.html (central text div, background)
 
 ALPHA v0.0.0.7
     - Added cookie support to main.py
@@ -51,3 +51,6 @@ ALPHA v0.0.0.8
     - Modularized the server code, put .dat files in folder, reorganized all that modularized server code
     - Changed home.html background to an <img> rather than a property of <body>
     - Created a console page for remote server interaction (still needs to be scripted)
+
+ALPHA v0.0.0.9
+    - Finished the console and script
