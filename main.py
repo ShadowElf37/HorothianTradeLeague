@@ -46,12 +46,12 @@ accounts = load_users()
 
 
 def handle(self, conn, addr, req):
-    self.log.log("Client request:", req)
+    self.log.log("Request from ", addr[0], ":", req)
     # Miles is not allowed to connect
     if addr[1] in ['10.1.3.179']:
         self.send("Your IP address has been banned temporarily.\
          For more information please visit haha you thought there would be more info but there's not bye loser.")
-        self.log.log("Client IP was found banned -", addr[1])
+        self.log.log("Client IP was found banned -", addr[0])
         return
 
     cookies = parse_cookie(req[2])
