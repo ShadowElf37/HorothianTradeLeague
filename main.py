@@ -4,16 +4,19 @@ Project Mercury
 Yovel Key-Cohen
 """
 
-from server import *
+from http_server.server import *
+from http_server.log import *
+from http_server.response import *
 from account import *
 import pickle
-from sys import exit
+import time
+
 
 def client_error_msg(msg):
     return '<html>' + msg + '<br><a href="home.html">Go back.</a></html>'
 
 def load_users():
-    userfile = open('users.dat', 'rb')
+    userfile = open('data/users.dat', 'rb')
     try:
         users = pickle.load(userfile)
     except EOFError:
@@ -21,7 +24,7 @@ def load_users():
     return users
 
 def save_users():
-    userfile = open('users.dat', 'wb')
+    userfile = open('data/users.dat', 'wb')
     pickle.dump(accounts, userfile)
 
 def parse_cookie(s):

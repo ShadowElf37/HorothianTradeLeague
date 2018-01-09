@@ -1,0 +1,10 @@
+body{
+  background-color: #111;
+}
+
+.entry{
+  font-family: "Lucida Console";
+  text-align: left;
+  margin: 3px 10px;
+  color: #FFF;
+}

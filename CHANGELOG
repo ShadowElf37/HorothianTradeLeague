@@ -48,3 +48,6 @@ ALPHA v0.0.0.7
 
 ALPHA v0.0.0.8
     - Accounts now have usernames and passwords
+    - Modularized the server code, put .dat files in folder, reorganized all that modularized server code
+    - Changed home.html background to an <img> rather than a property of <body>
+    - Created a console page for remote server interaction (still needs to be scripted)
