@@ -54,7 +54,7 @@ def handle(self, conn, addr, req):
         self.log.log("Client IP was found banned -", addr[0])
         return
 
-    cookies = parse_cookie(req[2])
+    cookies = parse_cookie(req[-1])
 
     if req[1] == '':
         self.send(Response.code301('home.html'))

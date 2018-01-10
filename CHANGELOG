@@ -53,4 +53,6 @@ ALPHA v0.0.0.8
     - Created a console page for remote server interaction (still needs to be scripted)
 
 ALPHA v0.0.0.9
-    - Finished the console and script
+    - Added audio folder
+    - send_file() now uses <class Response>'s attach_file()
+    

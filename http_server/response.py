@@ -16,6 +16,9 @@ def get_page(fname):
 def get_script_or_style(fname):
     return 'web/scripts_and_stylesheets/%s' % fname
 
+def get_audio(fname):
+    return 'web/audio/%s' % fname
+
 
 class Response:
     # Easy response codes
@@ -103,8 +106,10 @@ class Response:
             faddr = get_page(faddr)
         elif ext2 in ('.css',) or ext1 in ('.js',):
             faddr = get_script_or_style(faddr)
+        elif ext2 in ('.mp3',):
+            faddr = get_audio(faddr)
 
-        # Actual send
+        # Actual body set
         try:
             f = open(faddr, 'rb')
             self.set_body(f.read())
