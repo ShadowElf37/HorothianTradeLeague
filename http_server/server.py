@@ -54,30 +54,14 @@ class Server:
 
     # Easy way to send a file
     def send_file(self, faddr, custom_response=None):
-        # Automatically assume folder for certain file types; should only supply file name in parameters
-        ext1 = faddr[-3:]
-        ext2 = faddr[-4:]
-        ext3 = faddr[-5:]
-        if ext2 in ('.png', '.jpg', '.gif', '.ico',) or ext3 in ('.jpeg',):
-            faddr = get_image(faddr)
-        elif ext2 in ('.htm',) or ext3 in ('.html',):
-            faddr = get_page(faddr)
-        elif ext2 in ('.css',) or ext1 in ('.js',):
-            faddr = get_script_or_style(faddr)
-
         # Actual send
-        try:
-            f = open(faddr, 'rb')
-            if custom_response:
-                custom_response.set_body(f.read())
-                r = custom_response
-            else:
-                r = Response(f.read())
-            self.send(r.compile())
-            f.close()
-        except (FileNotFoundError, OSError):
+        r = Response()
+        if custom_response:
+            r = custom_response
+        r.attach_file(faddr)
+        if '404' in r.header:
             self.log.log("Client requested non-existent file, returned 404.", lvl=Log.WARNING)
-            self.send(Response.code404())
+        self.send(r.compile())
 
     # Listens for a message, returns it decoded
     def recv(self):
