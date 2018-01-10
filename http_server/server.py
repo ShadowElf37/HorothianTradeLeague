@@ -29,7 +29,7 @@ class Server:
         self.state = {}
         self.data = {}
         self.log = Log(debug, include_debug_level)
-        self.log.log("Server initialized successfully.", lvl=Log.STATUS)
+        self.log.log("Server initialized successfully on port", self.port, lvl=Log.STATUS)
 
     # Closes the server, ends program
     def close(self):
@@ -128,7 +128,7 @@ class Server:
     def handle_request(self, IGNORE_THIS_PARAMETER, conn, addr, req):
         return 0
 
-"""
+
 if __name__ == "__main__":
     s = Server()
 
@@ -144,4 +144,3 @@ if __name__ == "__main__":
 
     s.set_request_handler(handle)
     s.open()
-"""
