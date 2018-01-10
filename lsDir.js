@@ -8,20 +8,24 @@ const url = 'localhost';
 const port = 8080;
 
 http.createServer((request, response) => {
-	writeData(response, listFiles(bashParse(request.url)));
+	listFiles(bashParse(request.url), (data) => {
+		writeData(response, data);
+	});
 }).listen(port, url);
 
 function bashParse(url) {
-	return os.homedir() + url.replace('~', '');
+	return os.homedir() + url;
 }
-function listFiles(dir) {
+function listFiles(dir, callback) {
+	console.log(`Listing contents of ${dir}`);
 	fs.readdir(dir, (err, files) => {
 		if(err) return err.message;
 		let str = '';
+		console.log(str + '\n');
 		files.forEach(file => {
 			str += file + '\n';
 		});
-		return str;
+		callback(str);
 	});
 }
 function writeData(resp, data) {
@@ -30,4 +34,4 @@ function writeData(resp, data) {
 	resp.write(data);
 	resp.end();
 }
-console.log(`server running on http://${url}/ port ${port}`);
+console.log(`server running on http://${url}:${port}/`);
