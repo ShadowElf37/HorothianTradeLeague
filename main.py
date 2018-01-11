@@ -71,8 +71,6 @@ def handle(self, conn, addr, req):
         self.send(r)
 
     elif reqadr[0] == 'treaty.html':
-        print(cookies)
-        print(cookies.get('tester_restrictions'))
         if cookies.get('tester_restrictions') == 'true':
             self.send(Response(client_error_msg('Nothing here now.')))
         else:
