@@ -62,5 +62,7 @@ ALPHA v0.0.0.9
 
 
 ALPHA v0.0.0.10
-    - fixed atrocities against all of syntax
-    - changed host to 'localhost' and port to 8080
+    - Changed static code###() methods to a single lookup in codes.ini
+    - Refined file location predictor
+    - Switched to localhost:8080
+    - Split CSS and JS into separate folders
