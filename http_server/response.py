@@ -6,7 +6,7 @@ Yovel Key-Cohen
 
 ENCODING = 'UTF-8'
 
-
+from os.path import dirname, realpath
 
 class Response:
     # Easy response codes
@@ -15,7 +15,7 @@ class Response:
     def code(hcode, **kwargs):
         r = Response()
         r.set_header('HTTP/1.1 {} {}'.format(hcode, r.codes[hcode]))
-        if hcode in REDIRECTS:
+        if hcode in Response.REDIRECTS:
             if kwargs.get("location") == None:
                 raise TypeError("{} Errors must include redirect address".format(hcode))
             else:
@@ -27,9 +27,9 @@ class Response:
         self.cookie = []
         self.body = body
         self.codes = dict()
-        with open('codes.ini', 'r') as code:
+        with open(dirname(realpath(__file__)) + '/codes.ini', 'r') as code:
             for line in code:
-                self.codes[line.split()[0]] = line.split()[1:]
+                self.codes[int(line.split()[0])] = ' '.join(line.split()[1:])
 
     # Adds a field to the header (ie 'Set-Cookie: x=5')
     def add_header_term(self, string):
