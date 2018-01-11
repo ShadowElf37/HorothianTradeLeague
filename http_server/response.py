@@ -27,9 +27,16 @@ class Response:
         self.cookie = []
         self.body = body
         self.codes = dict()
-        with open(dirname(realpath(__file__)) + '/codes.ini', 'r') as code:
+        self.ext = dict()
+        with open('conf/codes.cfg', 'r') as code:
             for line in code:
-                self.codes[int(line.split()[0])] = ' '.join(line.split()[1:])
+                splitted = line.split()
+                self.codes[int(splitted[0])] = ' '.join(splitted[1:])
+        with open('conf/ext.cfg', 'r') as exts:
+            for line in exts:
+                splitted = line.split()
+                for e in splitted[1:]:
+                    self.ext[e] = splitted[0]
 
     # Adds a field to the header (ie 'Set-Cookie: x=5')
     def add_header_term(self, string):
@@ -53,18 +60,10 @@ class Response:
 
     # Puts a file in the body if you don't want to use Server's send_file()
     def attach_file(self, faddr):
-        ext = faddr.split('.')[-1].lower()
-        if ext in ('png', 'jpg', 'jpeg', 'gif', 'ico'):
-            faddr = 'web/assets/image/' + faddr
-        elif ext in ('htm', 'html'):
-            faddr = 'web/html/' + faddr
-        elif ext in ('css'):
-            faddr = 'web/css/' + faddr
-        elif ext in ('js'):
-            faddr = 'web/js/' + faddr
-        elif ext in ('mp3'):
-            faddr = 'web/assets/audio/' + faddr
-
+        prefix = self.ext.get(faddr.split('.')[-1], None)
+        if not prefix:
+            raise TypeError("Extension unknown.")
+        faddr = prefix + faddr
         # Actual body set
         try:
             f = open(faddr, 'rb')

@@ -90,9 +90,9 @@ class Server:
                 # Requests come in a list format, starting with 'GET' etc. and followed by the page address
                 try:
                     self.handle_request(self, self.connection, self.c_address, parsed_req)
-                except:
+                except Exception as e:
                     self.send(Response.code(500))
-                    self.log.log('A fatal error occurred in handle()', lvl=Log.ERROR)
+                    self.log.log('A fatal error occurred in handle(): {}'.format(e.strerror), lvl=Log.ERROR)
             self.handled_counter += 1
             self.connection = None
 
