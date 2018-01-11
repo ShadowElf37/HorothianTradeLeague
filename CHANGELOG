@@ -60,3 +60,7 @@ ALPHA v0.0.0.9
     - Created a to-do list
     - Confirmed pickling of users works as intended
 
+
+ALPHA v0.0.0.10
+    - fixed atrocities against all of syntax
+    - changed host to 'localhost' and port to 8080

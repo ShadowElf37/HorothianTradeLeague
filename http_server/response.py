@@ -14,12 +14,12 @@ class Response:
     @staticmethod
     def code(hcode, **kwargs):
         r = Response()
-        r.set_header('HTTP/1.1 {} {}'.format(hcode, r.codes[hcode])
-        if hcode in Response.REDIRECTS:
-            if kwargs.get('Location') == None:
+        r.set_header('HTTP/1.1 {} {}'.format(hcode, r.codes[hcode]))
+        if hcode in REDIRECTS:
+            if kwargs.get("location") == None:
                 raise TypeError("{} Errors must include redirect address".format(hcode))
             else:
-                r.add_header_term("Location: {}".format(kwargs["Location"])
+                r.add_header_term("Location: {}".format(kwargs["location"]))
         return r
 
     def __init__(self, body=''):
@@ -29,7 +29,7 @@ class Response:
         self.codes = dict()
         with open('codes.ini', 'r') as code:
             for line in code:
-                self.codes[line.split()[0]) = line.split()[1:]
+                self.codes[line.split()[0]] = line.split()[1:]
 
     # Adds a field to the header (ie 'Set-Cookie: x=5')
     def add_header_term(self, string):

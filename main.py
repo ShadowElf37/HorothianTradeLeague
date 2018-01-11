@@ -62,7 +62,7 @@ def handle(self, conn, addr, req):
     print(reqadr)
 
     if reqadr[0] == '':
-        self.send(Response.code301('home.html'))
+        self.send(Response.code(301, location='home.html'))
 
     elif reqadr[0] == 'home.html':
         r = Response()
@@ -76,11 +76,11 @@ def handle(self, conn, addr, req):
         if cookies.get('tester_restrictions') == 'true':
             self.send(Response(client_error_msg('Nothing here now.')))
         else:
-            self.send(Response.code307('https://drive.google.com/open?id=1vylaFRMUhj0fCGqDVhn0RC7xXmOegabodKs9YK-8zbs'))
+            self.send(Response.code(307, location='https://drive.google.com/open?id=1vylaFRMUhj0fCGqDVhn0RC7xXmOegabodKs9YK-8zbs'))
 
     elif reqadr[0] == 'action':
         if not (len(req) > 2):
-            self.send(Response.code404())
+            self.send(Response.code(404))
             self.log.log('Client improperly requested an action.')
             return
 
@@ -112,9 +112,9 @@ def handle(self, conn, addr, req):
             elif reqadr[2] == 'force':
                 exit()
             else:
-                self.send(Response.code404())
+                self.send(Response.code(404))
         else:
-            self.send(Response.code404())
+            self.send(Response.code(404))
             self.log.log('Client requested non-existent action.')
             return
 

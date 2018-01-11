@@ -14,8 +14,8 @@ from sys import exit
 class Server:
     def __init__(self, debug=False, include_debug_level=False):
         # Socket init stuff
-        self.host = socket.gethostbyname(socket.gethostname())
-        self.port = 80
+        self.host = 'localhost' #socket.gethostbyname(socket.gethostname())
+        self.port = 8080
         self.buffer = 1024
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -91,7 +91,7 @@ class Server:
                 try:
                     self.handle_request(self, self.connection, self.c_address, parsed_req)
                 except:
-                    self.send(Response.code500())
+                    self.send(Response.code(500))
                     self.log.log('A fatal error occurred in handle()', lvl=Log.ERROR)
             self.handled_counter += 1
             self.connection = None
@@ -128,7 +128,7 @@ if __name__ == "__main__":
     def handle(self, conn, addr, req):
         self.log.log("Client request:", req)
         if req[1] == '':
-            self.send(Response.code301('test.html'))
+            self.send(Response.code(301, location='test.html'))
         else:
             self.send_file(req[1])
         # self.log.log("Client connection:", addr)
