@@ -23,6 +23,13 @@ def get_audio(fname):
 class Response:
     # Easy response codes
     @staticmethod
+    def code500(*args):
+        """Internal error"""
+        r = Response()
+        r.set_header('HTTP/1.1 500 Internal Server Error')
+        return r
+
+    @staticmethod
     def code404(*args):
         """Not found"""
         r = Response()

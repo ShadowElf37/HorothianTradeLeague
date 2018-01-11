@@ -1,0 +1,7 @@
+In order of importance:
+    1. Rewriting HTTP status codes to lookup in a dict rather than static functions for each
+    2. Adding more actions in main.py (login, etc.)
+    3. Using config.txt in http_server to set the folder names and file types that go in those folders (see server.py for current bad setup)
+    4. Adding success/failure page responses for those actions
+    5. Scripting console.html
+    6. Creating pages for each action to occur

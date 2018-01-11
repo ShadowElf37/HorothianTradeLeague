@@ -20,6 +20,7 @@ class Server:
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind((self.host, self.port))
+        self.running = True
 
         self.connection = None
         self.c_address = ['', 0]
@@ -34,9 +35,10 @@ class Server:
     # Closes the server, ends program
     def close(self):
         self.socket.close()
-        self.log.log(Log.STATUS, "Server closed successfully.", lvl=Log.STATUS)
+        self.log.log("Server closed successfully.", lvl=Log.STATUS)
         self.log.dump()
-        exit()
+        self.running = False
+        print('Process exit.')
 
     # Sends a message; recommended to use Response class as a wrapper
     def send(self, msg):
@@ -75,15 +77,22 @@ class Server:
     def open(self):
         self.socket.listen(1)
         self.log.log("Server open, listening...", lvl=Log.STATUS)
-        while True:
-            self.connection, self.c_address = self.socket.accept()
+        while self.running:
+            try:
+                self.connection, self.c_address = self.socket.accept()
+            except OSError:  # When the server closed but tried to use socket
+                break
             parsed_req = self.parse(self.recv())
             if parsed_req == 'ERROR_0':
                 self.log.log('Client request is empty, ignoring.', lvl=Log.INFO)
                 continue
             else:
                 # Requests come in a list format, starting with 'GET' etc. and followed by the page address
-                self.handle_request(self, self.connection, self.c_address, parsed_req)
+                try:
+                    self.handle_request(self, self.connection, self.c_address, parsed_req)
+                except:
+                    self.send(Response.code500())
+                    self.log.log('A fatal error occurred in handle()', lvl=Log.ERROR)
             self.handled_counter += 1
             self.connection = None
 
@@ -101,7 +110,7 @@ class Server:
             request = [request[0], request[1][1:], cookie]  # [GET, xx, 'Cookie: a=b']
         except IndexError:  # Sometimes this happens?
             return 'ERROR_0'
-        request[1].split('/')
+        request[1] = request[1].split('/')
         return request
 
     # Wrapper for request_handler() setting
