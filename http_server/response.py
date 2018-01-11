@@ -7,80 +7,29 @@ Yovel Key-Cohen
 ENCODING = 'UTF-8'
 
 
-def get_image(fname):
-    return 'web/images/%s' % fname
-
-def get_page(fname):
-    return 'web/%s' % fname
-
-def get_script_or_style(fname):
-    return 'web/scripts_and_stylesheets/%s' % fname
-
-def get_audio(fname):
-    return 'web/audio/%s' % fname
-
 
 class Response:
     # Easy response codes
+    REDIRECTS = [301, 307]
     @staticmethod
-    def code500(*args):
-        """Internal error"""
+    def code(hcode, **kwargs):
         r = Response()
-        r.set_header('HTTP/1.1 500 Internal Server Error')
-        return r
-
-    @staticmethod
-    def code404(*args):
-        """Not found"""
-        r = Response()
-        r.set_header('HTTP/1.1 404 Not Found')
-        return r
-
-    @staticmethod
-    def code451(*args):
-        """Unavailable for legal reasons"""
-        r = Response()
-        r.set_header('HTTP/1.1 451 Unavailable For Legal Reasons')
-        return r
-
-    @staticmethod
-    def code301(*args):
-        """Permanently moved"""
-        r = Response()
-        if len(args) < 1:
-            raise TypeError("301 Errors must include redirect address")
-        r.set_header('HTTP/1.1 301 Moved Permanently')
-        r.add_header_term('Location: %s' % args[0])
-        return r
-
-    @staticmethod
-    def code307(*args):
-        """Temporarily moved"""
-        r = Response()
-        if len(args) < 1:
-            raise TypeError("307 Errors must include redirect address")
-        r.set_header('HTTP/1.1 307 Temporary Redirect')
-        r.add_header_term('Location: %s' % args[0])
-        return r
-
-    @staticmethod
-    def code200():
-        """Success"""
-        r = Response()
-        r.set_header('HTTP/1.1 200 OK')
-        return r
-
-    @staticmethod
-    def code204():
-        """Not returning any body"""
-        r = Response()
-        r.set_header('HTTP/1.1 204 No Content')
+        r.set_header('HTTP/1.1 {} {}'.format(hcode, r.codes[hcode])
+        if hcode in Response.REDIRECTS:
+            if kwargs.get('Location') == None:
+                raise TypeError("{} Errors must include redirect address".format(hcode))
+            else:
+                r.add_header_term("Location: {}".format(kwargs["Location"])
         return r
 
     def __init__(self, body=''):
         self.header = ['HTTP/1.1 200 OK']
         self.cookie = []
         self.body = body
+        self.codes = dict()
+        with open('codes.ini', 'r') as code:
+            for line in code:
+                self.codes[line.split()[0]) = line.split()[1:]
 
     # Adds a field to the header (ie 'Set-Cookie: x=5')
     def add_header_term(self, string):
@@ -104,17 +53,17 @@ class Response:
 
     # Puts a file in the body if you don't want to use Server's send_file()
     def attach_file(self, faddr):
-        ext1 = faddr[-3:]
-        ext2 = faddr[-4:]
-        ext3 = faddr[-5:]
-        if ext2 in ('.png', '.jpg', '.gif', '.ico',) or ext3 in ('.jpeg',):
-            faddr = get_image(faddr)
-        elif ext2 in ('.htm',) or ext3 in ('.html',):
-            faddr = get_page(faddr)
-        elif ext2 in ('.css',) or ext1 in ('.js',):
-            faddr = get_script_or_style(faddr)
-        elif ext2 in ('.mp3',):
-            faddr = get_audio(faddr)
+        ext = faddr.split('.')[-1].lower()
+        if ext in ('png', 'jpg', 'jpeg', 'gif', 'ico'):
+            faddr = 'web/assets/image/' + faddr
+        elif ext in ('htm', 'html'):
+            faddr = 'web/html/' + faddr
+        elif ext in ('css'):
+            faddr = 'web/css/' + faddr
+        elif ext in ('js'):
+            faddr = 'web/js/' + faddr
+        elif ext in ('mp3'):
+            faddr = 'web/assets/audio/' + faddr
 
         # Actual body set
         try:
