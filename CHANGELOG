@@ -62,7 +62,10 @@ ALPHA v0.0.0.9
 
 
 ALPHA v0.0.0.10
-    - Changed static code###() methods to a single lookup in codes.ini
-    - Refined file location predictor
+    - Changed static code methods to a single lookup in codes.cfg, with kwargs for necessary parameters
+    - Refined file location predictor, moved directory and file type specifications to ext.cfg
     - Switched to localhost:8080
     - Split CSS and JS into separate folders
+
+ALPHA v0.0.0.11
+    - 

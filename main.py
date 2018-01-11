@@ -103,7 +103,7 @@ def handle(self, conn, addr, req):
             while id != '1377' and id[0] != '00' and len(id) < 5:  # Saving first 100 accounts for admins
                 id = '%04d' % random.randint(0, 10000)
             accounts.append(Account(username, password, id))
-            self.send('Signup successful')
+            self.send_file('home.html')
 
         elif reqadr[1] == 'shutdown':
             self.log.log('Initiating server shutdown...')

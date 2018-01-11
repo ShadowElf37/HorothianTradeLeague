@@ -10,7 +10,7 @@ from os.path import dirname, realpath
 
 class Response:
     # Easy response codes
-    REDIRECTS = [301, 307]
+    REDIRECTS = [301, 302, 303, 307, 308]
     @staticmethod
     def code(hcode, **kwargs):
         r = Response()
@@ -60,15 +60,16 @@ class Response:
 
     # Puts a file in the body if you don't want to use Server's send_file()
     def attach_file(self, faddr):
-        prefix = self.ext.get(faddr.split('.')[-1], None)
-        if not prefix:
+        suffix = self.ext.get(faddr.split('.')[-1])
+        if not suffix:
             raise TypeError("Extension unknown.")
-        faddr = prefix + faddr
+        faddr = suffix + faddr
         # Actual body set
         try:
             f = open(faddr, 'rb')
             self.set_body(f.read())
             f.close()
+
         except FileNotFoundError:
             self.set_header('HTTP/1.1 404 Not Found')
 
