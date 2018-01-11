@@ -10,6 +10,7 @@ from http_server.response import *
 from account import *
 import pickle
 import time
+import random
 
 
 def client_error_msg(msg):
@@ -20,6 +21,7 @@ def load_users():
     try:
         users = pickle.load(userfile)
     except EOFError:
+        print('user.dat empty, initializing with default values')
         users = [Account('Central Bank', 'password', '1377')]
     return users
 
@@ -55,17 +57,20 @@ def handle(self, conn, addr, req):
         return
 
     cookies = parse_cookie(req[-1])
+    method = req[0]
+    reqadr = req[1]
+    print(reqadr)
 
-    if req[1] == '':
+    if reqadr[0] == '':
         self.send(Response.code301('home.html'))
 
-    elif req[1] == 'home.html':
+    elif reqadr[0] == 'home.html':
         r = Response()
         r.add_cookie('tester_restrictions', 'true')
         r.attach_file('home.html')
         self.send(r)
 
-    elif req[1] == 'treaty.html':
+    elif reqadr[0] == 'treaty.html':
         print(cookies)
         print(cookies.get('tester_restrictions'))
         if cookies.get('tester_restrictions') == 'true':
@@ -73,9 +78,49 @@ def handle(self, conn, addr, req):
         else:
             self.send(Response.code307('https://drive.google.com/open?id=1vylaFRMUhj0fCGqDVhn0RC7xXmOegabodKs9YK-8zbs'))
 
+    elif reqadr[0] == 'action':
+        if not (len(req) > 2):
+            self.send(Response.code404())
+            self.log.log('Client improperly requested an action.')
+            return
+
+        if reqadr[1] == 'pay':
+            sender_id = cookies['client-id']
+            recipient_id = reqadr[2]
+            amount = int(reqadr[3])
+            recipient_acnt = list(filter(lambda u: u.id == recipient_id, accounts))[0]
+            sender_acnt = list(filter(lambda u: u.id == sender_id, accounts))[0]
+
+            if not sender_acnt.pay(amount, recipient_acnt):
+                self.send_file('pay_success.html')
+            else:
+                self.send_file('pay_failure.html')
+
+        elif reqadr[1] == 'signup':
+            username = reqadr[2]
+            password = reqadr[3]
+            id = '0000'
+            while id != '1377' and id[0] != '00' and len(id) < 5:  # Saving first 100 accounts for admins
+                id = '%04d' % random.randint(0, 10000)
+            accounts.append(Account(username, password, id))
+            self.send('Signup successful')
+
+        elif reqadr[1] == 'shutdown':
+            self.log.log('Initiating server shutdown...')
+            if reqadr[2] == 'normal':
+                self.close()
+            elif reqadr[2] == 'force':
+                exit()
+            else:
+                self.send(Response.code404())
+        else:
+            self.send(Response.code404())
+            self.log.log('Client requested non-existent action.')
+            return
+
     else:
         r = Response()
-        r.attach_file(req[1])
+        r.attach_file(reqadr[0])
         self.send(r)
 
     conn.close()
