@@ -1,8 +1,9 @@
 Work (anyone can do):
-    1. Login action (use cookie)
-    2. Success/failure pages for certain actions
-    3. Something like google api's render() that allows files sent to use syntax for getting program variables (most importantly accounts, something like [[account_id|account_var]])
-    4. Scripting console.html (not really important but it would please me to see it working)
+    1. Something like google api's render() that allows files sent to use syntax for getting program variables (most importantly accounts, something like [[account_id|account_var]])
+    2. Use this for page navigation-bar
+    3. Login action (use cookie)
+    4. Success/failure pages for certain actions
+    5. Scripting console.html (not really important but it would please me to see it working)
 
 Creative vision (probably Yovel should do):
     1. Hunt action

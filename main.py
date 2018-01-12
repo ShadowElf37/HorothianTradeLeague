@@ -59,7 +59,6 @@ def handle(self, conn, addr, req):
     cookies = parse_cookie(req[-1])
     method = req[0]
     reqadr = req[1]
-    print(reqadr)
 
     if reqadr[0] == '':
         self.send(Response.code(301, location='home.html'))
