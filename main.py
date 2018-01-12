@@ -22,7 +22,7 @@ def load_users():
         users = pickle.load(userfile)
     except EOFError:
         print('user.dat empty, initializing with default values')
-        users = [Account('Central Bank', 'password', '1377')]
+        users = [Account('CentralBank', 'password', '1377')]
     return users
 
 def save_users():
@@ -49,8 +49,9 @@ accounts = load_users()
 
 def handle(self, conn, addr, req):
     self.log.log("Request from ", addr[0], ":", req)
-    # Miles is not allowed to connect
-    if addr[1] in ['10.1.3.179']:
+    # A certain friend is not allowed to connect because he knows that sometimes I have webstuff
+    # on my computer and might see this before it's ready for the grand opening
+    if addr[0] in ['10.1.3.179']:
         self.send("Your IP address has been banned temporarily.\
          For more information please visit haha you thought there would be more info but there's not bye loser.")
         self.log.log("Client IP was found banned -", addr[0])
@@ -82,7 +83,7 @@ def handle(self, conn, addr, req):
             return
 
         if reqadr[1] == 'pay':
-            sender_id = cookies['client-id']
+            sender_id = cookies.get('client-id')
             recipient_id = reqadr[2]
             amount = int(reqadr[3])
             recipient_acnt = list(filter(lambda u: u.id == recipient_id, accounts))[0]
@@ -90,6 +91,9 @@ def handle(self, conn, addr, req):
 
             if not sender_acnt.pay(amount, recipient_acnt):
                 self.send_file('pay_success.html')
+                f = open('logs/transactions.log', 'a')
+                f.write('{} -> {}; ${}'.format(sender_id, recipient_id, amount))
+                f.close()
             else:
                 self.send_file('pay_failure.html')
 
@@ -100,7 +104,19 @@ def handle(self, conn, addr, req):
             while id != '1377' and id[0] != '00' and len(id) < 5:  # Saving first 100 accounts for admins
                 id = '%04d' % random.randint(0, 10000)
             accounts.append(Account(username, password, id))
-            self.send_file('home.html')
+            response = Response()
+            response.add_cookie('client-id', id)
+            response.attach_file('account.html')
+            self.send(response)
+
+        elif reqadr[1] == 'login':
+            username = reqadr[2]
+            password = reqadr[3]
+            acnt = accounts.filter(lambda u: u.username == username and u.password == password)
+            response = Response()
+            response.add_cookie('client-id', acnt.id)
+            response.attach_file('account.html')
+            self.send(response)
 
         elif reqadr[1] == 'shutdown':
             self.log.log('Initiating server shutdown...')
@@ -125,7 +141,7 @@ def handle(self, conn, addr, req):
 
 print(accounts)
 
-s = Server(True)
+s = Server(debug=True, include_debug_level=False)
 s.set_request_handler(handle)
 s.open()
 save_users()

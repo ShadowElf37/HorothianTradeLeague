@@ -1,10 +1,21 @@
-Work (anyone can do):
-    1. Something like google api's render() that allows files sent to use syntax for getting program variables (most importantly accounts, something like [[account_id|account_var]])
-    2. Use this for page navigation-bar
-    3. Login action (use cookie)
-    4. Success/failure pages for certain actions
-    5. Scripting console.html (not really important but it would please me to see it working)
+Upon completion of all IMPORTANT work, Project Mercury will be considered BETA and the version number will jump to v0.1.0.0
 
-Creative vision (probably Yovel should do):
-    1. Hunt action
-    2. Creating pages for each action to occur
+
+IMPORTANT
+	Work (anyone can do):
+	    1. Test render for page navigation-bar so we don't have to copy-paste every time
+	    2. Success/failure pages for certain actions
+		3. Login page
+	    4. Signup page	    
+
+	Creative vision (probably Yovel should do):
+	    1. Account page
+
+
+LESS IMPORTANT
+	Work:
+		1. Scripting console.html
+
+	Creative vision:
+		1. Hunt action, hunts.dat, hunts.html
+		2. console.html commands (not the basic scripting)

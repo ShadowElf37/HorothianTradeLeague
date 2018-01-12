@@ -60,7 +60,6 @@ ALPHA v0.0.0.9
     - Created a to-do list
     - Confirmed pickling of users works as intended
 
-
 ALPHA v0.0.0.10
     - Changed static code methods to a single lookup in codes.cfg, with kwargs for necessary parameters
     - Refined file location predictor, moved directory and file type specifications to ext.cfg
@@ -68,4 +67,8 @@ ALPHA v0.0.0.10
     - Split CSS and JS into separate folders
 
 ALPHA v0.0.0.11
-    -
+    - Payments are now written to transactions.log
+    - Added login; signup now includes login cookie
+    - Added fair support for economy.dat in <class Account>
+    - Added field TotalCredits in economy.dat
+    - You can now send integer status codes via send()

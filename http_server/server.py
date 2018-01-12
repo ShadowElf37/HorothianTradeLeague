@@ -43,12 +43,19 @@ class Server:
     # Sends a message; recommended to use Response class as a wrapper
     def send(self, msg):
         try:
-            if type(msg) != type(bytes()) and not isinstance(msg, Response):
+            # You passed a string
+            if type(msg) not in (type(bytes()), type(int())) and not isinstance(msg, Response):
                 self.connection.send(Response(msg).compile())
+            # You passed a Response
             elif isinstance(msg, Response):
                 self.connection.send(msg.compile())
+            # You passed a status code
+            elif type(msg) == type(int()):
+                self.connection.send(Response.code(msg))
+            # You passed an already-encoded string
             else:
                 self.connection.send(msg)
+            self.log.log("A response was sent to the client.")
         except AttributeError:
             self.log.log("Tried to send with no client connected.", lvl=Log.ERROR)
             return 1
