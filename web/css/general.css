@@ -30,8 +30,10 @@ button {
 
 .background-img{
     position: fixed;
-    width: 100%;
-    height: 100%;
+    width: 1920px;
+    height: 1080px;
+    min-width: 100%;
+    min-height: 100%;
     background-repeat: no-repeat;
     z-index: -1;
     padding: 0;
@@ -45,10 +47,9 @@ button {
   box-shadow: 0 0 3px #FF0000;
   border-radius: 20px;
   padding: 15px;
-  margin: 10% 25% 6% 25%;
+  margin: 10% 10% 6% 10%;
   line-height: 40px;
-  width: 50%;
-  max-width: 50%;
+  width: 80%;
   background-color: #FAFAFA;
   min-height: 60%;
   height: auto;

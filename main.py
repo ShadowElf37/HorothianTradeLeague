@@ -13,8 +13,31 @@ import time
 import random
 
 
+
+def create_navbar(active):
+    """kwargs should be 'Home="home.html"'; active should be "home.html" """
+    navbar = []
+    pages = dict()
+    cfg = open('conf/navbar.cfg', 'r')
+    for line in list(reversed(cfg.read().split('\n'))):
+        l = line.split(' ')
+        pages[l[0]] = l[1]
+    cfg.close()
+
+    pitems = list(pages.keys())
+
+    for i in pitems:
+        navbar.append('<li><a href="{0}"{2}>{1}</a></li>'.format(pages[i], i, (' class="active-nav"' if pages[i] == active else '')))
+    
+    bar = '<center>\n\t<div id="menu-bar" class="menu-bar">\n\t\t<ul class="nav-bar">\n\t\t\t'\
+     + '\n\t\t\t'.join(navbar)\
+      + '\n\t\t\t<li class="page-title">Horothian Trade League</li>\n\t\t</ul>\n\t</div>\n</center>'
+
+    return bar
+
 def client_error_msg(msg):
     return '<html>' + msg + '<br><a href="home.html">Go back.</a></html>'
+
 
 def load_users():
     userfile = open('data/users.dat', 'rb')
@@ -60,21 +83,24 @@ def handle(self, conn, addr, req):
     cookies = parse_cookie(req[-1])
     method = req[0]
     reqadr = req[1]
+    response = Response()
 
     if reqadr[0] == '':
-        self.send(Response.code(301, location='home.html'))
+        response.set_status_code(301, location='home.html')
+        response.add_cookie('client-id', 'none')
 
     elif reqadr[0] == 'home.html':
-        r = Response()
-        r.add_cookie('tester_restrictions', 'true')
-        r.attach_file('home.html')
-        self.send(r)
+        response.add_cookie('tester_restrictions', 'true')
+        if cookies.get('client-id') != 'none':
+            response.attach_file('home.html', rendr=True, navbar=create_navbar('home.html'))
+        else:
+            response.attach_file('account.html', rendr=True, navbar=create_navbar('home.html'))
 
     elif reqadr[0] == 'treaty.html':
         if cookies.get('tester_restrictions') == 'true':
-            self.send(Response(client_error_msg('Nothing here now.')))
+            response.set_body(client_error_msg('Nothing here now.'))
         else:
-            self.send(Response.code(307, location='https://drive.google.com/open?id=1vylaFRMUhj0fCGqDVhn0RC7xXmOegabodKs9YK-8zbs'))
+            response.set_status_code(307, location='https://drive.google.com/open?id=1vylaFRMUhj0fCGqDVhn0RC7xXmOegabodKs9YK-8zbs')
 
     elif reqadr[0] == 'action':
         if not (len(req) > 2):
@@ -83,6 +109,7 @@ def handle(self, conn, addr, req):
             return
 
         if reqadr[1] == 'pay':
+            r = Response()
             sender_id = cookies.get('client-id')
             recipient_id = reqadr[2]
             amount = int(reqadr[3])
@@ -90,12 +117,12 @@ def handle(self, conn, addr, req):
             sender_acnt = list(filter(lambda u: u.id == sender_id, accounts))[0]
 
             if not sender_acnt.pay(amount, recipient_acnt):
-                self.send_file('pay_success.html')
+                response.attach_file('pay_success.html')
                 f = open('logs/transactions.log', 'a')
                 f.write('{} -> {}; ${}'.format(sender_id, recipient_id, amount))
                 f.close()
             else:
-                self.send_file('pay_failure.html')
+                response.attach_file('pay_failure.html')
 
         elif reqadr[1] == 'signup':
             username = reqadr[2]
@@ -104,19 +131,15 @@ def handle(self, conn, addr, req):
             while id != '1377' and id[0] != '00' and len(id) < 5:  # Saving first 100 accounts for admins
                 id = '%04d' % random.randint(0, 10000)
             accounts.append(Account(username, password, id))
-            response = Response()
             response.add_cookie('client-id', id)
             response.attach_file('account.html')
-            self.send(response)
 
         elif reqadr[1] == 'login':
             username = reqadr[2]
             password = reqadr[3]
             acnt = accounts.filter(lambda u: u.username == username and u.password == password)
-            response = Response()
             response.add_cookie('client-id', acnt.id)
             response.attach_file('account.html')
-            self.send(response)
 
         elif reqadr[1] == 'shutdown':
             self.log.log('Initiating server shutdown...')
@@ -125,17 +148,16 @@ def handle(self, conn, addr, req):
             elif reqadr[2] == 'force':
                 exit()
             else:
-                self.send(Response.code(404))
+                response.set_status_code(404)
         else:
-            self.send(Response.code(404))
+            response.set_status_code(404)
             self.log.log('Client requested non-existent action.')
             return
 
     else:
-        r = Response()
-        r.attach_file(reqadr[0])
-        self.send(r)
+        response.attach_file(reqadr[0], rendr=True, rendrtypes=('html', 'htm'), navbar=create_navbar(reqadr[0]))
 
+    self.send(response)
     conn.close()
 
 

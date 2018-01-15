@@ -72,3 +72,14 @@ ALPHA v0.0.0.11
     - Added fair support for economy.dat in <class Account>
     - Added field TotalCredits in economy.dat
     - You can now send integer status codes via send()
+
+#------------MAJOR UPDATE------------#
+
+ALPHA v0.0.1.0
+    - Added render()
+    - Rendering and its options should be accessed from attach_file()
+    - The navigation bar is now rendered from a function and navbar.cfg
+    - Removed all instances of send_file() in main.py, replaced with attach_file()
+    - Overhauled main.py response handling; now creates a single response to be modified throughout handle() and sent at the end
+    - set_status_code now automatically calls Response.code(), allowing use of integers and kwargs
+    - Added account.html (sent through /home.html if logged in)

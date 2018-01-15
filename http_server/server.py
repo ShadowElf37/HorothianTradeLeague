@@ -61,9 +61,8 @@ class Server:
             return 1
         return 0
 
-    # Easy way to send a file
+    # --(DEPRECATED)-- Easy way to send a file
     def send_file(self, faddr, custom_response=None):
-        # Actual send
         r = Response()
         if custom_response:
             r = custom_response
@@ -87,7 +86,7 @@ class Server:
         while self.running:
             try:
                 self.connection, self.c_address = self.socket.accept()
-            except OSError:  # When the server closed but tried to use socket
+            except (OSError, KeyboardInterrupt):  # When the server closed but tried to use socket
                 break
             parsed_req = self.parse(self.recv())
             if parsed_req == 'ERROR_0':
@@ -98,6 +97,7 @@ class Server:
                 try:
                     self.handle_request(self, self.connection, self.c_address, parsed_req)
                 except Exception as e:
+                    raise e
                     self.send(Response.code(500))
                     self.log.log('A fatal error occurred in handle(): {}'.format(e), lvl=Log.ERROR)
             self.handled_counter += 1

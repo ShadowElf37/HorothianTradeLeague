@@ -8,6 +8,17 @@ ENCODING = 'UTF-8'
 
 from os.path import dirname, realpath
 
+
+def render(text, **resources):
+    if type(text) == type(bytes()):
+        text = text.decode(ENCODING)
+    for i in list(resources.keys()):
+        print('#', '[['+i+']]')
+        print('@', resources[i])
+        text = text.replace('[['+i+']]', resources[i])
+    return text.encode(ENCODING)
+
+
 class Response:
     # Easy response codes
     REDIRECTS = [301, 302, 303, 307, 308]
@@ -22,12 +33,16 @@ class Response:
                 r.add_header_term("Location: {}".format(kwargs["location"]))
         return r
 
-    def __init__(self, body=''):
+    def __init__(self, body='', **kwargs):
         self.header = ['HTTP/1.1 200 OK']
         self.cookie = []
         self.body = body
         self.codes = dict()
         self.ext = dict()
+
+        if type(self.body) == type(int()):
+            self.set_status_code(self.body, **kwargs)
+            self.body = ''
         with open('conf/codes.cfg', 'r') as code:
             for line in code:
                 splitted = line.split()
@@ -46,20 +61,26 @@ class Response:
     def add_cookie(self, key, value, *flags):
         self.cookie.append(("Set-Cookie: %s=%s; " % (key, value)) + '; '.join(flags))
 
-    # Sets the status code; should only be used if no preset is available
-    def set_status_code(self, code):
-        self.header[0] = 'HTTP/1.1 %s' % code
+    # Sets the status code
+    def set_status_code(self, code, **kwargs):
+        self.header = Response.code(code, **kwargs).header
 
     # Sets the header; use if there's no other way
-    def set_header(self, string):
-        self.header[0] = string
+    def set_header(self, lst):
+        self.header = lst
 
     # Sets body if you changed your mind after init
     def set_body(self, string):
         self.body = string
 
-    # Puts a file in the body if you don't want to use Server's send_file()
-    def attach_file(self, faddr):
+    # Puts a file in the body
+    def attach_file(self, faddr, rendr=False, rendrtypes=(), **renderopts):
+        """faddr should be the file address accounting for ext.cfg
+        rendr specifies whether the page should be rendered or not (so it doesn't try to render an image)
+        rendrtypes adds extra control when you don't know if you'll be passed an image or a webpage and want to only render one; should be a tuple of files exts
+        renderopts is what should be replaced with what; if you have [[value]], you will put value='12345' """
+        if type(rendrtypes) != type(tuple()):
+            raise TypeError("rendrtypes requires tuple")
         suffix = self.ext.get(faddr.split('.')[-1])
         if not suffix:
             raise TypeError("Extension unknown.")
@@ -67,11 +88,15 @@ class Response:
         # Actual body set
         try:
             f = open(faddr, 'rb')
-            self.set_body(f.read())
+            if rendr and (rendrtypes == () or faddr.split('.')[-1] in rendrtypes):
+                fl = render(f.read(), **renderopts)
+            else:
+                fl = f.read()
+            self.set_body(fl)
             f.close()
 
         except FileNotFoundError:
-            self.set_header('HTTP/1.1 404 Not Found')
+            self.set_status_code(404)
 
     # Throws together the header, cookies, and body, encoding them and adding whitespace
     def compile(self):
