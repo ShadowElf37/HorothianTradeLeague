@@ -31,6 +31,9 @@ class Response:
                 raise TypeError("{} Errors must include redirect address".format(hcode))
             else:
                 r.add_header_term("Location: {}".format(kwargs["location"]))
+        else:
+            for k, v in kwargs:
+                r.add_header_term("{}: {}".format('-'.join(i.titlecase.replace("Id", "ID").replace("Md5", "MD5") for i in k.split('_')), v))
         return r
 
     def __init__(self, body='', **kwargs):
