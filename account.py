@@ -18,7 +18,7 @@ class Account:
                 self.balance -= amt
             else:  # a payment from the central bank, and thus a change in the economy
                 fecn = open('economy.dat', 'w+')
-                writebufffer = []
+                writebuffer = []
                 for line in fecn.readlines():
                     l = line.split(':')
                     if l[0] == 'TotalCredits':

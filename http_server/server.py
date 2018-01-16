@@ -97,7 +97,8 @@ class Server:
                 try:
                     self.handle_request(self, self.connection, self.c_address, parsed_req)
                 except Exception as e:
-                    raise e
+                    if self.debug:
+                        raise e
                     self.send(Response.code(500))
                     self.log.log('A fatal error occurred in handle(): {}'.format(e), lvl=Log.ERROR)
             self.handled_counter += 1
