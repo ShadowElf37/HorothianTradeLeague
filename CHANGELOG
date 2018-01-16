@@ -83,3 +83,9 @@ ALPHA v0.0.1.0
     - Overhauled main.py response handling; now creates a single response to be modified throughout handle() and sent at the end
     - set_status_code now automatically calls Response.code(), allowing use of integers and kwargs
     - Added account.html (sent through /home.html if logged in)
+
+ALPHA v0.0.1.1
+    - Response can now take codes and bodies in init
+    - Changes to header field management
+    - Fixed a problem where the navbar wouldn't load in the right order
+    - Extensive work on account.html

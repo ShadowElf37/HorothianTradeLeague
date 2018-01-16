@@ -13,8 +13,8 @@ def render(text, **resources):
     if type(text) == type(bytes()):
         text = text.decode(ENCODING)
     for i in list(resources.keys()):
-        print('#', '[['+i+']]')
-        print('@', resources[i])
+        #print('#', '[['+i+']]')
+        #print('@', resources[i])
         text = text.replace('[['+i+']]', resources[i])
     return text.encode(ENCODING)
 
@@ -50,7 +50,7 @@ class Response:
                         Response.ext[e] = splitted[0]
         self.header = []
         self.header.append('HTTP/1.1 {} {}'.format(code, Response.codes.get(code, '[undefined]')))
-        print(self.header)
+        #print(self.header)
         self.cookie = []
         self.body = body
 
@@ -70,7 +70,7 @@ class Response:
 
     # Adds a field to the header (ie 'Set-Cookie: x=5')
     def add_header_term(self, field, string):
-        print(self.header)
+        #print(self.header)
         self.header.append("{}: {}".format('-'.join(i.title().replace("Id", "ID").replace("Md5", "MD5") for i in split('[ _-]+', field)), string))
 
     # Easier way of setting cookies than manually using add_header_term()

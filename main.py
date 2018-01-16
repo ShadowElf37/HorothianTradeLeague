@@ -18,17 +18,19 @@ import random
 def create_navbar(active):
     """kwargs should be 'Home="home.html"'; active should be "home.html" """
     navbar = []
-    pages = dict()
+    pages = []
+    links = []
     cfg = open('conf/navbar.cfg', 'r')
-    for line in list(reversed(cfg.read().split('\n'))):
+    data = cfg.read()
+    print(data)
+    for line in list(reversed(data.split('\n'))):
         l = line.split(' ')
-        pages[l[0]] = l[1]
+        pages.append(l[0])
+        links.append(l[1])
     cfg.close()
 
-    pitems = list(pages.keys())
-
-    for i in pitems:
-        navbar.append('<li><a href="{0}"{2}>{1}</a></li>'.format(pages[i], i, (' class="active-nav"' if pages[i] == active else '')))
+    for i in range(len(pages)):
+        navbar.append('<li><a href="{0}"{2}>{1}</a></li>'.format(links[i], pages[i], (' class="active-nav"' if links[i] == active else '')))
     
     bar = '<center>\n\t<div id="menu-bar" class="menu-bar">\n\t\t<ul class="nav-bar">\n\t\t\t'\
      + '\n\t\t\t'.join(navbar)\
@@ -92,7 +94,7 @@ def handle(self, conn, addr, req):
 
     elif reqadr[0] == 'home.html':
         response.add_cookie('tester_restrictions', 'true')
-        if cookies.get('client-id') != 'none':
+        if cookies.get('client-id') == 'none':
             response.attach_file('home.html', rendr=True, navbar=create_navbar('home.html'))
         else:
             response.attach_file('account.html', rendr=True, navbar=create_navbar('home.html'))
