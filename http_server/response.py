@@ -7,7 +7,7 @@ Yovel Key-Cohen
 ENCODING = 'UTF-8'
 
 from os.path import dirname, realpath
-
+from re import split
 
 def render(text, **resources):
     if type(text) == type(bytes()):
@@ -22,43 +22,56 @@ def render(text, **resources):
 class Response:
     # Easy response codes
     REDIRECTS = [301, 302, 303, 307, 308]
+    codes = {}
+    ext = {}
     @staticmethod
     def code(hcode, **kwargs):
-        r = Response()
-        r.set_header('HTTP/1.1 {} {}'.format(hcode, r.codes[hcode]))
+        r = Response(hcode)
         if hcode in Response.REDIRECTS:
             if kwargs.get("location") == None:
                 raise TypeError("{} Errors must include redirect address".format(hcode))
             else:
-                r.add_header_term("Location: {}".format(kwargs["location"]))
+                r.add_header_term('location', (kwargs["location"]))
         else:
             for k, v in kwargs:
-                r.add_header_term("{}: {}".format('-'.join(i.titlecase.replace("Id", "ID").replace("Md5", "MD5") for i in k.split('_')), v))
+                r.add_header_term(k, v)
         return r
 
-    def __init__(self, body='', **kwargs):
-        self.header = ['HTTP/1.1 200 OK']
+    def __init__(self, code=200, body='', **kwargs):
+        if len(self.codes) == 0:
+            with open('conf/codes.cfg', 'r') as code:
+                for line in code:
+                    splitted = line.split()
+                    Response.codes[int(splitted[0])] = ' '.join(splitted[1:])
+            with open('conf/ext.cfg', 'r') as exts:
+                for line in exts:
+                    splitted = line.split()
+                    for e in splitted[1:]:
+                        Response.ext[e] = splitted[0]
+        self.header = []
+        self.header.append('HTTP/1.1 {} {}'.format(code, Response.codes.get(code, '[undefined]')))
+        print(self.header)
         self.cookie = []
         self.body = body
-        self.codes = dict()
-        self.ext = dict()
 
         if type(self.body) == type(int()):
             self.set_status_code(self.body, **kwargs)
             self.body = ''
-        with open('conf/codes.cfg', 'r') as code:
-            for line in code:
-                splitted = line.split()
-                self.codes[int(splitted[0])] = ' '.join(splitted[1:])
-        with open('conf/ext.cfg', 'r') as exts:
-            for line in exts:
-                splitted = line.split()
-                for e in splitted[1:]:
-                    self.ext[e] = splitted[0]
+        if len(self.codes) == 0:
+            with open('conf/codes.cfg', 'r') as code:
+                for line in code:
+                    splitted = line.split()
+                    Response.codes[int(splitted[0])] = ' '.join(splitted[1:])
+            with open('conf/ext.cfg', 'r') as exts:
+                for line in exts:
+                    splitted = line.split()
+                    for e in splitted[1:]:
+                        Response.ext[e] = splitted[0]
 
     # Adds a field to the header (ie 'Set-Cookie: x=5')
-    def add_header_term(self, string):
-        self.header.append('%s' % string)
+    def add_header_term(self, field, string):
+        print(self.header)
+        self.header.append("{}: {}".format('-'.join(i.title().replace("Id", "ID").replace("Md5", "MD5") for i in split('[ _-]+', field)), string))
 
     # Easier way of setting cookies than manually using add_header_term()
     def add_cookie(self, key, value, *flags):

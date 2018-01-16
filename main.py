@@ -1,7 +1,8 @@
+#!/usr/bin/env python3
 """
 main.py
 Project Mercury
-Yovel Key-Cohen
+Yovel Key-Cohen & Alwinfy
 """
 
 from http_server.server import *
