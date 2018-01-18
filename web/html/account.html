@@ -29,18 +29,20 @@
     		height: auto;
     		max-width: 90%;
     		display: inline-block;
-    		margin: 15px 30px;
+    		margin: 0px 30px;
     		text-align: center;
+    		overflow: hidden;
     	}
     	#user{
-    		margin-left: 5px;
+    		margin-left: 50px;
+    		margin-top: 30px;
     	}
     	.bi-group{
     		border: 0px solid black;
     		width: auto;
     		max-width: 69%;
-    		text-align: left;
-    		margin: 0px 13%;
+    		text-align: center;
+    		margin-bottom: 60px;
     	}
 
     	.actions{
@@ -61,12 +63,13 @@
     <div id="big-center-text" class="center-text-div">
     	<hr>
     	<div class="bi-group">
-	    	<div id="user" class="big-info">
-	    		<h4>Welcome</h4>
-	    		<h1>[[username]]</h1>
-	    	</div>
+    		<center>
+		    	<div id="user" class="big-info">
+		    		<h4>Welcome</h4>
+		    		<h1>[[username]]</h1>
+		    	</div>
+	    	</center>
 	    </div>
-    	<br>
     	<div class="bi-group">
 	    	<div id="id" class="big-info">
 	    		<h4>Account ID</h4>
@@ -77,6 +80,17 @@
 	    		<h1>$[[balance]]</h1>
 	    	</div>
     	</div>
+    	<div class="bi-group">
+	    	<div id="id" class="big-info">
+	    		<h4>Some Info</h4>
+	    		<h1>5523</h1>
+	    	</div>
+	    	<div id="balance" class="big-info">
+	    		<h4>Other Info</h4>
+	    		<h1>1234</h1>
+	    	</div>
+    	</div>
+    	<br>
 
     	<div class="actions">
     		<button class="theme-button">TRANSACT</button><br>
