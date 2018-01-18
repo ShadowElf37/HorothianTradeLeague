@@ -89,3 +89,11 @@ ALPHA v0.0.1.1
     - Changes to header field management
     - Fixed a problem where the navbar wouldn't load in the right order
     - Extensive work on account.html
+
+ALPHA v0.0.1.2
+    - Several bug fixes throughout main.py and server.py
+    - Changed button styles
+    - Properly integrated account.html with main.py; for testing purposes, visiting home.html automatically logs you in as Central Bank
+    - navbar is handled more by Response
+    - Logout button in account.html is functional
+    - Actions now have .act extension in main.py

@@ -17,17 +17,6 @@ body{
     background-repeat: no-repeat;*/
 }
 
-button {
-    outline: none;
-    color: #EEE;
-    width: 180px;
-    height: 45px;
-    font-size: 1.35em;
-    text-align: center;
-    border: 1px solid #AAA;
-    transition-duration: 0.1s;
-}
-
 .background-img{
     position: fixed;
     width: 1920px;
@@ -53,6 +42,7 @@ button {
   background-color: #FAFAFA;
   min-height: 60%;
   height: auto;
+  overflow: auto;
 }
 
 h1{

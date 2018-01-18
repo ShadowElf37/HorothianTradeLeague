@@ -1,3 +1,35 @@
+button {
+    outline: none;
+    color: #EEE;
+    width: 120%;
+    height: 45px;
+    font-size: 1.35em;
+    text-align: center;
+    border: 0px solid #555;
+    transition-duration: 0.1s;
+    cursor: pointer;
+    letter-spacing: 2px;
+    user-select: none;
+    -moz-user-select: none;
+}
+
+button:disabled{
+  cursor: default;
+}
+
+button:disabled{
+	background-color: #CCCC;
+}
+
+button:disabled:hover{
+	background-color: #DDDD;
+}
+
+button a{
+	color: inherit;
+	text-decoration: inherit;
+}
+
 
 .green-button{
     background-color: #260D;
@@ -9,7 +41,6 @@
 
 .green-button:active{
     background-color: #040F;
-
 }
 
 .blue-button{
@@ -22,7 +53,6 @@
 
 .blue-button:active{
     background-color: #024F;
-
 }
 
 .red-button{
@@ -35,5 +65,29 @@
 
 .red-button:active{
     background-color: #500F;
+}
 
+
+.theme-button{
+	background-color: #EE3A3A;
+}
+
+.theme-button:hover{
+	background-color: #CC2A2A;
+}
+
+.theme-button:active{
+	background-color: #A11;
+}
+
+.gold-button{
+	background-color: #EA4;
+}
+
+.gold-button:hover{
+	background-color: #C82;
+}
+
+.gold-button:active{
+	background-color: #B71;
 }

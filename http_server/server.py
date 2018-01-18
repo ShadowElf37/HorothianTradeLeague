@@ -29,6 +29,8 @@ class Server:
         # On-board data management if needed
         self.state = {}
         self.data = {}
+        self.debug = debug
+        self.include_debug_level = include_debug_level
         self.log = Log(debug, include_debug_level)
         self.log.log("Server initialized successfully on port", self.port, lvl=Log.STATUS)
 

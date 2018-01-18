@@ -9,13 +9,37 @@ ENCODING = 'UTF-8'
 from os.path import dirname, realpath
 from re import split
 
+
+def create_navbar(active):
+    """kwargs should be 'Home="home.html"'; active should be "home.html" """
+    navbar = []
+    pages = []
+    links = []
+    cfg = open('conf/navbar.cfg', 'r')
+    data = cfg.read()
+    for line in list(reversed(data.split('\n'))):
+        l = line.split(' ')
+        pages.append(l[0])
+        links.append(l[1])
+    cfg.close()
+
+    for i in range(len(pages)):
+        navbar.append('<li><a href="{0}"{2}>{1}</a></li>'.format(links[i], pages[i],
+                                                                 (' class="active-nav"' if links[i] == active else '')))
+
+    bar = '<center>\n\t<div id="menu-bar" class="menu-bar">\n\t\t<ul class="nav-bar">\n\t\t\t' \
+          + '\n\t\t\t'.join(navbar) \
+          + '\n\t\t\t<li class="page-title">Horothian Trade League</li>\n\t\t</ul>\n\t</div>\n</center>'
+
+    return bar
+
 def render(text, **resources):
     if type(text) == type(bytes()):
         text = text.decode(ENCODING)
     for i in list(resources.keys()):
-        #print('#', '[['+i+']]')
-        #print('@', resources[i])
-        text = text.replace('[['+i+']]', resources[i])
+        # print('#', '[['+i+']]')
+        # print('@', resources[i])
+        text = text.replace('[['+i+']]', str(resources[i]))
     return text.encode(ENCODING)
 
 
@@ -90,16 +114,19 @@ class Response:
         self.body = string
 
     # Puts a file in the body
-    def attach_file(self, faddr, rendr=False, rendrtypes=(), **renderopts):
+    def attach_file(self, faddr, nb_page='none', rendr=True, rendrtypes=(), **renderopts):
         """faddr should be the file address accounting for ext.cfg
         rendr specifies whether the page should be rendered or not (so it doesn't try to render an image)
         rendrtypes adds extra control when you don't know if you'll be passed an image or a webpage and want to only render one; should be a tuple of files exts
         renderopts is what should be replaced with what; if you have [[value]], you will put value='12345' """
+
+        if nb_page == 'none':
+            nb_page = faddr
+        renderopts['navbar'] = create_navbar(nb_page)
         if type(rendrtypes) != type(tuple()):
             raise TypeError("rendrtypes requires tuple")
-        suffix = self.ext.get(faddr.split('.')[-1])
-        if not suffix:
-            raise TypeError("Extension unknown.")
+        suffix = self.ext.get(faddr.split('.')[-1], '')
+
         faddr = suffix + faddr
         # Actual body set
         try:

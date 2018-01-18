@@ -13,31 +13,6 @@ import pickle
 import time
 import random
 
-
-
-def create_navbar(active):
-    """kwargs should be 'Home="home.html"'; active should be "home.html" """
-    navbar = []
-    pages = []
-    links = []
-    cfg = open('conf/navbar.cfg', 'r')
-    data = cfg.read()
-    print(data)
-    for line in list(reversed(data.split('\n'))):
-        l = line.split(' ')
-        pages.append(l[0])
-        links.append(l[1])
-    cfg.close()
-
-    for i in range(len(pages)):
-        navbar.append('<li><a href="{0}"{2}>{1}</a></li>'.format(links[i], pages[i], (' class="active-nav"' if links[i] == active else '')))
-    
-    bar = '<center>\n\t<div id="menu-bar" class="menu-bar">\n\t\t<ul class="nav-bar">\n\t\t\t'\
-     + '\n\t\t\t'.join(navbar)\
-      + '\n\t\t\t<li class="page-title">Horothian Trade League</li>\n\t\t</ul>\n\t</div>\n</center>'
-
-    return bar
-
 def client_error_msg(msg):
     return '<html>' + msg + '<br><a href="home.html">Go back.</a></html>'
 
@@ -68,7 +43,11 @@ def parse_cookie(s):
     return cookieB
 
 accounts = load_users()
-
+def get_account_by_id(id):
+    if id == 'none':
+        return None
+    a = list(filter(lambda u: u.id == id, accounts))[0]
+    return a
 
 # ---------------------------------
 
@@ -89,15 +68,16 @@ def handle(self, conn, addr, req):
     response = Response()
 
     if reqadr[0] == '':
-        response.set_status_code(301, location='home.html')
-        response.add_cookie('client-id', 'none')
+        response.set_status_code(307, location='home.html')
+        response.add_cookie('client-id', '1377')
 
     elif reqadr[0] == 'home.html':
         response.add_cookie('tester_restrictions', 'true')
         if cookies.get('client-id') == 'none':
-            response.attach_file('home.html', rendr=True, navbar=create_navbar('home.html'))
+            response.attach_file('home.html')
         else:
-            response.attach_file('account.html', rendr=True, navbar=create_navbar('home.html'))
+            account = get_account_by_id(cookies.get('client-id'))
+            response.attach_file('account.html', nb_page='home.html', username=account.username, id=account.id, balance=account.balance)
 
     elif reqadr[0] == 'treaty.html':
         if cookies.get('tester_restrictions') == 'true':
@@ -105,19 +85,19 @@ def handle(self, conn, addr, req):
         else:
             response.set_status_code(307, location='https://drive.google.com/open?id=1vylaFRMUhj0fCGqDVhn0RC7xXmOegabodKs9YK-8zbs')
 
-    elif reqadr[0] == 'action':
+    elif reqadr[0].split('-')[0] == 'action':
+        reqadr = reqadr[0].split('-')
         if not (len(req) > 2):
             self.send(Response.code(404))
             self.log.log('Client improperly requested an action.')
             return
 
-        if reqadr[1] == 'pay':
-            r = Response()
+        if reqadr[1] == 'pay.act':
             sender_id = cookies.get('client-id')
             recipient_id = reqadr[2]
             amount = int(reqadr[3])
-            recipient_acnt = list(filter(lambda u: u.id == recipient_id, accounts))[0]
-            sender_acnt = list(filter(lambda u: u.id == sender_id, accounts))[0]
+            recipient_acnt = get_account_by_id(recipient_id)
+            sender_acnt = get_account_by_id(sender_id)
 
             if not sender_acnt.pay(amount, recipient_acnt):
                 response.attach_file('pay_success.html')
@@ -127,7 +107,7 @@ def handle(self, conn, addr, req):
             else:
                 response.attach_file('pay_failure.html')
 
-        elif reqadr[1] == 'signup':
+        elif reqadr[1] == 'signup.act':
             username = reqadr[2]
             password = reqadr[3]
             id = '0000'
@@ -137,17 +117,26 @@ def handle(self, conn, addr, req):
             response.add_cookie('client-id', id)
             response.attach_file('account.html')
 
-        elif reqadr[1] == 'login':
+        elif reqadr[1] == 'login.act':
             username = reqadr[2]
             password = reqadr[3]
-            acnt = accounts.filter(lambda u: u.username == username and u.password == password)
-            response.add_cookie('client-id', acnt.id)
-            response.attach_file('account.html')
+            try:
+                acnt = list(filter(lambda u: u.username == username and u.password == password, accounts))[0]
+                response.add_cookie('client-id', acnt.id)
+                account = get_account_by_id(cookies.get('client-id'))
+                response.attach_file('account.html', nb_page='home.html', username=account.username, id=account.id, balance=account.balance)
+            except IndexError:
+                response.attach_file('home.html')  # an incorrect username or password, should be changed
 
-        elif reqadr[1] == 'shutdown':
+        elif reqadr[1] == 'logout.act':
+            response.add_cookie('client-id', 'none')
+            response.attach_file('home.html')
+
+        elif reqadr[1] == 'shutdown.act':
             self.log.log('Initiating server shutdown...')
             if reqadr[2] == 'normal':
                 self.close()
+                exit()
             elif reqadr[2] == 'force':
                 exit()
             else:
@@ -158,7 +147,7 @@ def handle(self, conn, addr, req):
             return
 
     else:
-        response.attach_file(reqadr[0], rendr=True, rendrtypes=('html', 'htm'), navbar=create_navbar(reqadr[0]))
+        response.attach_file(reqadr[0], rendr=True, rendrtypes=('html', 'htm'), nb_page=reqadr[0])
 
     self.send(response)
     conn.close()
