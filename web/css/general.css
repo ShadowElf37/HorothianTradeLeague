@@ -10,7 +10,7 @@
 
 body{
     background-color: #FFF;
-    font-family: "Corbel";
+    font-family: "Corbel", sans-serif;
     font-size: 100%;
     /*background-image: url("white_background.png");
     background-size: 100%;

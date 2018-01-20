@@ -3,22 +3,25 @@ Upon completion of all IMPORTANT work, Project Mercury will be considered BETA a
 
 IMPORTANT
 	Work (anyone can do):
-		1. Login page (because user and pass are sent in the GET, they're visible in address bar; should be encrypted so spectators don't see, doesn't need to be very secure just anything but the password)
-	    2. Signup page
-		3. Success/failure pages for certain actions
-	    4. SID for better security than a cookie with account ID
-	    5. We may want a name and lastname separate from username
-	    6. Modifications to CSS?
+		1. Login page
+		2. We may want a name and lastname separate from username; username to log in
+	    3. Signup page
+		4. Success/failure pages for certain actions
+	    5. SID for better security than a cookie with account ID
+	    6. Login-page address-bar password encryption (because it uses GET and spectators can see URL; yes, we're using homemade encryption for this)
+	    7. Transaction page
 
 	Creative vision (probably Yovel should do):
-	    1. Account page
-	    2. Port forward
+	    1. Additional account page info
+	    2. Match each account.html button with a page
+	    3. Port forward
 
 
 LESS IMPORTANT
 	Work:
 		1. Scripting console.html
 		2. Market for online-hosted trade
+		3. SSL
 
 	Creative vision:
 		1. Hunt action, hunts.dat, hunts.html
