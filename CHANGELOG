@@ -97,3 +97,9 @@ ALPHA v0.0.1.2
     - navbar is handled more by Response
     - Logout button in account.html is functional
     - Actions now have .act extension in main.py
+
+ALPHA v0.0.1.3
+    - Created template.html, login.html, news.html
+    - Converted login to POST; login.html works
+    - Changed navbar items and links (needs diff when logged in)
+

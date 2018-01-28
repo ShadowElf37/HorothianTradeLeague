@@ -109,15 +109,15 @@ class Server:
     # Parses the request, simplies to important information
     def parse(self, request):
         # Get the cookies
-        p = request
+        req = request.split('\r\n')
         cookie = ''
-        for field in p.split('\n'):
+        for field in req:
             if 'Cookie' in field:
                 cookie = field.strip()
         # Reduce the request to a list
-        request = request.split(' ')
+        request2 = request.split(' ')
         try:
-            request = [request[0], request[1][1:], cookie]  # [GET, xx, 'Cookie: a=b']
+            request = [request2[0], request2[1][1:], cookie, req[2:]]  # [GET, xx, 'Cookie: a=b', [x:x, x:x]]
         except IndexError:  # Sometimes this happens?
             return 'ERROR_0'
         request[1] = request[1].split('/')

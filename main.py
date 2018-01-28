@@ -62,92 +62,114 @@ def handle(self, conn, addr, req):
         self.log.log("Client IP was found banned -", addr[0])
         return
 
-    cookies = parse_cookie(req[-1])
     method = req[0]
     reqadr = req[1]
+    cookies = parse_cookie(req[2])
+    flags = req
+
     response = Response()
+    if method == "GET":
+        if reqadr[0] == '':
+            response.set_status_code(307, location='home.html')
+            if cookies.get('client-id') is None:
+                response.add_cookie('client-id', 'none')
 
-    if reqadr[0] == '':
-        response.set_status_code(307, location='home.html')
-        response.add_cookie('client-id', '1377')
-
-    elif reqadr[0] == 'home.html':
-        response.add_cookie('tester_restrictions', 'true')
-        if cookies.get('client-id') == 'none':
-            response.attach_file('home.html')
-        else:
-            account = get_account_by_id(cookies.get('client-id'))
-            response.attach_file('account.html', nb_page='home.html', username=account.username, id=account.id, balance=account.balance)
-
-    elif reqadr[0] == 'treaty.html':
-        if cookies.get('tester_restrictions') == 'true':
-            response.set_body(client_error_msg('Nothing here now.'))
-        else:
-            response.set_status_code(307, location='https://drive.google.com/open?id=1vylaFRMUhj0fCGqDVhn0RC7xXmOegabodKs9YK-8zbs')
-
-    elif reqadr[0].split('-')[0] == 'action':
-        reqadr = reqadr[0].split('-')
-        if not (len(req) > 2):
-            self.send(Response.code(404))
-            self.log.log('Client improperly requested an action.')
-            return
-
-        if reqadr[1] == 'pay.act':
-            sender_id = cookies.get('client-id')
-            recipient_id = reqadr[2]
-            amount = int(reqadr[3])
-            recipient_acnt = get_account_by_id(recipient_id)
-            sender_acnt = get_account_by_id(sender_id)
-
-            if not sender_acnt.pay(amount, recipient_acnt):
-                response.attach_file('pay_success.html')
-                f = open('logs/transactions.log', 'a')
-                f.write('{} -> {}; ${}'.format(sender_id, recipient_id, amount))
-                f.close()
+        elif reqadr[0] == 'home.html':
+            response.add_cookie('tester_restrictions', 'true')
+            if cookies.get('client-id') == 'none':
+                response.attach_file('home.html')
             else:
-                response.attach_file('pay_failure.html')
+                response.attach_file('news.html', nb_page='home.html')
 
-        elif reqadr[1] == 'signup.act':
-            username = reqadr[2]
-            password = reqadr[3]
-            id = '0000'
-            while id != '1377' and id[0] != '00' and len(id) < 5:  # Saving first 100 accounts for admins
-                id = '%04d' % random.randint(0, 10000)
-            accounts.append(Account(username, password, id))
-            response.add_cookie('client-id', id)
-            response.attach_file('account.html')
+        elif reqadr[0] == 'treaty.html':
+            if cookies.get('tester_restrictions') == 'true':
+                response.set_body(client_error_msg('Nothing here now.'))
+            else:
+                response.set_status_code(307, location='https://drive.google.com/open?id=1vylaFRMUhj0fCGqDVhn0RC7xXmOegabodKs9YK-8zbs')
 
-        elif reqadr[1] == 'login.act':
-            username = reqadr[2]
-            password = reqadr[3]
-            try:
-                acnt = list(filter(lambda u: u.username == username and u.password == password, accounts))[0]
-                response.add_cookie('client-id', acnt.id)
-                account = get_account_by_id(cookies.get('client-id'))
-                response.attach_file('account.html', nb_page='home.html', username=account.username, id=account.id, balance=account.balance)
-            except IndexError:
-                response.attach_file('home.html')  # an incorrect username or password, should be changed
+        elif reqadr[0] == 'account.html':
+            account = get_account_by_id(cookies.get('client-id'))
+            response.attach_file('account.html', username=account.username, id=account.id, balance=account.balance)
 
-        elif reqadr[1] == 'logout.act':
-            response.add_cookie('client-id', 'none')
-            response.attach_file('home.html')
+        elif reqadr[0].split('-')[0] == 'action':
+            reqadr = reqadr[0].split('-')
+            if not (len(req) > 2):
+                self.send(Response.code(404))
+                self.log.log('Client improperly requested an action.')
+                return
 
-        elif reqadr[1] == 'shutdown.act':
-            self.log.log('Initiating server shutdown...')
-            if reqadr[2] == 'normal':
-                self.close()
-                exit()
-            elif reqadr[2] == 'force':
-                exit()
+            if reqadr[1] == 'pay.act':
+                sender_id = cookies.get('client-id')
+                recipient_id = reqadr[2]
+                amount = int(reqadr[3])
+                recipient_acnt = get_account_by_id(recipient_id)
+                sender_acnt = get_account_by_id(sender_id)
+
+                if not sender_acnt.pay(amount, recipient_acnt):
+                    response.attach_file('pay_success.html')
+                    f = open('logs/transactions.log', 'a')
+                    f.write('{} -> {}; ${}'.format(sender_id, recipient_id, amount))
+                    f.close()
+                else:
+                    response.attach_file('pay_failure.html')
+
+            elif reqadr[1] == 'signup.act':
+                username = reqadr[2]
+                password = reqadr[3]
+                id = '0000'
+                while id != '1377' and id[0] != '00' and len(id) < 5:  # Saving first 100 accounts for admins
+                    id = '%04d' % random.randint(0, 10000)
+                accounts.append(Account(username, password, id))
+                response.add_cookie('client-id', id)
+                response.attach_file('account.html')
+
+            elif reqadr[1] == 'login.act':
+                username = reqadr[2]
+                password = reqadr[3]
+                try:
+                    acnt = list(filter(lambda u: u.username == username and u.password == password, accounts))[0]
+                    response.add_cookie('client-id', acnt.id)
+                    account = get_account_by_id(cookies.get('client-id'))
+                    response.attach_file('account.html', nb_page='home.html', username=account.username, id=account.id, balance=account.balance)
+                except IndexError:
+                    response.attach_file('home.html')  # an incorrect username or password, should be changed
+
+            elif reqadr[1] == 'logout.act':
+                response.add_cookie('client-id', 'none')
+                response.attach_file('home.html')
+
+            elif reqadr[1] == 'shutdown.act':
+                self.log.log('Initiating server shutdown...')
+                if reqadr[2] == 'normal':
+                    self.close()
+                    exit()
+                elif reqadr[2] == 'force':
+                    exit()
+                else:
+                    response.set_status_code(404)
             else:
                 response.set_status_code(404)
-        else:
-            response.set_status_code(404)
-            self.log.log('Client requested non-existent action.')
-            return
+                self.log.log('Client requested non-existent action.')
+                return
 
-    else:
-        response.attach_file(reqadr[0], rendr=True, rendrtypes=('html', 'htm'), nb_page=reqadr[0])
+        else:
+            response.attach_file(reqadr[0], rendr=True, rendrtypes=('html', 'htm'), nb_page=reqadr[0])
+
+    elif method == "POST":
+        # user=asd&pass=dsa --> {'user':'asd', 'pass':'dsa'}
+        flags = {i.split('=')[0]:i.split('=')[1] for i in req[3][-1].split('&')}
+
+        if reqadr[0] == 'login.act':
+            usr = flags['user']
+            pwd = flags['pass']
+            try:
+                acnt = list(filter(lambda u: u.username == usr and u.password == pwd, accounts))[0]
+                response.add_cookie('client-id', acnt.id)
+                #account = get_account_by_id(cookies.get('client-id'))
+                response.attach_file('account.html', nb_page='home.html', username=acnt.username, id=acnt.id,
+                                     balance=acnt.balance)
+            except IndexError:
+                response.attach_file('home.html')  # an incorrect username or password, should be changed
 
     self.send(response)
     conn.close()

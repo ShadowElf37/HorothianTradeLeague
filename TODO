@@ -3,13 +3,15 @@ Upon completion of all IMPORTANT work, Project Mercury will be considered BETA a
 
 IMPORTANT
 	Work (anyone can do):
-		1. Login page
-		2. We may want a name and lastname separate from username; username to log in
-	    3. Signup page
-		4. Success/failure pages for certain actions
-	    5. SID for better security than a cookie with account ID
-	    6. Login-page address-bar password encryption (because it uses GET and spectators can see URL; yes, we're using homemade encryption for this)
-	    7. Transaction page
+		1. navbar.cfg should vary for when logged in or not logged in
+		2. Convert all (possible) actions to POST
+		3. We may want a name and lastname separate from username; username to log in, or not at all
+	    4. Signup page
+	    5. Spruce up the login page
+		6. Success/failure pages for certain actions
+	    7. SID for better security than a cookie with account ID
+	    8. Transaction page
+	    9. Home page should be some kind of news feed, create other account menu-item
 
 	Creative vision (probably Yovel should do):
 	    1. Additional account page info

@@ -8,6 +8,18 @@
       background: transparent;
   }
 
+input{
+    box-shadow: 0 0 3px #E00;
+    border-radius: 3px;
+    font-size: 1.1em;
+    padding: 5px;
+    font-family: inherit;
+}
+
+form{
+
+}
+
 body{
     background-color: #FFF;
     font-family: "Corbel", sans-serif;
