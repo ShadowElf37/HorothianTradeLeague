@@ -16,8 +16,11 @@ input{
     font-family: inherit;
 }
 
-form{
-
+a{
+    color: #F22;
+}
+a:hover{
+    color: #A5B;
 }
 
 body{
