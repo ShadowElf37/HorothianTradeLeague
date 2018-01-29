@@ -23,7 +23,7 @@ def load_users():
         users = pickle.load(userfile)
     except EOFError:
         print('user.dat empty, initializing with default values')
-        users = [Account('CentralBank', 'password', '1377')]
+        users = [Account('Central', 'Bank', 'CentralBank', 'password', '1377')]
     return users
 
 def save_users():
@@ -170,6 +170,22 @@ def handle(self, conn, addr, req):
                                      balance=acnt.balance)
             except IndexError:
                 response.attach_file('home.html')  # an incorrect username or password, should be changed
+        elif reqadr[0] == 'signup.act':
+            first = flags['first']
+            last = flags['last']
+            usr = flags['user']
+            pwd = flags['pass']
+            cpwd = flags['cpass']  # confirm password
+            if cpwd != pwd:
+                raise ValueError('Please implement an error page thanks :XXDX::D:X')
+            id = '0000'
+            while id == '1377' or id[:2] == '00':  # Saving first 100 accounts for admin purposes
+                id = '%04d' % random.randint(0, 9999)
+                print('**', id)
+            a = Account(first, last, usr, pwd, id)
+            accounts.append(a)
+            response.add_cookie('client-id', id)
+            response.attach_file('account.html', username=a.username, id=a.id, balance=a.balance)
 
     self.send(response)
     conn.close()

@@ -57,7 +57,7 @@ class Server:
             # You passed an already-encoded string
             else:
                 self.connection.send(msg)
-            self.log.log("A response was sent to the client.")
+            #self.log.log("A response was sent to the client.")
         except AttributeError:
             self.log.log("Tried to send with no client connected.", lvl=Log.ERROR)
             return 1

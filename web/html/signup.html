@@ -5,6 +5,14 @@
     <title>Sign Up | Horothian Trade League</title>
     <link rel="stylesheet" type="text/css" href="general.css">
     <link rel="stylesheet" type="text/css" href="buttons.css">
+    <style>
+        #titles{
+            position: absolute;
+            left: 34%;
+            text-align: right;
+            font-size: 1.1em;
+        }
+    </style>
 </head>
 <body>
     <img src="white_background.png" class="background-img">
@@ -12,11 +20,24 @@
 
     <div id="big-center-text" class="center-text-div">
         <h2>Sign Up</h2>
-        <form action="/login.act" method="post" style="margin-top: 80px;">
-            Username:&nbsp;&nbsp;&nbsp;<input type="text" name="user" maxlength="20">
+        <div id="titles">
+            <div>
+                First Name:<br>
+                Last Name:<br>
+            </div>
+            <div style="margin-top: 25px;">
+                Username:<br>
+                Password:<br>
+                Confirm Password:<br>
+            </div>
+        </div>
+        <form action="/signup.act" method="post" style="margin-top: 50px; line-height: 20px;">
+            <input type="text" name="first" maxlength="20"><br>
+            <input type="text" name="last" maxlength="20"><br>
             <br>
-            Password:&nbsp;&nbsp;&nbsp;&nbsp;<input type="password" name="pass" maxlength="20">
-            <br>
+            <input type="text" name="user" maxlength="20"><br>
+            <input type="password" name="pass" maxlength="20"><br>
+            <input type="password" name="cpass" maxlength="20"><br>
             <input class="form-button" type="submit" value="Sign Up">
         </form>
     </div>

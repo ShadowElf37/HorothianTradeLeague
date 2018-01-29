@@ -3,20 +3,19 @@ Upon completion of all IMPORTANT work, Project Mercury will be considered BETA a
 
 IMPORTANT
 	Work (anyone can do):
-		1. navbar.cfg should vary for when logged in or not logged in
+		1. navbar.cfg should be able to vary when logged in or not logged in (like Login becomes Account instead of both present)
 		2. Convert all (possible) actions to POST
-		3. We may want a name and lastname separate from username; username to log in, or not at all
-	    4. Signup page
-	    5. Spruce up the login page
-		6. Success/failure pages for certain actions
-	    7. SID for better security than a cookie with account ID
-	    8. Transaction page
-	    9. Home page should be some kind of news feed, create other account menu-item
+	    3. Spruce up the login & signup pages
+		4. Success/failure pages for login, etc.
+	    5. SID for better security than a cookie with account ID
+	    6. Transaction page
+	    7. Home page should be some kind of news feed, create other account menu-item
 
 	Creative vision (probably Yovel should do):
 	    1. Additional account page info
 	    2. Match each account.html button with a page
-	    3. Port forward
+	    3. Collect other information for accounts to display & record
+	    4. Port forward
 
 
 LESS IMPORTANT
