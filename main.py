@@ -23,7 +23,7 @@ def load_users():
         users = pickle.load(userfile)
     except EOFError:
         print('user.dat empty, initializing with default values')
-        users = [Account('Central', 'Bank', 'CentralBank', 'password', '1377')]
+        users = [Account('Test', 'User', 'TestUser', 'password', '0001'), Account('Central', 'Bank', 'CentralBank', 'password', '1377')]
     return users
 
 def save_users():
@@ -90,6 +90,10 @@ def handle(self, conn, addr, req):
         elif reqadr[0] == 'account.html':
             account = get_account_by_id(cookies.get('client-id'))
             response.attach_file('account.html', username=account.username, id=account.id, balance=account.balance)
+
+        elif reqadr[0] == 'pay.html':
+            account = get_account_by_id(cookies.get('client-id'))
+            response.attach_file('pay.html', balance=account.balance)
 
         elif reqadr[0].split('-')[0] == 'action':
             reqadr = reqadr[0].split('-')
@@ -170,6 +174,7 @@ def handle(self, conn, addr, req):
                                      balance=acnt.balance)
             except IndexError:
                 response.attach_file('home.html')  # an incorrect username or password, should be changed
+
         elif reqadr[0] == 'signup.act':
             first = flags['first']
             last = flags['last']
@@ -181,11 +186,30 @@ def handle(self, conn, addr, req):
             id = '0000'
             while id == '1377' or id[:2] == '00':  # Saving first 100 accounts for admin purposes
                 id = '%04d' % random.randint(0, 9999)
-                print('**', id)
+                self.log.log("New account created with ID", id, "- first name is", first)
             a = Account(first, last, usr, pwd, id)
             accounts.append(a)
             response.add_cookie('client-id', id)
             response.attach_file('account.html', username=a.username, id=a.id, balance=a.balance)
+
+        elif reqadr[0] == 'pay.act':
+            sender_id = cookies.get('client-id')
+            recipient_id = flags['recp']
+            try:
+                amount = int(flags['amt'])
+            except ValueError:
+                amount = float(flags['amt'])
+            recipient_acnt = get_account_by_id(recipient_id)
+            sender_acnt = get_account_by_id(sender_id)
+            a = sender_acnt
+
+            if not sender_acnt.pay(amount, recipient_acnt):
+                response.attach_file('account.html', username=a.username, id=a.id, balance=a.balance)
+                f = open('logs/transactions.log', 'a')
+                f.write('{} -> {}; ${}'.format(sender_id, recipient_id, amount))
+                f.close()
+            else:
+                response.attach_file('account.html', username=a.username, id=a.id, balance=a.balance)
 
     self.send(response)
     conn.close()

@@ -24,6 +24,10 @@ a:hover{
     color: #A5B;
 }
 
+button a{
+    color: #FAFAFA !important;
+}
+
 body{
     background-color: #FFF;
     font-family: "Corbel", sans-serif;

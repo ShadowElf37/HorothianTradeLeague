@@ -73,7 +73,7 @@ ALPHA v0.0.0.11
     - Added field TotalCredits in economy.dat
     - You can now send integer status codes via send()
 
-#------------MAJOR UPDATE------------#
+#------------MAJOR UPDATE------------# (overhauled and created many new things)
 
 ALPHA v0.0.1.0
     - Added render()
@@ -106,3 +106,11 @@ ALPHA v0.0.1.3
 ALPHA v0.0.1.4
     - Working sign-up page, accessible through login.html
     - Signup action is now POST-based
+
+#------------MAJOR UPDATE------------# (finished the last of the core actions)
+
+ALPHA v0.0.2.0
+    - Converted pay.act to POST
+    - Created pay.html, working payment system (account.html button TRANSACT)
+    - Created a test user under ID 0001, can test payment with it
+    - CentralBank has abstracted balance of Infinity, handled by a class in account.py (may be subject to severe bugs)
