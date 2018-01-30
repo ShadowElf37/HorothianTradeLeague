@@ -50,7 +50,7 @@ class Account:
             if self.id != '1377':
                 self.balance -= amt
             else:  # a payment from the central bank, and thus a change in the economy
-                fecn = open('economy.dat', 'w+')
+                fecn = open('data/economy.dat', 'w+')
                 writebuffer = []
                 for line in fecn.readlines():
                     l = line.split(':')
