@@ -65,9 +65,11 @@ def handle(self, conn, addr, req):
     method = req[0]
     reqadr = req[1]
     cookies = parse_cookie(req[2])
-    flags = req
+    flags = req[3]
 
     response = Response()
+    response.logged_in = cookies.get('client-id') != 'none'
+
     if method == "GET":
         if reqadr[0] == '':
             response.set_status_code(307, location='home.html')
@@ -89,7 +91,10 @@ def handle(self, conn, addr, req):
 
         elif reqadr[0] == 'account.html':
             account = get_account_by_id(cookies.get('client-id'))
-            response.attach_file('account.html', username=account.username, id=account.id, balance=account.balance)
+            if account is not None:
+                response.attach_file('account.html', username=account.username, id=account.id, balance=account.balance)
+            else:
+                response.attach_file('login.html', nb_page="account.html")
 
         elif reqadr[0] == 'pay.html':
             account = get_account_by_id(cookies.get('client-id'))
@@ -100,48 +105,9 @@ def handle(self, conn, addr, req):
             if not (len(req) > 2):
                 self.send(Response.code(404))
                 self.log.log('Client improperly requested an action.')
-                return
-
-            if reqadr[1] == 'pay.act':
-                sender_id = cookies.get('client-id')
-                recipient_id = reqadr[2]
-                amount = int(reqadr[3])
-                recipient_acnt = get_account_by_id(recipient_id)
-                sender_acnt = get_account_by_id(sender_id)
-
-                if not sender_acnt.pay(amount, recipient_acnt):
-                    response.attach_file('pay_success.html')
-                    f = open('logs/transactions.log', 'a')
-                    f.write('{} -> {}; ${}'.format(sender_id, recipient_id, amount))
-                    f.close()
-                else:
-                    response.attach_file('pay_failure.html')
-
-            elif reqadr[1] == 'signup.act':
-                username = reqadr[2]
-                password = reqadr[3]
-                id = '0000'
-                while id != '1377' and id[0] != '00' and len(id) < 5:  # Saving first 100 accounts for admins
-                    id = '%04d' % random.randint(0, 10000)
-                accounts.append(Account(username, password, id))
-                response.add_cookie('client-id', id)
-                response.attach_file('account.html')
-
-            elif reqadr[1] == 'login.act':
-                username = reqadr[2]
-                password = reqadr[3]
-                try:
-                    acnt = list(filter(lambda u: u.username == username and u.password == password, accounts))[0]
-                    response.add_cookie('client-id', acnt.id)
-                    account = get_account_by_id(cookies.get('client-id'))
-                    response.attach_file('account.html', nb_page='home.html', username=account.username, id=account.id, balance=account.balance)
-                except IndexError:
-                    response.attach_file('home.html')  # an incorrect username or password, should be changed
-
             elif reqadr[1] == 'logout.act':
                 response.add_cookie('client-id', 'none')
-                response.attach_file('home.html')
-
+                response.attach_file('home.html', logged_in=False)
             elif reqadr[1] == 'shutdown.act':
                 self.log.log('Initiating server shutdown...')
                 if reqadr[2] == 'normal':
@@ -155,6 +121,8 @@ def handle(self, conn, addr, req):
                 response.set_status_code(404)
                 self.log.log('Client requested non-existent action.')
                 return
+
+
 
         else:
             response.attach_file(reqadr[0], rendr=True, rendrtypes=('html', 'htm'), nb_page=reqadr[0])
@@ -170,7 +138,7 @@ def handle(self, conn, addr, req):
                 acnt = list(filter(lambda u: u.username == usr and u.password == pwd, accounts))[0]
                 response.add_cookie('client-id', acnt.id)
                 #account = get_account_by_id(cookies.get('client-id'))
-                response.attach_file('account.html', nb_page='home.html', username=acnt.username, id=acnt.id,
+                response.attach_file('account.html', logged_in=True, username=acnt.username, id=acnt.id,
                                      balance=acnt.balance)
             except IndexError:
                 response.attach_file('home.html')  # an incorrect username or password, should be changed
@@ -190,7 +158,7 @@ def handle(self, conn, addr, req):
             a = Account(first, last, usr, pwd, id)
             accounts.append(a)
             response.add_cookie('client-id', id)
-            response.attach_file('account.html', username=a.username, id=a.id, balance=a.balance)
+            response.attach_file('account.html', logged_in=True, username=a.username, id=a.id, balance=a.balance)
 
         elif reqadr[0] == 'pay.act':
             sender_id = cookies.get('client-id')

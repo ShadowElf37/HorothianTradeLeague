@@ -114,3 +114,8 @@ ALPHA v0.0.2.0
     - Created pay.html, working payment system (account.html button TRANSACT)
     - Created a test user under ID 0001, can test payment with it
     - CentralBank has abstracted balance of Infinity, handled by a class in account.py (may be subject to severe bugs)
+
+ALPHA v0.0.2.1
+    - Removed redundant GET actions
+    - Configurable (separated by pipe) navbar options for whether logged in or not
+    - Navbar option '_' ignores the navbar item; use for when logged in or not and a NEW option should appear

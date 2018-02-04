@@ -3,14 +3,13 @@ Upon completion of all IMPORTANT work, Project Mercury will be considered BETA a
 
 IMPORTANT
 	Work (anyone can do):
-		1. navbar.cfg should be able to vary when logged in or not logged in (like Login becomes Account instead of both present)
-		2. Convert all (possible) actions to POST, remove redundant GET actions
-	    3. Spruce up the login, signup, and payment pages
-		4. Error messages for invalid login attempts, etc.
-	    5. SID for better security than a cookie with account ID
+		1. Streamline shutdown action (GET)
+	    2. Spruce up all these pages
+		3. Error messages for invalid login attempts, etc.
+	    4. SID for better security than a cookie with account ID
 
 	Creative vision (probably Yovel should do):
-	    1. Additional account page info; collect other information for accounts to display & record
+	    1. Additional account page info; record transactions,
 	    2. Match each account.html button with a page
 	    3. Port forward
 
@@ -18,13 +17,14 @@ IMPORTANT
 LESS IMPORTANT
 	Work:
 		1. Scripting console.html
-		2. Market for online-hosted trade
-		3. SSL
+		2. Overhaul of request handling, should be abstracted class like Response
+		3. Market for online-hosted trade
+		4. SSL
 
 	Creative vision:
-		1. Hunt action, hunts.dat, hunts.html
-		2. console.html commands (not the basic scripting)
-		3. Coalitions
+		1. Coalitions (shared pools) / Guilds (companies)
+		2. Hunt action, hunts.dat, hunts.html
+		3. console.html commands (not the basic scripting)
 		4. Hunt submission
 		5. Real about.html
 		6. Some kind of news feed on home.html when logged in

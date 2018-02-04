@@ -10,7 +10,7 @@ from os.path import dirname, realpath
 from re import split
 
 
-def create_navbar(active):
+def create_navbar(active, logged_in):
     """kwargs should be 'Home="home.html"'; active should be "home.html" """
     navbar = []
     pages = []
@@ -19,12 +19,15 @@ def create_navbar(active):
     data = cfg.read()
     for line in list(reversed(data.split('\n'))):
         l = line.split(' ')
+        l[0] = l[0].split('|')
         pages.append(l[0])
         links.append(l[1])
     cfg.close()
 
     for i in range(len(pages)):
-        navbar.append('<li><a href="{0}"{2}>{1}</a></li>'.format(links[i], pages[i],
+        if (pages[i][0] != '_' and not logged_in) or (pages[i][1] != '_' and logged_in):
+            navbar.append('<li><a href="{0}"{2}>{1}</a></li>'.format(links[i],
+                                                                     (pages[i][0] if not logged_in else pages[i][-1]),
                                                                  (' class="active-nav"' if links[i] == active else '')))
 
     bar = '<center>\n\t<div id="menu-bar" class="menu-bar">\n\t\t<ul class="nav-bar">\n\t\t\t' \
@@ -48,6 +51,7 @@ class Response:
     REDIRECTS = [301, 302, 303, 307, 308]
     codes = {}
     ext = {}
+
     @staticmethod
     def code(hcode, **kwargs):
         r = Response(hcode)
@@ -77,6 +81,7 @@ class Response:
         #print(self.header)
         self.cookie = []
         self.body = body
+        self.logged_in = False
 
         if type(self.body) == type(int()):
             self.set_status_code(self.body, **kwargs)
@@ -114,7 +119,7 @@ class Response:
         self.body = string
 
     # Puts a file in the body
-    def attach_file(self, faddr, nb_page='none', rendr=True, rendrtypes=(), **renderopts):
+    def attach_file(self, faddr, nb_page='none', logged_in=None, rendr=True, rendrtypes=(), **renderopts):
         """faddr should be the file address accounting for ext.cfg
         rendr specifies whether the page should be rendered or not (so it doesn't try to render an image)
         rendrtypes adds extra control when you don't know if you'll be passed an image or a webpage and want to only render one; should be a tuple of files exts
@@ -122,7 +127,7 @@ class Response:
 
         if nb_page == 'none':
             nb_page = faddr
-        renderopts['navbar'] = create_navbar(nb_page)
+        renderopts['navbar'] = create_navbar(nb_page, self.logged_in if logged_in is None else logged_in)
         if type(rendrtypes) != type(tuple()):
             raise TypeError("rendrtypes requires tuple")
         suffix = self.ext.get(faddr.split('.')[-1], '')
