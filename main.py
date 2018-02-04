@@ -100,6 +100,9 @@ def handle(self, conn, addr, req):
             account = get_account_by_id(cookies.get('client-id'))
             response.attach_file('pay.html', balance=account.balance)
 
+        elif reqadr[0] == 'signup.html':
+            response.attach_file('signup.html', nb_page='account.html')
+
         elif reqadr[0].split('-')[0] == 'action':
             reqadr = reqadr[0].split('-')
             if not (len(req) > 2):
@@ -123,8 +126,10 @@ def handle(self, conn, addr, req):
                 return
 
 
-
         else:
+            # --THIS HANDLES EXTRANEOUS REQUESTS--
+            # --PLEASE AVOID BY SPECIFYING MANUAL HANDLE CONDITIONS--
+            # --INTENDED FOR IMAGES AND OTHER RESOURCES--
             response.attach_file(reqadr[0], rendr=True, rendrtypes=('html', 'htm'), nb_page=reqadr[0])
 
     elif method == "POST":
@@ -137,7 +142,6 @@ def handle(self, conn, addr, req):
             try:
                 acnt = list(filter(lambda u: u.username == usr and u.password == pwd, accounts))[0]
                 response.add_cookie('client-id', acnt.id)
-                #account = get_account_by_id(cookies.get('client-id'))
                 response.attach_file('account.html', logged_in=True, username=acnt.username, id=acnt.id,
                                      balance=acnt.balance)
             except IndexError:
