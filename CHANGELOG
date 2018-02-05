@@ -119,3 +119,7 @@ ALPHA v0.0.2.1
     - Removed redundant GET actions
     - Configurable (separated by pipe) navbar options for whether logged in or not
     - Navbar option '_' ignores the navbar item; use for when logged in or not and a NEW option should appear
+
+ALPHA v0.0.2.2
+    - Individually-recorded transaction history
+    - Transactions now have recorded ids

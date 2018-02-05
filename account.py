@@ -35,6 +35,7 @@ class Account:
         self.password = password
         self.firstname = firstname
         self.lastname = lastname
+        self.transaction_history = []
 
     @property
     def balance(self):
@@ -49,16 +50,6 @@ class Account:
             account.balance += amt
             if self.id != '1377':
                 self.balance -= amt
-            else:  # a payment from the central bank, and thus a change in the economy
-                fecn = open('data/economy.dat', 'w+')
-                writebuffer = []
-                for line in fecn.readlines():
-                    l = line.split(':')
-                    if l[0] == 'TotalCredits':
-                        writebuffer.append((l[0], int(l[1]) + amt))
-                writebuffer = '\n'.join(list(map(lambda x: ':'.join(x), writebuffer)))
-                fecn.write(writebuffer)
-                fecn.close()
             return 0
         else:
             return 1

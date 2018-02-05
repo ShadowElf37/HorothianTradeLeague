@@ -12,6 +12,7 @@ from account import *
 import pickle
 import time
 import random
+import encrypt
 
 def client_error_msg(msg):
     return '<html>' + msg + '<br><a href="home.html">Go back.</a></html>'
@@ -141,7 +142,16 @@ def handle(self, conn, addr, req):
             pwd = flags['pass']
             try:
                 acnt = list(filter(lambda u: u.username == usr and u.password == pwd, accounts))[0]
+
+                # This needs to expire
                 response.add_cookie('client-id', acnt.id)
+                e1 = encrypt.encrypt(acnt.username, acnt.password)
+                response.add_cookie('user-data', e1)
+                r = random.randint(10000, 99999)
+                response.add_cookie('session-id', r)
+                e2 = encrypt.encrypt(e1, acnt.id)
+                response.add_cookie('session-validator', encrypt.encrypt(e2, chr(r)))
+
                 response.attach_file('account.html', logged_in=True, username=acnt.username, id=acnt.id,
                                      balance=acnt.balance)
             except IndexError:
@@ -159,10 +169,19 @@ def handle(self, conn, addr, req):
             while id == '1377' or id[:2] == '00':  # Saving first 100 accounts for admin purposes
                 id = '%04d' % random.randint(0, 9999)
                 self.log.log("New account created with ID", id, "- first name is", first)
-            a = Account(first, last, usr, pwd, id)
-            accounts.append(a)
+            acnt = Account(first, last, usr, pwd, id)
+            accounts.append(acnt)
+
+            # This needs to expire
             response.add_cookie('client-id', id)
-            response.attach_file('account.html', logged_in=True, username=a.username, id=a.id, balance=a.balance)
+            e1 = encrypt.encrypt(acnt.username, acnt.password)
+            response.add_cookie('user-data', e1)
+            r = random.randint(10000, 99999)
+            response.add_cookie('session-id', r)
+            e2 = encrypt.encrypt(e1, acnt.id)
+            response.add_cookie('session-validator', encrypt.encrypt(e2, chr(r)))
+
+            response.attach_file('account.html', logged_in=True, username=acnt.username, id=acnt.id, balance=acnt.balance)
 
         elif reqadr[0] == 'pay.act':
             sender_id = cookies.get('client-id')
@@ -174,14 +193,21 @@ def handle(self, conn, addr, req):
             recipient_acnt = get_account_by_id(recipient_id)
             sender_acnt = get_account_by_id(sender_id)
             a = sender_acnt
+            ar = recipient_acnt
 
             if not sender_acnt.pay(amount, recipient_acnt):
                 response.attach_file('account.html', username=a.username, id=a.id, balance=a.balance)
+                tid = int(random.randint(1000000000000000, 9999999999999999), 16)
                 f = open('logs/transactions.log', 'a')
-                f.write('{} -> {}; ${}'.format(sender_id, recipient_id, amount))
+                f.write('{} -> {}; ₢{}; ({})'.format(sender_id, recipient_id, amount, tid))
+                a.transaction_history.append('₢{} sent to {} {} - ({})'.format(amount, ar.firstname, ar.lastname, tid))
+                if a.id != '1377':
+                    ar.transaction_history.append('{} {} sent you ₢{} - ({})'.format(a.firstname, a.lastname, amount, tid))
+                else:
+                    ar.transaction_history.append('CB income: ₢{}'.format(amount))
                 f.close()
             else:
-                response.attach_file('account.html', username=a.username, id=a.id, balance=a.balance)
+                response.attach_file('account.html', username=a.username, id=a.id, balance=a.balance) # error
 
     self.send(response)
     conn.close()
