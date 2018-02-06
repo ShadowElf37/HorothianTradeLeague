@@ -1,3 +1,26 @@
+tr{
+
+}
+th{
+    border-bottom: 1px solid black;
+}
+td{
+    border-bottom: 0px solid black;
+    word-wrap: break-word;
+    max-width: 175px;
+    line-height: 25px;
+    text-align: left;
+}
+td, th{
+    padding: 0px 15px;
+}
+table{
+    border-left: 1px solid red;
+    border-right: 1px solid red;
+    color: black;
+    padding: 10px 5px;
+}
+
 * {
       margin: 0;
       padding: 0;

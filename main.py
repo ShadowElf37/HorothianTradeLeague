@@ -202,7 +202,7 @@ def handle(self, conn, addr, req):
                 response.attach_file('account.html', username=a.username, id=a.id, balance=a.balance)
                 tid = '%19d' % random.randint(1, 2**64)
                 f = open('logs/transactions.log', 'at')
-                gl = '{0} -> {1}; Cr{2}; ({3})\n'.format(sender_id, recipient_id, amount, tid)
+                gl = '{0} -> {1}; Cr{2} ({3})\n'.format(sender_id, recipient_id, amount, tid)
                 f.write(gl)
                 a.transaction_history.append('₢{} sent to {} {}|3{}'.format(amount, ar.firstname, ar.lastname, tid))
                 if a.id != '1377':
