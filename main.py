@@ -76,10 +76,12 @@ def handle(self, conn, addr, req):
             response.set_status_code(307, location='home.html')
             if cookies.get('client-id') is None:
                 response.add_cookie('client-id', 'none')
-
         elif reqadr[0] == 'home.html':
             response.add_cookie('tester_restrictions', 'true')
             if cookies.get('client-id') == 'none':
+                response.attach_file('home.html')
+            elif cookies.get('client-id') == None:
+                response.add_cookie('client-id', 'none')
                 response.attach_file('home.html')
             else:
                 response.attach_file('news.html', nb_page='home.html')
@@ -135,6 +137,7 @@ def handle(self, conn, addr, req):
 
     elif method == "POST":
         # user=asd&pass=dsa --> {'user':'asd', 'pass':'dsa'}
+        print(req)
         flags = {i.split('=')[0]:i.split('=')[1] for i in req[3][-1].split('&')}
 
         if reqadr[0] == 'login.act':
@@ -145,12 +148,6 @@ def handle(self, conn, addr, req):
 
                 # This needs to expire
                 response.add_cookie('client-id', acnt.id)
-                e1 = encrypt.encrypt(acnt.username, acnt.password)
-                response.add_cookie('user-data', e1)
-                r = random.randint(10000, 99999)
-                response.add_cookie('session-id', r)
-                e2 = encrypt.encrypt(e1, acnt.id)
-                response.add_cookie('session-validator', encrypt.encrypt(e2, chr(r)))
 
                 response.attach_file('account.html', logged_in=True, username=acnt.username, id=acnt.id,
                                      balance=acnt.balance)
@@ -174,12 +171,6 @@ def handle(self, conn, addr, req):
 
             # This needs to expire
             response.add_cookie('client-id', id)
-            e1 = encrypt.encrypt(acnt.username, acnt.password)
-            response.add_cookie('user-data', e1)
-            r = random.randint(10000, 99999)
-            response.add_cookie('session-id', r)
-            e2 = encrypt.encrypt(e1, acnt.id)
-            response.add_cookie('session-validator', encrypt.encrypt(e2, chr(r)))
 
             response.attach_file('account.html', logged_in=True, username=acnt.username, id=acnt.id, balance=acnt.balance)
 
