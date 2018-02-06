@@ -123,3 +123,4 @@ ALPHA v0.0.2.1
 ALPHA v0.0.2.2
     - Individually-recorded transaction history
     - Transactions now have recorded ids
+    - Added a homemade encryption algorithm (and it's pretty damn unbreakable) if needed; encrypt.py

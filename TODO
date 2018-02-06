@@ -4,14 +4,13 @@ Upon completion of all IMPORTANT work, Project Mercury will be considered BETA a
 IMPORTANT
 	Work (anyone can do):
 		1. Streamline shutdown action (GET)
-	    2. Spruce up all these pages
-		3. Error messages for invalid login attempts, etc.
-	    4. SID for better security than a cookie with account ID
+	    2. Error messages for invalid login attempts, etc. (use [error] with render kwargs; create error codes for everything possible)
+		3. SID for better security than a cookie with account ID
+	    4. Spruce up all these pages
 
 	Creative vision (probably Yovel should do):
-	    1. Additional account page info; record transactions,
+	    1. Additional account page info???
 	    2. Match each account.html button with a page
-	    3. Port forward
 
 
 LESS IMPORTANT
@@ -19,7 +18,8 @@ LESS IMPORTANT
 		1. Scripting console.html
 		2. Overhaul of request handling, should be abstracted class like Response
 		3. Market for online-hosted trade
-		4. SSL
+		4. Port forward
+		5. SSL
 
 	Creative vision:
 		1. Coalitions (shared pools) / Guilds (companies)

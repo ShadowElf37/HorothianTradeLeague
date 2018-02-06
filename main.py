@@ -106,6 +106,15 @@ def handle(self, conn, addr, req):
         elif reqadr[0] == 'signup.html':
             response.attach_file('signup.html', nb_page='account.html')
 
+        elif reqadr[0] == 'transaction_history.html':
+            cid = cookies.get('client-id')
+            acnt = get_account_by_id(cid)
+            hist = []
+            for item in acnt.transaction_history:
+                item = item.split('|')
+                hist.append('<tr>\n'+'<td>\n'+item[0]+'\n</td>'+'\n<td>'+item[1]+'\n</td>'+'\n</tr>')
+            response.attach_file('transaction_history.html', nb_page='account.html', id=cookies.get('client-id'), history='\n'.join(hist))
+
         elif reqadr[0].split('-')[0] == 'action':
             reqadr = reqadr[0].split('-')
             if not (len(req) > 2):
@@ -188,12 +197,13 @@ def handle(self, conn, addr, req):
 
             if not sender_acnt.pay(amount, recipient_acnt):
                 response.attach_file('account.html', username=a.username, id=a.id, balance=a.balance)
-                tid = int(random.randint(1000000000000000, 9999999999999999), 16)
-                f = open('logs/transactions.log', 'a')
-                f.write('{} -> {}; ₢{}; ({})'.format(sender_id, recipient_id, amount, tid))
+                tid = '%19d' % random.randint(1, 2**64)
+                f = open('logs/transactions.log', 'at')
+                gl = '{0} -> {1}; Cr{2}; ({3})\n'.format(sender_id, recipient_id, amount, tid)
+                f.write(gl)
                 a.transaction_history.append('₢{} sent to {} {} - ({})'.format(amount, ar.firstname, ar.lastname, tid))
                 if a.id != '1377':
-                    ar.transaction_history.append('{} {} sent you ₢{} - ({})'.format(a.firstname, a.lastname, amount, tid))
+                    ar.transaction_history.append('{} {} sent you ₢{}|{}'.format(a.firstname, a.lastname, amount, tid))
                 else:
                     ar.transaction_history.append('CB income: ₢{}'.format(amount))
                 f.close()
