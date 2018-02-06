@@ -110,8 +110,11 @@ def handle(self, conn, addr, req):
             cid = cookies.get('client-id')
             acnt = get_account_by_id(cid)
             hist = []
+            print(acnt.transaction_history)
             for item in acnt.transaction_history:
+                print(item)
                 item = item.split('|')
+                print(item)
                 hist.append('<tr>\n'+'<td>\n'+item[0]+'\n</td>'+'\n<td>'+item[1]+'\n</td>'+'\n</tr>')
             response.attach_file('transaction_history.html', nb_page='account.html', id=cookies.get('client-id'), history='\n'.join(hist))
 
@@ -201,11 +204,11 @@ def handle(self, conn, addr, req):
                 f = open('logs/transactions.log', 'at')
                 gl = '{0} -> {1}; Cr{2}; ({3})\n'.format(sender_id, recipient_id, amount, tid)
                 f.write(gl)
-                a.transaction_history.append('₢{} sent to {} {} - ({})'.format(amount, ar.firstname, ar.lastname, tid))
+                a.transaction_history.append('₢{} sent to {} {}|3{}'.format(amount, ar.firstname, ar.lastname, tid))
                 if a.id != '1377':
-                    ar.transaction_history.append('{} {} sent you ₢{}|{}'.format(a.firstname, a.lastname, amount, tid))
+                    ar.transaction_history.append('{} {} sent you ₢{}|2{}'.format(a.firstname, a.lastname, amount, tid))
                 else:
-                    ar.transaction_history.append('CB income: ₢{}'.format(amount))
+                    ar.transaction_history.append('CB income: ₢{}|7{}'.format(amount, tid))
                 f.close()
             else:
                 response.attach_file('account.html', username=a.username, id=a.id, balance=a.balance) # error

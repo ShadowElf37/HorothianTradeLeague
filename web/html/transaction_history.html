@@ -10,6 +10,27 @@
             color: black;
             line-height: 0px;
         }
+        tr{
+            text-align: left;
+        }
+        th{
+            border-bottom: 1px solid black;
+        }
+        td{
+            border-bottom: 0px solid black;
+            word-wrap: break-word;
+            max-width: 175px;
+            line-height: 25px;
+        }
+        td, th{
+            padding: 0px 15px;
+        }
+        table{
+            border-left: 1px solid red;
+            border-right: 1px solid red;
+            color: black;
+            padding: 10px 5px;
+        }
     </style>
 </head>
 <body>
@@ -19,13 +40,15 @@
     <div id="big-center-text" class="center-text-div">
         <h1>Transaction History</h1>
         <h4>Account [[id]]</h4><br>
-        <table>
-            <tr>
-                <th>Summary</th>
-                <th>Transaction ID</th>
-            </tr>
-            [[history]]
-        </table>
+        <center>
+            <table>
+                <tr>
+                    <th>Summary</th>
+                    <th>Transaction ID</th>
+                </tr>
+                [[history]]
+            </table>
+        </center>
     </div>
 </body>
 </html>
