@@ -24,7 +24,7 @@ def load_users():
         users = pickle.load(userfile)
     except EOFError:
         print('user.dat empty, initializing with default values')
-        users = [Account('Test', 'User', 'TestUser', 'password', '0001'), Account('Central', 'Bank', 'CentralBank', 'password', '1377')]
+        users = [Account('Test', 'User', 'TestUser', 'password', '0001'), Account('Yovel', 'Key-Cohen', 'ShadowElf37', 'password', '0099'), Account('Central', 'Bank', 'CentralBank', 'password', '1377')]
     return users
 
 def save_users():
@@ -47,7 +47,10 @@ accounts = load_users()
 def get_account_by_id(id):
     if id == 'none':
         return None
-    a = list(filter(lambda u: u.id == id, accounts))[0]
+    try:
+        a = list(filter(lambda u: u.id == id, accounts))[0]
+    except IndexError:
+        return None
     return a
 
 # ---------------------------------
@@ -110,13 +113,18 @@ def handle(self, conn, addr, req):
             cid = cookies.get('client-id')
             acnt = get_account_by_id(cid)
             hist = []
-            print(acnt.transaction_history)
             for item in acnt.transaction_history:
                 print(item)
                 item = item.split('|')
                 print(item)
                 hist.append('<tr>\n'+'<td>\n'+item[0]+'\n</td>'+'\n<td>'+item[1]+'\n</td>'+'\n</tr>')
             response.attach_file('transaction_history.html', nb_page='account.html', id=cookies.get('client-id'), history='\n'.join(hist))
+
+        elif reqadr[0] == 'registry.html':
+            acnts = []
+            for a in sorted(accounts, key=lambda u: u.lastname if u.id not in ['0001', '0099', '1377'] else u.id):
+                acnts.append('<tr>\n' + '<td>\n' + a.firstname + ' ' + a.lastname + '\n</td>' + '\n<td>' + a.id + '\n</td>' + '\n<td>' + a.coalition + '\n</td>' + '\n</tr>')
+            response.attach_file('registry.html', nb_page='account.html', accounts='\n'.join(acnts))
 
         elif reqadr[0].split('-')[0] == 'action':
             reqadr = reqadr[0].split('-')
@@ -174,8 +182,9 @@ def handle(self, conn, addr, req):
             cpwd = flags['cpass']  # confirm password
             if cpwd != pwd:
                 raise ValueError('Please implement an error page thanks :XXDX::D:X')
+
             id = '0000'
-            while id == '1377' or id[:2] == '00':  # Saving first 100 accounts for admin purposes
+            while id == '1377' or id[:2] == '00' or get_account_by_id(id):  # Saving first 100 accounts for admin purposes
                 id = '%04d' % random.randint(0, 9999)
                 self.log.log("New account created with ID", id, "- first name is", first)
             acnt = Account(first, last, usr, pwd, id)

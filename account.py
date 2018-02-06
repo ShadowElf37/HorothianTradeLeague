@@ -35,6 +35,7 @@ class Account:
         self.password = password
         self.firstname = firstname
         self.lastname = lastname
+        self.coalition = 'none'
         self.transaction_history = []
 
     @property
