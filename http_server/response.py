@@ -1,7 +1,7 @@
 """
 response.py
 Project Mercury
-Yovel Key-Cohen
+Yovel Key-Cohen and Alwinfy
 """
 
 ENCODING = 'UTF-8'
