@@ -125,3 +125,6 @@ ALPHA v0.0.2.2
     - Transactions now have recorded ids
     - Added a homemade encryption algorithm (and it's pretty damn unbreakable) if needed; encrypt.py
     - transaction_history.html now functioning; accessible from account.html
+
+ALPHA v0.0.2.3
+    - Created Google form for appeals, accessible through account.html

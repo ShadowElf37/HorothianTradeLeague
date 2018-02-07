@@ -5,12 +5,13 @@ IMPORTANT
 	Work (anyone can do):
 		1. Streamline shutdown action (GET)
 	    2. Error messages for invalid login attempts, etc. (use [error] with render kwargs; create error codes for everything possible)
-		3. SID, or perhaps a long only-server-known PIN, for better security than a cookie with account ID
+		3. SID, or perhaps a long only-server-known PIN cookie, for better security than a cookie with account ID
+		4. Cookie expiration (1 or 2 week?)
+		5. What should that last account.html button be for?
 	    4. Spruce up all these pages
 
 	Creative vision (probably Yovel should do):
 	    1. Additional account page info???
-	    2. Match each account.html button with a page
 
 
 LESS IMPORTANT
@@ -20,6 +21,7 @@ LESS IMPORTANT
 		3. Market for online-hosted trade
 		4. Port forward
 		5. SSL
+		6. Input field tooltips (on question marks beside)
 
 	Creative vision:
 		1. Coalitions (shared pools) / Guilds (companies)
