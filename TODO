@@ -8,7 +8,7 @@ IMPORTANT
 		3. SID, or perhaps a long only-server-known PIN cookie, for better security than a cookie with account ID
 		4. Cookie expiration (1 or 2 week?)
 		5. What should that last account.html button be for?
-	    4. Spruce up all these pages
+	    6. Spruce up all these pages
 
 	Creative vision (probably Yovel should do):
 	    1. Additional account page info???

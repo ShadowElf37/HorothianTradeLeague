@@ -32,7 +32,7 @@ def create_navbar(active, logged_in):
 
     bar = '<center>\n\t<div id="menu-bar" class="menu-bar">\n\t\t<ul class="nav-bar">\n\t\t\t' \
           + '\n\t\t\t'.join(navbar) \
-          + '\n\t\t\t<li class="page-title">Horothian Trade League</li>\n\t\t</ul>\n\t</div>\n</center>'
+          + '\n\t\t\t<li class="page-title">Project Mercury</li>\n\t\t</ul>\n\t</div>\n</center>'
 
     return bar
 
