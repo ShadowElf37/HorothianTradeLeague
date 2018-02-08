@@ -2,12 +2,9 @@ Upon completion of all IMPORTANT work, Project Mercury will be considered BETA a
 
 IMPORTANT
 	Work (anyone can do):
-		1. Streamline shutdown action (GET)
-	    2. Error messages for invalid login attempts, etc. (use [error] with render kwargs; create error codes for everything possible)
-		3. SID, or perhaps a long only-server-known PIN cookie, for better security than a cookie with account ID
-		4. Cookie expiration (1 or 2 week?)
-		5. What should that last account.html button be for?
-	    6. Spruce up all these pages
+	    1. Error messages for invalid login attempts, etc. (use [[error]] with render kwargs; create error codes for everything possible)
+		2. What should that last account.html button be for?
+	    3. Spruce up all these pages
 
 	Creative vision (probably Yovel should do):
 	    1. Additional account page info???
@@ -16,17 +13,20 @@ IMPORTANT
 LESS IMPORTANT
 	Work:
 		1. Scripting console.html
-		2. Overhaul of request handling, should be abstracted class like Response
-		3. Market for online-hosted trade
+		2. Overhaul of request handling; should be abstracted class like Response
+		3. Validator cookie should be dynamic with session for increased security
 		4. Port forward
 		5. SSL
 		6. Input field tooltips (on question marks beside)
 
 	Creative vision:
-		1. Coalitions (shared pools) / Guilds (companies)
-		2. Hunt action, hunts.dat, hunts.html
+		1. Hunt action, hunts.dat, hunts.html
+		2. Coalitions (shared pools) / Guilds (companies)
 		3. console.html commands (not the basic scripting)
 		4. Hunt submission
 		5. Real about.html
 		6. Some kind of news feed on home.html when logged in
 		7. Real home.html
+		8. Unlockables/Progress page (for coalitions, hunt submission, etc.)
+		9. Treaty
+		10. Market for online-hosted trade

@@ -12,7 +12,7 @@ from account import *
 import pickle
 import time
 import random
-import encrypt
+from encrypt import encrypt
 
 def client_error_msg(msg):
     return '<html>' + msg + '<br><a href="home.html">Go back.</a></html>'
@@ -46,11 +46,11 @@ def parse_cookie(s):
 accounts = load_users()
 def get_account_by_id(id):
     if id == 'none':
-        return None
+        return ShellAccount()
     try:
         a = list(filter(lambda u: u.id == id, accounts))[0]
     except IndexError:
-        return None
+        return ShellAccount()
     return a
 
 # ---------------------------------
@@ -58,13 +58,6 @@ def get_account_by_id(id):
 
 def handle(self, conn, addr, req):
     self.log.log("Request from ", addr[0], ":", req)
-    # A certain friend is not allowed to connect because he knows that sometimes I have webstuff
-    # on my computer and might see this before it's ready for the grand opening
-    if addr[0] in ['10.1.3.179']:
-        self.send("Your IP address has been banned temporarily.\
-         For more information please visit haha you thought there would be more info but there's not bye loser.")
-        self.log.log("Client IP was found banned -", addr[0])
-        return
 
     method = req[0]
     reqadr = req[1]
@@ -74,17 +67,22 @@ def handle(self, conn, addr, req):
     response = Response()
     response.logged_in = cookies.get('client-id') != 'none'
 
+    if cookies.get('client-id') is None:
+        response.add_cookie('client-id', 'none')
+    if cookies.get('validator') != get_account_by_id(cookies.get('client-id')).validator and response.logged_in:
+        response.add_cookie('client-id', 'none')
+        response.add_cookie('validator', 'none')
+        response.set_status_code(307, location='account.html')
+        response.logged_in = False
+        self.send(response)
+        conn.close()
+        return
+
     if method == "GET":
         if reqadr[0] == '':
             response.set_status_code(307, location='home.html')
-            if cookies.get('client-id') is None:
-                response.add_cookie('client-id', 'none')
         elif reqadr[0] == 'home.html':
-            response.add_cookie('tester_restrictions', 'true')
             if cookies.get('client-id') == 'none':
-                response.attach_file('home.html')
-            elif cookies.get('client-id') == None:
-                response.add_cookie('client-id', 'none')
                 response.attach_file('home.html')
             else:
                 response.attach_file('news.html', nb_page='home.html')
@@ -97,8 +95,8 @@ def handle(self, conn, addr, req):
 
         elif reqadr[0] == 'account.html':
             account = get_account_by_id(cookies.get('client-id'))
-            if account is not None:
-                response.attach_file('account.html', username=account.username, id=account.id, balance=account.balance)
+            if not account.shell:
+                response.attach_file('account.html', username=account.username, id=account.id, balance=account.balance, hunt_total=account.total_hunts, hunt_count=account.active_hunts)
             else:
                 response.attach_file('login.html', nb_page="account.html")
 
@@ -126,23 +124,22 @@ def handle(self, conn, addr, req):
                 acnts.append('<tr>\n' + '<td>\n' + a.firstname + ' ' + a.lastname + '\n</td>' + '\n<td>' + a.id + '\n</td>' + '\n<td>' + a.coalition + '\n</td>' + '\n</tr>')
             response.attach_file('registry.html', nb_page='account.html', accounts='\n'.join(acnts))
 
-        elif reqadr[0].split('-')[0] == 'action':
-            reqadr = reqadr[0].split('-')
+
+        elif reqadr[0].split('.')[-1] == 'act':
             if not (len(req) > 2):
                 self.send(Response.code(404))
                 self.log.log('Client improperly requested an action.')
-            elif reqadr[1] == 'logout.act':
+            elif reqadr[0] == 'logout.act':
                 response.add_cookie('client-id', 'none')
+                response.add_cookie('validator', 'none')
                 response.attach_file('home.html', logged_in=False)
-            elif reqadr[1] == 'shutdown.act':
+            elif reqadr[0] == 'shutdown_normal.act':
                 self.log.log('Initiating server shutdown...')
-                if reqadr[2] == 'normal':
-                    self.close()
-                    exit()
-                elif reqadr[2] == 'force':
-                    exit()
-                else:
-                    response.set_status_code(404)
+                self.close()
+                save_users()
+                exit()
+            elif reqadr[0] == 'shutdown_force.act':
+                exit()
             else:
                 response.set_status_code(404)
                 self.log.log('Client requested non-existent action.')
@@ -157,7 +154,6 @@ def handle(self, conn, addr, req):
 
     elif method == "POST":
         # user=asd&pass=dsa --> {'user':'asd', 'pass':'dsa'}
-        print(req)
         flags = {i.split('=')[0]:i.split('=')[1] for i in req[3][-1].split('&')}
 
         if reqadr[0] == 'login.act':
@@ -166,11 +162,10 @@ def handle(self, conn, addr, req):
             try:
                 acnt = list(filter(lambda u: u.username == usr and u.password == pwd, accounts))[0]
 
-                # This needs to expire
-                response.add_cookie('client-id', acnt.id)
+                response.add_cookie('client-id', acnt.id, 'Max-Age=604800', 'HttpOnly')
+                response.add_cookie('validator', acnt.validator, 'Max-Age=604800', 'HttpOnly')
 
-                response.attach_file('account.html', logged_in=True, username=acnt.username, id=acnt.id,
-                                     balance=acnt.balance)
+                response.set_status_code(303, location='account.html')
             except IndexError:
                 response.attach_file('home.html')  # an incorrect username or password, should be changed
 
@@ -190,10 +185,10 @@ def handle(self, conn, addr, req):
             acnt = Account(first, last, usr, pwd, id)
             accounts.append(acnt)
 
-            # This needs to expire
-            response.add_cookie('client-id', id)
+            response.add_cookie('client-id', id, 'Max-Age=604800', 'HttpOnly')
+            response.add_cookie('validator', acnt.validator, 'Max-Age=604800', 'HttpOnly')
 
-            response.attach_file('account.html', logged_in=True, username=acnt.username, id=acnt.id, balance=acnt.balance)
+            response.set_status_code(303, location='account.html')
 
         elif reqadr[0] == 'pay.act':
             sender_id = cookies.get('client-id')
@@ -220,7 +215,7 @@ def handle(self, conn, addr, req):
                     ar.transaction_history.append('CB income: ₢{}|7{}'.format(amount, tid))
                 f.close()
             else:
-                response.attach_file('account.html', username=a.username, id=a.id, balance=a.balance) # error
+                response.attach_file('account.html', username=a.username, id=a.id, balance=a.balance, hunt_count=a.total_hunts) # error
 
     self.send(response)
     conn.close()

@@ -4,6 +4,8 @@ Project Mercury
 Yovel Key-Cohen
 """
 
+import random
+
 class Infinity:
     def __int__(self):
         return 2**64
@@ -36,7 +38,12 @@ class Account:
         self.firstname = firstname
         self.lastname = lastname
         self.coalition = 'none'
+        self.session_id = 'none'
         self.transaction_history = []
+        self.shell = False
+        self.validator = self.get_new_validator()
+        self.total_hunts = 0
+        self.active_hunts = 0
 
     @property
     def balance(self):
@@ -55,3 +62,25 @@ class Account:
             return 0
         else:
             return 1
+
+    @staticmethod
+    def get_new_validator():
+        s = '%64d' % random.randint(10 ** 64, 10 ** 65 - 1)  # 512-bit validator
+        return s
+
+
+class ShellAccount:
+    def __init__(self):
+        self.id = None
+        self.balance = 0
+        self.username = None
+        self.password = None
+        self.firstname = None
+        self.lastname = None
+        self.coalition = 'none'
+        self.session_id = 'none'
+        self.transaction_history = []
+        self.shell = True
+        self.validator = None
+        self.total_hunts = 0
+        self.active_hunts = 0

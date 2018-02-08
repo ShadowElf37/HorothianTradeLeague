@@ -31,14 +31,16 @@ class Log:
     # Dumps the current ledger to a unique log file; should be called on server close
     def dump(self):
         # Gets current log number
-        lcf = open("data/log_counter.dat", 'w+')
+        lcf = open("data/log_counter.dat", 'r')
         lc = int(lcf.read())
+        lcf.close()
+        lcf = open("data/log_counter.dat", 'w')
         lcf.write(str(lc+1))
         lcf.close()
 
         # Creates file and writes ledger
-        f = open("logs/%d_log%s.log" % (lc, Log.get_time_alt()), 'w')
-        f.write('\n'.join(self.ledger))
+        f = open("logs/%d_ProjectMercuryLog_%s.log" % (lc, Log.get_time_alt()), 'w')
+        f.write('\n'.join(map(str, self.ledger)))
         f.close()
 
     # Gets a timestamp
@@ -50,5 +52,5 @@ class Log:
     # Gets a timestamp (made for dump())
     @staticmethod
     def get_time_alt():
-        timestamp = time.strftime('%y-%m-%d-%H-%M-%S')
+        timestamp = time.strftime('%y-%m-%d_%H;%M;%S')
         return timestamp

@@ -129,3 +129,18 @@ ALPHA v0.0.2.2
 ALPHA v0.0.2.3
     - Created Google form for appeals, accessible through account.html
     - Account registry now accessible through account.html
+
+#------------MAJOR UPDATE------------# (major changes to cookie management)
+
+ALPHA v0.0.3.0
+    - Fixed some bugs in log dump
+    - Refined server shutdown process
+    - Actions no longer accessed by 'action-' prefix
+    - Added logs to .gitignore
+    - Client-id cookies are forced into some kind of existence now
+    - A validator cookie has been added; it's a 512-bit string of random numbers, so you can only cookie-hack an account
+        if you know the id AND validator (still not best case, but it's fine for most people)
+    - Cookies will expire 2 weeks after their creation
+    - Added HTTP code 303
+    - Changed attachments of account.html to redirects using 303
+    - Added account.html info of completed and active hunts
