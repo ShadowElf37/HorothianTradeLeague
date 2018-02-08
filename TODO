@@ -3,21 +3,20 @@ Upon completion of all IMPORTANT work, Project Mercury will be considered BETA a
 IMPORTANT
 	Work (anyone can do):
 	    1. Error messages for invalid login attempts, etc. (use [[error]] with render kwargs; create error codes for everything possible)
-		2. What should that last account.html button be for?
-	    3. Spruce up all these pages
 
 	Creative vision (probably Yovel should do):
-	    1. Additional account page info???
+	    All done!
 
 
 LESS IMPORTANT
 	Work:
 		1. Scripting console.html
 		2. Overhaul of request handling; should be abstracted class like Response
-		3. Validator cookie should be dynamic with session for increased security
-		4. Port forward
-		5. SSL
-		6. Input field tooltips (on question marks beside)
+		3. Find a purpose for that last account.html button
+		4. Improve page CSS and add "aesthetic features"
+		5. Validator cookie should be dynamic with session for increased security
+		6. SSL
+		7. Input field tooltips (on question marks beside)
 
 	Creative vision:
 		1. Hunt action, hunts.dat, hunts.html
@@ -30,3 +29,4 @@ LESS IMPORTANT
 		8. Unlockables/Progress page (for coalitions, hunt submission, etc.)
 		9. Treaty
 		10. Market for online-hosted trade
+		11. Port forward

@@ -130,7 +130,7 @@ ALPHA v0.0.2.3
     - Created Google form for appeals, accessible through account.html
     - Account registry now accessible through account.html
 
-#------------MAJOR UPDATE------------# (major changes to cookie management)
+#------------MAJOR UPDATE------------# (major changes to cookies, shutdown, and accounts)
 
 ALPHA v0.0.3.0
     - Fixed some bugs in log dump
