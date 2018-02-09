@@ -78,6 +78,8 @@ def handle(self, conn, addr, req):
         conn.close()
         return
 
+    get_last = lambda: cookies.get('page', 'home.html')
+
     if method == "GET":
         if reqadr[0] == '':
             response.set_status_code(307, location='home.html')
@@ -138,9 +140,9 @@ def handle(self, conn, addr, req):
             elif reqadr[0] == 'shutdown_force.act':
                 exit()
             else:
-                response.attach_file('home.html', error=get_error(2, 'a'))
-                self.log.log(addr[0], 'Client requested non-existent action.', lvl=Log.ERROR)
-                return
+                # Proper error handling
+                response.attach_file(get_last(), error=get_error(2, 'a'))
+                self.log.log(addr[0], '- Client requested non-existent action.', lvl=Log.ERROR)
 
 
         else:
@@ -214,6 +216,7 @@ def handle(self, conn, addr, req):
             else:
                 response.attach_file('account.html', username=a.username, id=a.id, balance=a.balance, hunt_count=a.total_hunts) # error
 
+    response.add_cookie('page', reqadr[-1])
     self.send(response)
     conn.close()
 

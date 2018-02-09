@@ -1,5 +1,16 @@
 .error{
-
+    background: #15E;
+    border-radius: 20px;
+    color: white;
+    position: relative;
+    top: 125px;
+    font-size: 18px;
+    height: auto;
+    max-width: 400px;
+    min-width: auto;
+    padding: 4px 10px;
+    font-family: "Calibri", sans;
+    text-align: center;
 }
 
 th{

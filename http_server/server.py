@@ -13,9 +13,10 @@ from sys import exit
 def get_error(num, let=''):
     codes = open('conf/errors.cfg', 'r').readlines()
     for line in codes:
-        if not (line[0] == '' or line[0] == '#'):
-            if int(line[:line.find(':')].strip()) == num:
-                return ('Error %d%s: ' % (num, let)) + line[line.find(':')+1:].strip()
+        line = line.strip()
+        if not (line == '' or line[0] == '#'):
+            if int(line[:line.find(':')]) == num:
+                return ('<center><div class="error">Error %d%s: ' % (num, let)) + line[line.find(':')+1:].strip()+'</div></center>'
 
 class Server:
     def __init__(self, debug=False, include_debug_level=False):

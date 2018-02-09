@@ -148,4 +148,4 @@ ALPHA v0.0.3.0
 ALPHA v0.0.3.1
     - Created errors.cfg for configuring error codes and appropriate text
     - server.py has a get_error() which takes a code and returns text; use 'error' render kwarg, no explicit default needed
-    -
+    - Created error CSS and added [[error]] to every page under [[navbar]]
