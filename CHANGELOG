@@ -144,3 +144,8 @@ ALPHA v0.0.3.0
     - Added HTTP code 303
     - Changed attachments of account.html to redirects using 303
     - Added account.html info of completed and active hunts
+
+ALPHA v0.0.3.1
+    - Created errors.cfg for configuring error codes and appropriate text
+    - server.py has a get_error() which takes a code and returns text; use 'error' render kwarg, no explicit default needed
+    -

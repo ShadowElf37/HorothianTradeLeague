@@ -10,6 +10,12 @@ from http_server.log import *
 from http_server.response import *
 from sys import exit
 
+def get_error(num, let=''):
+    codes = open('conf/errors.cfg', 'r').readlines()
+    for line in codes:
+        if not (line[0] == '' or line[0] == '#'):
+            if int(line[:line.find(':')].strip()) == num:
+                return ('Error %d%s: ' % (num, let)) + line[line.find(':')+1:].strip()
 
 class Server:
     def __init__(self, debug=False, include_debug_level=False):
@@ -101,7 +107,7 @@ class Server:
                 except Exception as e:
                     if self.debug:
                         raise e
-                    self.send(Response.code(500))
+                    self.send(Response(body=get_error(0, 'h')))
                     self.log.log('A fatal error occurred in handle(): {}'.format(e), lvl=Log.ERROR)
             self.handled_counter += 1
             self.connection = None

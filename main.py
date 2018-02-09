@@ -126,10 +126,7 @@ def handle(self, conn, addr, req):
 
 
         elif reqadr[0].split('.')[-1] == 'act':
-            if not (len(req) > 2):
-                self.send(Response.code(404))
-                self.log.log('Client improperly requested an action.')
-            elif reqadr[0] == 'logout.act':
+            if reqadr[0] == 'logout.act':
                 response.add_cookie('client-id', 'none')
                 response.add_cookie('validator', 'none')
                 response.attach_file('home.html', logged_in=False)
@@ -141,8 +138,8 @@ def handle(self, conn, addr, req):
             elif reqadr[0] == 'shutdown_force.act':
                 exit()
             else:
-                response.set_status_code(404)
-                self.log.log('Client requested non-existent action.')
+                response.attach_file('home.html', error=get_error(2, 'a'))
+                self.log.log(addr[0], 'Client requested non-existent action.', lvl=Log.ERROR)
                 return
 
 

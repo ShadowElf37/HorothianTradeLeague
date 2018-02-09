@@ -10,13 +10,15 @@ IMPORTANT
 
 LESS IMPORTANT
 	Work:
-		1. Scripting console.html
-		2. Overhaul of request handling; should be abstracted class like Response
-		3. Find a purpose for that last account.html button
-		4. Improve page CSS and add "aesthetic features"
-		5. Validator cookie should be dynamic with session for increased security
-		6. SSL
-		7. Input field tooltips (on question marks beside)
+	    1. Fix page <title>s, most are wrong
+		2. Scripting console.html
+		3. Overhaul of request handling; should be abstracted class like Response
+		4. Find a purpose for that last account.html button
+		5. Improve page CSS and add "aesthetic features"
+		6. Validator cookie should be dynamic with session for increased security
+		7. SSL
+		8. Input field tooltips (on question marks beside)
+		9. Thread for eval/exec(input()) so we can do maintenance without restarting the server
 
 	Creative vision:
 		1. Hunt action, hunts.dat, hunts.html
