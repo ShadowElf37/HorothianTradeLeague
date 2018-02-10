@@ -172,7 +172,8 @@ def handle(self, conn, addr, req):
 
                 response.set_status_code(303, location='account.html')
             except IndexError:
-                response.attach_file('home.html')  # an incorrect username or password, should be changed
+                self.throwError(4, 'a', get_last(), response=response)
+                self.log.log(addr[0], '- Client entered incorrect login information.', lvl=Log.ERROR)
 
         elif reqadr[0] == 'signup.act':
             first = flags['first']
@@ -181,7 +182,8 @@ def handle(self, conn, addr, req):
             pwd = flags['pass']
             cpwd = flags['cpass']  # confirm password
             if cpwd != pwd:
-                raise ValueError('Please implement an error page thanks :XXDX::D:X')
+                self.throwError(7, 'a', get_last(), response=response)
+                self.log.log(addr[0], '- Client pwd does not equal confirm pwd.', lvl=Log.ERROR)
 
             id = '0000'
             while id == '1377' or id[:2] == '00' or get_account_by_id(id):  # Saving first 100 accounts for admin purposes
@@ -203,6 +205,9 @@ def handle(self, conn, addr, req):
             except ValueError:
                 amount = float(flags['amt'])
             recipient_acnt = get_account_by_id(recipient_id)
+            if recipient_acnt.shell:
+                self.throwError(6, 'a', get_last(), response=response)
+                self.log.log(addr[0], '- Client gave an invalid account id.', lvl=Log.ERROR)
             sender_acnt = get_account_by_id(sender_id)
             a = sender_acnt
             ar = recipient_acnt
@@ -220,7 +225,8 @@ def handle(self, conn, addr, req):
                     ar.transaction_history.append('CB income of ₢{}|7{}|{}'.format(amount, tid, time.strftime('%c - %x')))
                 f.close()
             else:
-                response.attach_file('account.html') # error
+                self.throwError(3, 'a', get_last(), response=response)
+                self.log.log(addr[0], '- Client tried to overdraft.', lvl=Log.ERROR)
 
     if reqadr[-1].split('.')[-1] == 'html':
         response.add_cookie('page', reqadr[-1])

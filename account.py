@@ -59,6 +59,7 @@ class Account:
             account.balance += amt
             if self.id != '1377':
                 self.balance -= amt
+            account.balance = float('%.2f' % account.balance)
             self.balance = float('%.2f' % self.balance)
             return 0
         else:

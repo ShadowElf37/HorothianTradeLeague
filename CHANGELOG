@@ -151,4 +151,4 @@ ALPHA v0.0.3.1
     - Created error CSS and added [[error]] to every page under [[navbar]]
     - Timestamps of transactions and last activity added, the former also to transaction_history.html
     - Render options now have top-of-request-handler-set defaults
-    - 
+    - Caught a number of errors
