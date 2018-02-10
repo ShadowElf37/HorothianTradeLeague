@@ -2,7 +2,8 @@ Upon completion of all IMPORTANT work, Project Mercury will be considered BETA a
 
 IMPORTANT
 	Work (anyone can do):
-	    1. Error messages for invalid login attempts, etc. (use [[error]] with render kwargs; create error codes for everything possible)
+	    1. Errors!
+	    2. Record transaction date/time, last user activity date/time, etc.
 
 	Creative vision (probably Yovel should do):
 	    All done!
@@ -13,7 +14,7 @@ LESS IMPORTANT
 	    1. Fix page <title>s, most are wrong
 		2. Scripting console.html
 		3. Overhaul of request handling; should be abstracted class like Response
-		4. Find a purpose for that last account.html button
+		4. That last account.html button should be a messages page (can send and recv from any user)
 		5. Improve page CSS and add "aesthetic features"
 		6. Validator cookie should be dynamic with session for increased security
 		7. SSL
