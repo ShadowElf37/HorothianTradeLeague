@@ -24,7 +24,7 @@ def load_users():
         users = pickle.load(userfile)
     except EOFError:
         print('user.dat empty, initializing with default values')
-        users = [Account('Test', 'User', 'TestUser', 'password', '0001'), Account('Yovel', 'Key-Cohen', 'ShadowElf37', 'password', '0099'), Account('Central', 'Bank', 'CentralBank', 'password', '1377')]
+        users = [Account('Test', 'User', 'TestUser', 'password', '0001'), Account('League', 'Leader', 'LeagueLeader', 'password', '0002'), Account('Yovel', 'Key-Cohen', 'ShadowElf37', 'password', '0099'), Account('Central', 'Bank', 'CentralBank', 'password', '1377')]
     return users
 
 def save_users():
@@ -43,7 +43,6 @@ def parse_cookie(s):
         cookieB[term[:sep].strip()] = term[sep + 1:].strip()
     return cookieB
 
-accounts = load_users()
 def get_account_by_id(id):
     if id == 'none':
         return ShellAccount()
@@ -53,8 +52,10 @@ def get_account_by_id(id):
         return ShellAccount()
     return a
 
-# ---------------------------------
 
+accounts = load_users()
+
+# ---------------------------------
 
 def handle(self, conn, addr, req):
     self.log.log("Request from ", addr[0], ":", req)
@@ -66,12 +67,17 @@ def handle(self, conn, addr, req):
 
     response = Response()
     response.logged_in = cookies.get('client-id', 'none') != 'none'
+    client_id = cookies.get('client-id')
+    client = get_account_by_id(client_id)
 
-    if cookies.get('client-id') is None:
+    render_defaults = {'username':client.username, 'id':client_id, 'hunt_total':client.total_hunts, 'hunt_count':client.active_hunts, 'balance':client.balance}
+    response.default_renderopts = render_defaults
+
+    if client_id is None:
         response.add_cookie('client-id', 'none')
     elif response.logged_in:
-        get_account_by_id(cookies.get('client-id')).last_activity = time.strftime('%c - %x')
-    if cookies.get('validator') != get_account_by_id(cookies.get('client-id')).validator and response.logged_in:
+        get_account_by_id(client_id).last_activity = time.strftime('%c - %x')
+    if cookies.get('validator') != get_account_by_id(client_id).validator and response.logged_in:
         response.add_cookie('client-id', 'none')
         response.add_cookie('validator', 'none')
         response.set_status_code(307, location='account.html')
@@ -80,13 +86,14 @@ def handle(self, conn, addr, req):
         conn.close()
         return
 
+
     get_last = lambda: cookies.get('page', 'home.html')
 
     if method == "GET":
         if reqadr[0] == '':
             response.set_status_code(307, location='home.html')
         elif reqadr[0] == 'home.html':
-            if cookies.get('client-id') == 'none':
+            if client_id == 'none':
                 response.attach_file('home.html')
             else:
                 response.attach_file('news.html', nb_page='home.html')
@@ -98,34 +105,33 @@ def handle(self, conn, addr, req):
                 response.set_status_code(307, location='https://drive.google.com/open?id=1vylaFRMUhj0fCGqDVhn0RC7xXmOegabodKs9YK-8zbs')
 
         elif reqadr[0] == 'account.html':
-            account = get_account_by_id(cookies.get('client-id'))
+            account = get_account_by_id(client_id)
             if not account.shell:
-                response.attach_file('account.html', username=account.username, id=account.id, balance=account.balance, hunt_total=account.total_hunts, hunt_count=account.active_hunts)
+                response.attach_file('account.html')
             else:
                 response.attach_file('login.html', nb_page="account.html")
 
         elif reqadr[0] == 'pay.html':
-            account = get_account_by_id(cookies.get('client-id'))
-            response.attach_file('pay.html', balance=account.balance)
+            account = get_account_by_id(client_id)
+            response.attach_file('pay.html', nb_page='account.html')
 
         elif reqadr[0] == 'signup.html':
             response.attach_file('signup.html', nb_page='account.html')
 
         elif reqadr[0] == 'transaction_history.html':
-            cid = cookies.get('client-id')
+            cid = client_id
             acnt = get_account_by_id(cid)
             hist = []
             for item in acnt.transaction_history:
                 item = item.split('|')
                 hist.append('<tr>\n'+'<td>\n'+item[0]+'\n</td>'+'\n<td>'+item[1]+'\n</td>'+'\n<td>'+item[2]+'\n</td>''\n</tr>')
-            response.attach_file('transaction_history.html', nb_page='account.html', id=cookies.get('client-id'), history='\n'.join(hist))
+            response.attach_file('transaction_history.html', nb_page='account.html', history='\n'.join(hist))
 
         elif reqadr[0] == 'registry.html':
             acnts = []
             for a in sorted(accounts, key=lambda u: u.lastname if u.id not in ['0001', '0099', '1377'] else u.id):
                 acnts.append('<tr>\n' + '<td>\n' + a.firstname + ' ' + a.lastname + '\n</td>' + '\n<td>' + a.id + '\n</td>' + '\n<td>' + a.coalition + '\n</td>' + '\n</tr>')
             response.attach_file('registry.html', nb_page='account.html', accounts='\n'.join(acnts))
-
 
         elif reqadr[0].split('.')[-1] == 'act':
             if reqadr[0] == 'logout.act':
@@ -141,7 +147,7 @@ def handle(self, conn, addr, req):
                 exit()
             else:
                 # Proper error handling
-                response.attach_file(get_last(), error=get_error(2, 'a'))
+                self.throwError(2, 'a', get_last(), response=response)
                 self.log.log(addr[0], '- Client requested non-existent action.', lvl=Log.ERROR)
 
 
@@ -190,7 +196,7 @@ def handle(self, conn, addr, req):
             response.set_status_code(303, location='account.html')
 
         elif reqadr[0] == 'pay.act':
-            sender_id = cookies.get('client-id')
+            sender_id = client_id
             recipient_id = flags['recp']
             try:
                 amount = int(flags['amt'])
@@ -202,7 +208,7 @@ def handle(self, conn, addr, req):
             ar = recipient_acnt
 
             if not sender_acnt.pay(amount, recipient_acnt):
-                response.attach_file('account.html', username=a.username, id=a.id, balance=a.balance)
+                response.attach_file('account.html')
                 tid = '%19d' % random.randint(1, 2**64)
                 f = open('logs/transactions.log', 'at')
                 gl = '{0} -> {1}; Cr{2} ({3}) -- {4}\n'.format(sender_id, recipient_id, amount, tid, time.strftime('%c - %x'))
@@ -214,7 +220,7 @@ def handle(self, conn, addr, req):
                     ar.transaction_history.append('CB income of ₢{}|7{}|{}'.format(amount, tid, time.strftime('%c - %x')))
                 f.close()
             else:
-                response.attach_file('account.html', username=a.username, id=a.id, balance=a.balance, hunt_count=a.total_hunts) # error
+                response.attach_file('account.html') # error
 
     if reqadr[-1].split('.')[-1] == 'html':
         response.add_cookie('page', reqadr[-1])

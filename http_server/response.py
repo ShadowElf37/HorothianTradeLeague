@@ -82,6 +82,7 @@ class Response:
         self.cookie = []
         self.body = body
         self.logged_in = False
+        self.default_renderopts = dict()
 
         if type(self.body) == type(int()):
             self.set_status_code(self.body, **kwargs)
@@ -137,7 +138,7 @@ class Response:
         try:
             f = open(faddr, 'rb')
             if rendr and (rendrtypes == () or faddr.split('.')[-1] in rendrtypes):
-                fl = render(f.read(), error=error, **renderopts)
+                fl = render(f.read(), error=error, **renderopts, **self.default_renderopts)
             else:
                 fl = f.read()
             self.set_body(fl)

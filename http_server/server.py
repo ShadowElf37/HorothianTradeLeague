@@ -105,10 +105,14 @@ class Server:
                 # Requests come in a list format, starting with 'GET' etc. and followed by the page address
                 try:
                     self.handle_request(self, self.connection, self.c_address, parsed_req)
+                except (KeyboardInterrupt, SystemExit):
+                    global save_users
+                    self.close()
+                    save_users()
                 except Exception as e:
                     if self.debug:
                         raise e
-                    self.send(Response(body=get_error(0, 'h')))
+                    self.throwError(0, 'h', 'home.html')
                     self.log.log('A fatal error occurred in handle(): {}'.format(e), lvl=Log.ERROR)
             self.handled_counter += 1
             self.connection = None
@@ -129,6 +133,16 @@ class Server:
             return 'ERROR_0'
         request[1] = request[1].split('/')
         return request
+
+    # Sends a user-friendly error message
+    def throwError(self, code, id, page, response=None, **renderopts):
+        err = get_error(code, id)
+        if response is None:
+            r = Response()
+        else:
+            r = response
+        r.attach_file(page, error=err, **renderopts)
+        self.send(r)
 
     # Wrapper for request_handler() setting
     def set_request_handler(self, func):
