@@ -3,7 +3,7 @@ Upon completion of all IMPORTANT work, Project Mercury will be considered BETA a
 IMPORTANT
 	1. Do your best to break the website; follow stacktraces and try-except with
 
-	    self.throwError(CODE, LETTER ID INCREMENTED FOR EACH INSTANCE OF THAT CODE, get_last(), response=response)
+	    self.throwError(CODE IN ERRORS.CFG, LETTER ID INCREMENTED FOR EACH INSTANCE OF THAT CODE, get_last(), response=response)
         self.log.log(addr[0], '- CLIENT DID SOMETHING DUMB', lvl=Log.ERROR)
 
 
