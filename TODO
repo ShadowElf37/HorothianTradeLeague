@@ -3,8 +3,11 @@ Upon completion of all IMPORTANT work, Project Mercury will be considered BETA a
 IMPORTANT
 	1. Do your best to break the website; follow stacktraces and try-except with
 
-	    self.throwError(CODE IN ERRORS.CFG, LETTER ID INCREMENTED FOR EACH INSTANCE OF THAT CODE, get_last(), response=response)
-        self.log.log(addr[0], '- CLIENT DID SOMETHING DUMB', lvl=Log.ERROR)
+	    self.throwError(CODE, LETTER ID, get_last(), response=response)
+	    self.log.log(addr[0], '- CLIENT DID SOMETHING DUMB', lvl=Log.ERROR)
+	    # CODE should be an int corresponding to a code in errors.cfg; more should be created as needed
+	    # LETTER ID is just a marker for where it happened in the code, because everything being 'Error 3' isn't very helpful, but 'Error 3a' vs 'Error 3b' means we know exactly what happened
+        # CLIENT DID SOMETHING DUMB should be replaced, obviously
 
 
 
