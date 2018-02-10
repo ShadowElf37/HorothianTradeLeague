@@ -44,6 +44,7 @@ class Account:
         self.validator = self.get_new_validator()
         self.total_hunts = 0
         self.active_hunts = 0
+        self.last_activity = ''
 
     @property
     def balance(self):

@@ -65,10 +65,12 @@ def handle(self, conn, addr, req):
     flags = req[3]
 
     response = Response()
-    response.logged_in = cookies.get('client-id') != 'none'
+    response.logged_in = cookies.get('client-id', 'none') != 'none'
 
     if cookies.get('client-id') is None:
         response.add_cookie('client-id', 'none')
+    elif response.logged_in:
+        get_account_by_id(cookies.get('client-id')).last_activity = time.strftime('%c - %x')
     if cookies.get('validator') != get_account_by_id(cookies.get('client-id')).validator and response.logged_in:
         response.add_cookie('client-id', 'none')
         response.add_cookie('validator', 'none')
@@ -114,10 +116,8 @@ def handle(self, conn, addr, req):
             acnt = get_account_by_id(cid)
             hist = []
             for item in acnt.transaction_history:
-                print(item)
                 item = item.split('|')
-                print(item)
-                hist.append('<tr>\n'+'<td>\n'+item[0]+'\n</td>'+'\n<td>'+item[1]+'\n</td>'+'\n</tr>')
+                hist.append('<tr>\n'+'<td>\n'+item[0]+'\n</td>'+'\n<td>'+item[1]+'\n</td>'+'\n<td>'+item[2]+'\n</td>''\n</tr>')
             response.attach_file('transaction_history.html', nb_page='account.html', id=cookies.get('client-id'), history='\n'.join(hist))
 
         elif reqadr[0] == 'registry.html':
@@ -205,18 +205,19 @@ def handle(self, conn, addr, req):
                 response.attach_file('account.html', username=a.username, id=a.id, balance=a.balance)
                 tid = '%19d' % random.randint(1, 2**64)
                 f = open('logs/transactions.log', 'at')
-                gl = '{0} -> {1}; Cr{2} ({3})\n'.format(sender_id, recipient_id, amount, tid)
+                gl = '{0} -> {1}; Cr{2} ({3}) -- {4}\n'.format(sender_id, recipient_id, amount, tid, time.strftime('%c - %x'))
                 f.write(gl)
-                a.transaction_history.append('₢{} sent to {} {}|3{}'.format(amount, ar.firstname, ar.lastname, tid))
+                a.transaction_history.append('₢{} sent to {} {}|3{}|{}'.format(amount, ar.firstname, ar.lastname, tid, time.strftime('%c - %x')))
                 if a.id != '1377':
-                    ar.transaction_history.append('{} {} sent you ₢{}|2{}'.format(a.firstname, a.lastname, amount, tid))
+                    ar.transaction_history.append('{} {} sent you ₢{}|2{}|{}'.format(a.firstname, a.lastname, amount, tid, time.strftime('%c - %x')))
                 else:
-                    ar.transaction_history.append('CB income: ₢{}|7{}'.format(amount, tid))
+                    ar.transaction_history.append('CB income of ₢{}|7{}|{}'.format(amount, tid, time.strftime('%c - %x')))
                 f.close()
             else:
                 response.attach_file('account.html', username=a.username, id=a.id, balance=a.balance, hunt_count=a.total_hunts) # error
 
-    response.add_cookie('page', reqadr[-1])
+    if reqadr[-1].split('.')[-1] == 'html':
+        response.add_cookie('page', reqadr[-1])
     self.send(response)
     conn.close()
 
