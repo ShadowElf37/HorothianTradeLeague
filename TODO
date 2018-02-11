@@ -24,6 +24,8 @@ LESS IMPORTANT
 		7. SSL
 		8. Input field tooltips (on question marks beside)
 		9. Thread for eval/exec(input()) so we can do maintenance without restarting the server
+		10. Account settings; ability to change password, etc.
+		11. Passwords should be stored using homemade encryption (sha is too irreversible - yeah we sneaky like that)
 
 	Creative vision:
 		1. Hunt action, hunts.dat, hunts.html

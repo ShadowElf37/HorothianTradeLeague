@@ -165,4 +165,5 @@ ALPHA v0.0.3.3
 ALPHA v0.0.3.4
     - Modified admin account generation at start of main.py
     - Added disabled "Hunts" link in navbar, hunts.html
-    
+    - Added username/name duplicate checking
+    - Added a firstname-lastname whitelist.cfg for a closed beta at some point

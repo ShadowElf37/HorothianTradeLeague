@@ -78,6 +78,7 @@ def get_account_by_username(username):
 def td_wrap(s):
     return '\n<td>' + s + '</td>'
 
+whitelist = open('conf/whitelist.cfg', 'r').readlines()
 accounts = load_users()
 error = ''
 
@@ -219,7 +220,23 @@ def handle(self, conn, addr, req):
             usr = flags['user']
             pwd = flags['pass']
             cpwd = flags['cpass']  # confirm password
-            if cpwd != pwd:
+
+            if not get_account_by_name(first, last).shell:
+                error = self.throwError(8, 'a', get_last(), response=response)
+                self.log.log(addr[0], '- Client tried to sign up with already-used name.', lvl=Log.ERROR)
+                return
+
+            elif not get_account_by_username(usr).shell:
+                error = self.throwError(9, 'a', get_last(), response=response)
+                self.log.log(addr[0], '- Client tried to sign up with already-used username.', lvl=Log.ERROR)
+                return
+
+            elif not first+' '+last in whitelist:
+                error = self.throwError(10, 'a', get_last(), response=response)
+                self.log.log(addr[0], '- Forbidden signup attempt.', lvl=Log.ERROR)
+                return
+
+            elif cpwd != pwd:
                 error = self.throwError(7, 'a', get_last(), response=response)
                 self.log.log(addr[0], '- Client pwd does not equal confirm pwd.', lvl=Log.ERROR)
                 return
