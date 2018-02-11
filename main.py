@@ -29,10 +29,10 @@ def load_users():
     except EOFError:
         print('user.dat empty, initializing with default values')
         users = [
-                    Account('Test', 'User', 'TestUser', 'password', admin_accounts[0]),
-                    # Account('League', 'Leader', 'LeagueLeader', 'password', admin_accounts[1]),
-                    Account('Yovel', 'Key-Cohen', 'ShadowElf37', 'password', admin_accounts[99]),
-                    Account('Central', 'Bank', 'CentralBank', 'password', admin_accounts[100])
+                    Account('Test', 'User', 'TestUser', 'password', '', admin_accounts[0]),
+                    # Account('League', 'Leader', 'LeagueLeader', 'password', '', admin_accounts[1]),
+                    Account('Yovel', 'Key-Cohen', 'ShadowElf37', 'password', 'yovelkeycohen@gmail.com', admin_accounts[99]),
+                    Account('Central', 'Bank', 'CentralBank', 'password', 'ykey-cohen@emeryweiner.org', admin_accounts[100])
                  ]
         for a in users:
             a.admin = True
@@ -74,6 +74,12 @@ def get_account_by_username(username):
     except IndexError:
         return ShellAccount()
     return a
+def get_account_by_email(email):
+    try:
+        a = list(filter(lambda u: u.email == email, accounts))[0]
+    except IndexError:
+        return ShellAccount()
+    return a
 
 def td_wrap(s):
     return '\n<td>' + s + '</td>'
@@ -112,10 +118,9 @@ def handle(self, conn, addr, req):
     elif cookies.get('validator') != get_account_by_id(client_id).validator and response.logged_in:
         response.add_cookie('client-id', 'none')
         response.add_cookie('validator', 'none')
-        response.set_status_code(307, location='account.html')
         response.logged_in = False
-        self.send(response)
-        conn.close()
+        error = self.throwError(5, 'a', 'login.html', response=response)
+        self.log.log(addr[0], '- Client\'s cookies don\'t match.', lvl=Log.ERROR)
         return
     elif response.logged_in:
         get_account_by_id(client_id).last_activity = time.strftime('%X (%x)')
@@ -202,6 +207,16 @@ def handle(self, conn, addr, req):
         if reqadr[0] == 'login.act':
             usr = flags['user']
             pwd = flags['pass']
+
+            if not all(flags.values()):
+                error = self.throwError(13, 'a', get_last(), response=response)
+                self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
+                return
+            elif get_account_by_username(usr).blacklisted:
+                error = self.throwError(14, 'a', get_last(), response=response)
+                self.log.log(addr[0], '- Client tried to log in to banned account.', lvl=Log.ERROR)
+                return
+
             try:
                 acnt = list(filter(lambda u: u.username == usr and u.password == pwd, accounts))[0]
 
@@ -217,11 +232,17 @@ def handle(self, conn, addr, req):
         elif reqadr[0] == 'signup.act':
             first = flags['first']
             last = flags['last']
+            mail = flags['mail']
             usr = flags['user']
             pwd = flags['pass']
             cpwd = flags['cpass']  # confirm password
 
-            if not get_account_by_name(first, last).shell:
+            if not all(flags.values()):
+                error = self.throwError(13, 'b', get_last(), response=response)
+                self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
+                return
+
+            elif not get_account_by_name(first, last).shell:
                 error = self.throwError(8, 'a', get_last(), response=response)
                 self.log.log(addr[0], '- Client tried to sign up with already-used name.', lvl=Log.ERROR)
                 return
@@ -236,6 +257,11 @@ def handle(self, conn, addr, req):
                 self.log.log(addr[0], '- Forbidden signup attempt.', lvl=Log.ERROR)
                 return
 
+            elif not get_account_by_email(mail):
+                error = self.throwError(12, 'a', get_last(), response=response)
+                self.log.log(addr[0], '- Client tried to sign up with already-used email.', lvl=Log.ERROR)
+                return
+
             elif cpwd != pwd:
                 error = self.throwError(7, 'a', get_last(), response=response)
                 self.log.log(addr[0], '- Client pwd does not equal confirm pwd.', lvl=Log.ERROR)
@@ -245,7 +271,7 @@ def handle(self, conn, addr, req):
             while id in ('1377',) or id[:2] == '00' or not get_account_by_id(id).shell:  # Saving first 100 accounts for admin purposes
                 id = '%04d' % random.randint(0, 9999)
                 self.log.log("New account created with ID", id, "- first name is", first)
-            acnt = Account(first, last, usr, pwd, id)
+            acnt = Account(first, last, usr, pwd, mail, id)
             accounts.append(acnt)
 
             response.add_cookie('client-id', id, 'Max-Age=604800', 'HttpOnly')  # 2 weeks
@@ -255,6 +281,16 @@ def handle(self, conn, addr, req):
 
         elif reqadr[0] == 'pay.act':
             sender_id = client_id
+
+            if not all(flags.values()):
+                error = self.throwError(13, 'c', get_last(), response=response)
+                self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
+                return
+            elif get_account_by_id(flags['recp']).blacklisted:
+                error = self.throwError(14, 'b', get_last(), response=response)
+                self.log.log(addr[0], '- Client tried to pay banned account.', lvl=Log.ERROR)
+                return
+
             recipient_id = flags['recp']
             try:
                 amount = int(flags['amt'])

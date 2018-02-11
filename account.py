@@ -31,13 +31,14 @@ class Infinity:
 
 
 class Account:
-    def __init__(self, firstname, lastname, username, password, id):
+    def __init__(self, firstname, lastname, username, password, email, id):
         self.id = id
         self._balance = 0
         self.username = username
         self.password = password
         self.firstname = firstname
         self.lastname = lastname
+        self.email = email
         self.coalition = 'none'
         self.session_id = 'none'
         self.transaction_history = []
@@ -48,6 +49,7 @@ class Account:
         self.last_activity = 'Unused'
         self.date_of_creation = time.strftime('%c')
         self.admin = False
+        self.blacklisted = False
 
     @property
     def balance(self):
@@ -91,3 +93,5 @@ class ShellAccount:
         self.active_hunts = 0
         self.date_of_creation = 'none'
         self.admin = False
+        self.email = 'none'
+        self.blacklisted = False

@@ -1,15 +1,3 @@
-Upon completion of all IMPORTANT work, Project Mercury will be considered BETA and the version number will jump to v0.1.0.0
-
-IMPORTANT
-	1. Do your best to break the website; follow stacktraces and try-except with
-
-	    error = self.throwError(CODE, LETTER ID, get_last(), response=response)
-	    self.log.log(addr[0], '- CLIENT DID SOMETHING DUMB', lvl=Log.ERROR)
-	    return
-	    # CODE should be an int corresponding to a code in errors.cfg; more should be created as needed
-	    # LETTER ID is just a marker for where it happened in the code, because everything being 'Error 3' isn't very helpful, but 'Error 3a' vs 'Error 3b' means we know exactly what happened
-        # CLIENT DID SOMETHING DUMB should be replaced, obviously
-
 
 
 
@@ -26,6 +14,7 @@ LESS IMPORTANT
 		9. Thread for eval/exec(input()) so we can do maintenance without restarting the server
 		10. Account settings; ability to change password, etc.
 		11. Passwords should be stored using homemade encryption (sha is too irreversible - yeah we sneaky like that)
+		12. Change bans to IP as well
 
 	Creative vision:
 		1. Hunt action, hunts.dat, hunts.html
@@ -38,5 +27,4 @@ LESS IMPORTANT
 		8. Unlockables/Progress page (for coalitions, hunt submission, etc.)
 		9. Treaty
 		10. Market for online-hosted trade
-		11. Bans for specific amount of time (IP)
-		12. Port forward
+		11. Port forward

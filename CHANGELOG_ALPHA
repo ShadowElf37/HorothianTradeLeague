@@ -144,6 +144,7 @@ ALPHA v0.0.3.0
     - Added HTTP code 303
     - Changed attachments of account.html to redirects using 303
     - Added account.html info of completed and active hunts
+    - Added ShellAccount in account.html
 
 ALPHA v0.0.3.1
     - Created errors.cfg for configuring error codes and appropriate text
@@ -165,5 +166,8 @@ ALPHA v0.0.3.3
 ALPHA v0.0.3.4
     - Modified admin account generation at start of main.py
     - Added disabled "Hunts" link in navbar, hunts.html
-    - Added username/name duplicate checking
+    - Added username/name/email duplicate checking
     - Added a firstname-lastname whitelist.cfg for a closed beta at some point
+    - Added email field in signup
+    - Caught empty-field errors in pay, login, and signup
+    - Added account-based bans
