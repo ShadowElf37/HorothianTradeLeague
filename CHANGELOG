@@ -155,3 +155,10 @@ ALPHA v0.0.3.1
 
 ALPHA v0.0.3.2
     - Fixed major errors in error catching, reworked the system (it's really jank, but it works now)
+
+ALPHA v0.0.3.3
+    - Added Last Active and Created to registry.html (the latter to account.py as well)
+    - Separated page reqs (so a request for account.html would redirect to login instead of sending login)
+    - Decreased redundancy, fixed bugs
+    - Corbel font can be loaded across all platforms
+    

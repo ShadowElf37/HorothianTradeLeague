@@ -1,3 +1,8 @@
+@font-face{
+    font-family: "Corbel", sans-serif;
+    src: local("Corbel"), url("corbel.ttf");
+}
+
 .error{
     background: #15E;
     border-radius: 20px;
@@ -6,10 +11,10 @@
     top: 125px;
     font-size: 18px;
     height: auto;
-    max-width: 400px;
+    max-width: 450px;
     min-width: auto;
     padding: 4px 10px;
-    font-family: "Calibri", sans;
+    font-family: "Calibri", sans-serif;
     text-align: center;
 }
 

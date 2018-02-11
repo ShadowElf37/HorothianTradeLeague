@@ -18,14 +18,21 @@ def client_error_msg(msg):
     return '<html>' + msg + '<br><a href="home.html">Go back.</a></html>'
 
 
-admin_accounts = ['0001', '0002', '0099', '1377']
+admin_accounts = ['0000', '0001', '0099', '1377']
 def load_users():
     userfile = open('data/users.dat', 'rb')
     try:
         users = pickle.load(userfile)
     except EOFError:
         print('user.dat empty, initializing with default values')
-        users = [Account('Test', 'User', 'TestUser', 'password', '0001'), Account('League', 'Leader', 'LeagueLeader', 'password', '0002'), Account('Yovel', 'Key-Cohen', 'ShadowElf37', 'password', '0099'), Account('Central', 'Bank', 'CentralBank', 'password', '1377')]
+        users = [
+                    Account('Test', 'User', 'TestUser', 'password', admin_accounts[0]),
+                    Account('League', 'Leader', 'LeagueLeader', 'password', admin_accounts[1]),
+                    Account('Yovel', 'Key-Cohen', 'ShadowElf37', 'password', admin_accounts[2]),
+                    Account('Central', 'Bank', 'CentralBank', 'password', admin_accounts[3])
+                 ]
+        for a in users:
+            a.admin = True
     return users
 
 def save_users():
@@ -52,7 +59,21 @@ def get_account_by_id(id):
     except IndexError:
         return ShellAccount()
     return a
+def get_account_by_name(firstname, lastname):
+    try:
+        a = list(filter(lambda u: u.firstname == firstname and u.lastname == lastname, accounts))[0]
+    except IndexError:
+        return ShellAccount()
+    return a
+def get_account_by_username(username):
+    try:
+        a = list(filter(lambda u: u.username == username, accounts))[0]
+    except IndexError:
+        return ShellAccount()
+    return a
 
+def td_wrap(s):
+    return '\n<td>\n' + s + '\n</td>'
 
 accounts = load_users()
 error = ''
@@ -73,19 +94,18 @@ def handle(self, conn, addr, req):
     client_id = cookies.get('client-id')
     client = get_account_by_id(client_id)
 
-    hist = ['<tr>\n' + '<td>\n' + item.split('|')[0] + '\n</td>' + '\n<td>' + item.split('|')[1] + '\n</td>' + '\n<td>' + item.split('|')[
-            2] + '\n</td>''\n</tr>' for item in client.transaction_history]
-    ac = ['<tr>\n' + '<td>\n' + a.firstname + ' ' + a.lastname + '\n</td>' + '\n<td>' + a.id + '\n</td>' + '\n<td>' + a.coalition + '\n</td>' + '\n</tr>'\
-            for a in sorted(accounts, key=lambda u: u.lastname if u.id not in admin_accounts else u.id)]
+    # Legacy solution to the error-handling fiasco, no longer needed
+    #hist = ['<tr>\n' + '<td>\n' + item.split('|')[0] + '\n</td>' + '\n<td>' + item.split('|')[1] + '\n</td>' + '\n<td>' + item.split('|')[
+            #2] + '\n</td>''\n</tr>' for item in client.transaction_history]
+    #ac = ['<tr>\n' + '<td>\n' + a.firstname + ' ' + a.lastname + '\n</td>' + '\n<td>' + a.id + '\n</td>' + '\n<td>' + a.coalition + '\n</td>' + '\n</tr>'\
+            #for a in sorted(accounts, key=lambda u: u.lastname if u.id not in admin_accounts else u.id)]
 
-    render_defaults = {'error':error, 'accounts':'\n'.join(ac), 'history':'\n'.join(hist), 'username':client.username, 'id':client_id, 'hunt_total':client.total_hunts, 'hunt_count':client.active_hunts, 'balance':client.balance}
+    render_defaults = {'error':error, 'username':client.username, 'id':client_id, 'hunt_total':client.total_hunts, 'hunt_count':client.active_hunts, 'balance':client.balance}
     response.default_renderopts = render_defaults
 
     if client_id is None:
         response.add_cookie('client-id', 'none')
-    elif response.logged_in:
-        get_account_by_id(client_id).last_activity = time.strftime('%c - %x')
-    if cookies.get('validator') != get_account_by_id(client_id).validator and response.logged_in:
+    elif cookies.get('validator') != get_account_by_id(client_id).validator and response.logged_in:
         response.add_cookie('client-id', 'none')
         response.add_cookie('validator', 'none')
         response.set_status_code(307, location='account.html')
@@ -93,6 +113,8 @@ def handle(self, conn, addr, req):
         self.send(response)
         conn.close()
         return
+    elif response.logged_in:
+        get_account_by_id(client_id).last_activity = time.strftime('%X (%x)')
 
 
     get_last = lambda: cookies.get('page', 'home.html')
@@ -135,13 +157,13 @@ def handle(self, conn, addr, req):
             hist = []
             for item in acnt.transaction_history:
                 item = item.split('|')
-                hist.append('<tr>\n'+'<td>\n'+item[0]+'\n</td>'+'\n<td>'+item[1]+'\n</td>'+'\n<td>'+item[2]+'\n</td>''\n</tr>')
+                hist.append('<tr>'+td_wrap(item[0])+td_wrap(item[1])+td_wrap(item[2])+'\n</tr>')
             response.attach_file('transaction_history.html', nb_page='account.html', history='\n'.join(hist))
 
         elif reqadr[0] == 'registry.html':
             acnts = []
-            for a in sorted(accounts, key=lambda u: u.lastname if u.id not in admin_accounts else u.id):
-                acnts.append('<tr>\n' + '<td>\n' + a.firstname + ' ' + a.lastname + '\n</td>' + '\n<td>' + a.id + '\n</td>' + '\n<td>' + a.coalition + '\n</td>' + '\n</tr>')
+            for a in sorted(accounts, key=lambda u: u.lastname if not u.admin else u.id):
+                acnts.append('<tr>' + td_wrap(a.firstname + ' ' + a.lastname) + td_wrap(a.id) + td_wrap(a.coalition) + td_wrap(a.last_activity) + td_wrap(a.date_of_creation) + '\n</tr>')
             response.attach_file('registry.html', nb_page='account.html', accounts='\n'.join(acnts))
 
         elif reqadr[0].split('.')[-1] == 'act':
@@ -179,7 +201,7 @@ def handle(self, conn, addr, req):
             try:
                 acnt = list(filter(lambda u: u.username == usr and u.password == pwd, accounts))[0]
 
-                response.add_cookie('client-id', acnt.id, 'Max-Age=604800', 'HttpOnly')
+                response.add_cookie('client-id', acnt.id, 'Max-Age=604800', 'HttpOnly')  # 2 weeks
                 response.add_cookie('validator', acnt.validator, 'Max-Age=604800', 'HttpOnly')
 
                 response.set_status_code(303, location='account.html')
@@ -195,18 +217,18 @@ def handle(self, conn, addr, req):
             pwd = flags['pass']
             cpwd = flags['cpass']  # confirm password
             if cpwd != pwd:
-                error = self.throwError(7, 'a', get_last(), response=response, logged_in=False)
+                error = self.throwError(7, 'a', get_last(), response=response)
                 self.log.log(addr[0], '- Client pwd does not equal confirm pwd.', lvl=Log.ERROR)
                 return
 
             id = '0000'
-            while id == '1377' or id[:2] == '00' or get_account_by_id(id):  # Saving first 100 accounts for admin purposes
+            while id in ('1377',) or id[:2] == '00' or not get_account_by_id(id).shell:  # Saving first 100 accounts for admin purposes
                 id = '%04d' % random.randint(0, 9999)
                 self.log.log("New account created with ID", id, "- first name is", first)
             acnt = Account(first, last, usr, pwd, id)
             accounts.append(acnt)
 
-            response.add_cookie('client-id', id, 'Max-Age=604800', 'HttpOnly')
+            response.add_cookie('client-id', id, 'Max-Age=604800', 'HttpOnly')  # 2 weeks
             response.add_cookie('validator', acnt.validator, 'Max-Age=604800', 'HttpOnly')
 
             response.set_status_code(303, location='account.html')

@@ -117,7 +117,7 @@ class Server:
             self.handled_counter += 1
             self.connection = None
 
-    # Parses the request, simplies to important information
+    # Parses the request, simplifies to important information
     def parse(self, request):
         # Get the cookies
         req = request.split('\r\n')

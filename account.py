@@ -5,6 +5,7 @@ Yovel Key-Cohen
 """
 
 import random
+import time
 
 class Infinity:
     def __int__(self):
@@ -44,7 +45,9 @@ class Account:
         self.validator = self.get_new_validator()
         self.total_hunts = 0
         self.active_hunts = 0
-        self.last_activity = ''
+        self.last_activity = 'Unused'
+        self.date_of_creation = time.strftime('%c')
+        self.admin = False
 
     @property
     def balance(self):
@@ -86,3 +89,5 @@ class ShellAccount:
         self.validator = None
         self.total_hunts = 0
         self.active_hunts = 0
+        self.date_of_creation = 'none'
+        self.admin = False

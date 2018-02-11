@@ -91,16 +91,6 @@ class Response:
         if type(self.body) == type(int()):
             self.set_status_code(self.body, **kwargs)
             self.body = ''
-        if len(self.codes) == 0:
-            with open('conf/codes.cfg', 'r') as code:
-                for line in code:
-                    splitted = line.split()
-                    Response.codes[int(splitted[0])] = ' '.join(splitted[1:])
-            with open('conf/ext.cfg', 'r') as exts:
-                for line in exts:
-                    splitted = line.split()
-                    for e in splitted[1:]:
-                        Response.ext[e] = splitted[0]
 
     # Adds a field to the header (ie 'Set-Cookie: x=5')
     def add_header_term(self, field, string):
