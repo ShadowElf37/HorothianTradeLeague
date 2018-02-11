@@ -15,20 +15,25 @@ def create_navbar(active, logged_in):
     navbar = []
     pages = []
     links = []
+    enabled = []
     cfg = open('conf/navbar.cfg', 'r')
     data = cfg.read()
     for line in list(reversed(data.split('\n'))):
-        l = line.split(' ')
+        l = line.split()
         l[0] = l[0].split('|')
         pages.append(l[0])
         links.append(l[1])
+        enabled.append(l[2])
     cfg.close()
 
     for i in range(len(pages)):
         if (pages[i][0] != '_' and not logged_in) or (pages[i][1] != '_' and logged_in):
-            navbar.append('<li><a href="{0}"{2}>{1}</a></li>'.format(links[i],
-                                                                     (pages[i][0] if not logged_in else pages[i][-1]),
-                                                                 (' class="active-nav"' if links[i] == active else '')))
+            if enabled[i] == 'e':
+                navbar.append('<li><a href="{0}"{2}>{1}</a></li>'.format(links[i],
+                                                                        (pages[i][0] if not logged_in else pages[i][1]),
+                                                                        (' class="active-nav"' if links[i] == active else '')))
+            else:
+                navbar.append('<li><a class="disabled-nav">{0}</a></li>'.format((pages[i][0] if not logged_in else pages[i][1])))
 
     bar = '<center>\n\t<div id="menu-bar" class="menu-bar">\n\t\t<ul class="nav-bar">\n\t\t\t' \
           + '\n\t\t\t'.join(navbar) \

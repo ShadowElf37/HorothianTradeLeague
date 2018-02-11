@@ -161,6 +161,9 @@ p{
     color: #EEE;
     font-size: 1.5em;
     padding: 20px 20px 20px 20px;
+    user-select: none;
+    -moz-user-select: none;
+    transition-duration: 0.1s;
 }
 
 .active-nav{
@@ -169,4 +172,12 @@ p{
 
 .nav-bar li a:hover {
     background-color: #CC1010;
+}
+
+.disabled-nav{
+    background-color: #FCCC;
+}
+
+.disabled-nav:hover{
+    background-color: #FDDD !important;
 }

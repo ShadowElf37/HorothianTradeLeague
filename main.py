@@ -18,7 +18,10 @@ def client_error_msg(msg):
     return '<html>' + msg + '<br><a href="home.html">Go back.</a></html>'
 
 
-admin_accounts = ['0000', '0001', '0099', '1377']
+ids_to_hundred = list(map(lambda i: '%04d' % i, range(0, 100)))
+admin_accounts = tuple(ids_to_hundred + ['1377',])
+del ids_to_hundred
+
 def load_users():
     userfile = open('data/users.dat', 'rb')
     try:
@@ -27,9 +30,9 @@ def load_users():
         print('user.dat empty, initializing with default values')
         users = [
                     Account('Test', 'User', 'TestUser', 'password', admin_accounts[0]),
-                    Account('League', 'Leader', 'LeagueLeader', 'password', admin_accounts[1]),
-                    Account('Yovel', 'Key-Cohen', 'ShadowElf37', 'password', admin_accounts[2]),
-                    Account('Central', 'Bank', 'CentralBank', 'password', admin_accounts[3])
+                    # Account('League', 'Leader', 'LeagueLeader', 'password', admin_accounts[1]),
+                    Account('Yovel', 'Key-Cohen', 'ShadowElf37', 'password', admin_accounts[99]),
+                    Account('Central', 'Bank', 'CentralBank', 'password', admin_accounts[100])
                  ]
         for a in users:
             a.admin = True
@@ -73,7 +76,7 @@ def get_account_by_username(username):
     return a
 
 def td_wrap(s):
-    return '\n<td>\n' + s + '\n</td>'
+    return '\n<td>' + s + '</td>'
 
 accounts = load_users()
 error = ''

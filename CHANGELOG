@@ -161,4 +161,8 @@ ALPHA v0.0.3.3
     - Separated page reqs (so a request for account.html would redirect to login instead of sending login)
     - Decreased redundancy, fixed bugs
     - Corbel font can be loaded across all platforms
+
+ALPHA v0.0.3.4
+    - Modified admin account generation at start of main.py
+    - Added disabled "Hunts" link in navbar, hunts.html
     
