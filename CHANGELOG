@@ -152,3 +152,6 @@ ALPHA v0.0.3.1
     - Timestamps of transactions and last activity added, the former also to transaction_history.html
     - Render options now have top-of-request-handler-set defaults
     - Caught a number of errors
+
+ALPHA v0.0.3.2
+    - Fixed major errors in error catching, reworked the system (it's really jank, but it works now)

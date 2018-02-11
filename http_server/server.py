@@ -135,14 +135,15 @@ class Server:
         return request
 
     # Sends a user-friendly error message
-    def throwError(self, code, id, page, response=None, **renderopts):
+    def throwError(self, code, id, page, response=None):
         err = get_error(code, id)
         if response is None:
             r = Response()
         else:
             r = response
-        r.attach_file(page, error=err, **renderopts)
+        r.set_status_code(303, location=page)
         self.send(r)
+        return err
 
     # Wrapper for request_handler() setting
     def set_request_handler(self, func):

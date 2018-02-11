@@ -18,6 +18,7 @@ def client_error_msg(msg):
     return '<html>' + msg + '<br><a href="home.html">Go back.</a></html>'
 
 
+admin_accounts = ['0001', '0002', '0099', '1377']
 def load_users():
     userfile = open('data/users.dat', 'rb')
     try:
@@ -54,10 +55,12 @@ def get_account_by_id(id):
 
 
 accounts = load_users()
+error = ''
 
 # ---------------------------------
 
 def handle(self, conn, addr, req):
+    global error
     self.log.log("Request from ", addr[0], ":", req)
 
     method = req[0]
@@ -70,7 +73,12 @@ def handle(self, conn, addr, req):
     client_id = cookies.get('client-id')
     client = get_account_by_id(client_id)
 
-    render_defaults = {'username':client.username, 'id':client_id, 'hunt_total':client.total_hunts, 'hunt_count':client.active_hunts, 'balance':client.balance}
+    hist = ['<tr>\n' + '<td>\n' + item.split('|')[0] + '\n</td>' + '\n<td>' + item.split('|')[1] + '\n</td>' + '\n<td>' + item.split('|')[
+            2] + '\n</td>''\n</tr>' for item in client.transaction_history]
+    ac = ['<tr>\n' + '<td>\n' + a.firstname + ' ' + a.lastname + '\n</td>' + '\n<td>' + a.id + '\n</td>' + '\n<td>' + a.coalition + '\n</td>' + '\n</tr>'\
+            for a in sorted(accounts, key=lambda u: u.lastname if u.id not in admin_accounts else u.id)]
+
+    render_defaults = {'error':error, 'accounts':'\n'.join(ac), 'history':'\n'.join(hist), 'username':client.username, 'id':client_id, 'hunt_total':client.total_hunts, 'hunt_count':client.active_hunts, 'balance':client.balance}
     response.default_renderopts = render_defaults
 
     if client_id is None:
@@ -96,23 +104,26 @@ def handle(self, conn, addr, req):
             if client_id == 'none':
                 response.attach_file('home.html')
             else:
-                response.attach_file('news.html', nb_page='home.html')
+                response.set_status_code(307, location='news.html')
+
+        elif reqadr[0] == 'news.html':
+            response.attach_file('news.html', nb_page='home.html')
 
         elif reqadr[0] == 'treaty.html':
-            if cookies.get('tester_restrictions') == 'true':
-                response.set_body(client_error_msg('Nothing here now.'))
-            else:
-                response.set_status_code(307, location='https://drive.google.com/open?id=1vylaFRMUhj0fCGqDVhn0RC7xXmOegabodKs9YK-8zbs')
+            response.set_body(client_error_msg('Nothing here now.'))
+            # response.set_status_code(307, location='https://drive.google.com/open?id=1vylaFRMUhj0fCGqDVhn0RC7xXmOegabodKs9YK-8zbs')
 
         elif reqadr[0] == 'account.html':
             account = get_account_by_id(client_id)
             if not account.shell:
                 response.attach_file('account.html')
             else:
-                response.attach_file('login.html', nb_page="account.html")
+                response.set_status_code(307, location='login.html')
+
+        elif reqadr[0] == 'login.html':
+            response.attach_file('login.html', nb_page="account.html")
 
         elif reqadr[0] == 'pay.html':
-            account = get_account_by_id(client_id)
             response.attach_file('pay.html', nb_page='account.html')
 
         elif reqadr[0] == 'signup.html':
@@ -129,7 +140,7 @@ def handle(self, conn, addr, req):
 
         elif reqadr[0] == 'registry.html':
             acnts = []
-            for a in sorted(accounts, key=lambda u: u.lastname if u.id not in ['0001', '0099', '1377'] else u.id):
+            for a in sorted(accounts, key=lambda u: u.lastname if u.id not in admin_accounts else u.id):
                 acnts.append('<tr>\n' + '<td>\n' + a.firstname + ' ' + a.lastname + '\n</td>' + '\n<td>' + a.id + '\n</td>' + '\n<td>' + a.coalition + '\n</td>' + '\n</tr>')
             response.attach_file('registry.html', nb_page='account.html', accounts='\n'.join(acnts))
 
@@ -147,8 +158,9 @@ def handle(self, conn, addr, req):
                 exit()
             else:
                 # Proper error handling
-                self.throwError(2, 'a', get_last(), response=response)
+                error = self.throwError(2, 'a', get_last(), response=response)
                 self.log.log(addr[0], '- Client requested non-existent action.', lvl=Log.ERROR)
+                return
 
 
         else:
@@ -172,8 +184,9 @@ def handle(self, conn, addr, req):
 
                 response.set_status_code(303, location='account.html')
             except IndexError:
-                self.throwError(4, 'a', get_last(), response=response)
+                error = self.throwError(4, 'a', get_last(), response=response)
                 self.log.log(addr[0], '- Client entered incorrect login information.', lvl=Log.ERROR)
+                return
 
         elif reqadr[0] == 'signup.act':
             first = flags['first']
@@ -182,8 +195,9 @@ def handle(self, conn, addr, req):
             pwd = flags['pass']
             cpwd = flags['cpass']  # confirm password
             if cpwd != pwd:
-                self.throwError(7, 'a', get_last(), response=response)
+                error = self.throwError(7, 'a', get_last(), response=response, logged_in=False)
                 self.log.log(addr[0], '- Client pwd does not equal confirm pwd.', lvl=Log.ERROR)
+                return
 
             id = '0000'
             while id == '1377' or id[:2] == '00' or get_account_by_id(id):  # Saving first 100 accounts for admin purposes
@@ -206,13 +220,13 @@ def handle(self, conn, addr, req):
                 amount = float(flags['amt'])
             recipient_acnt = get_account_by_id(recipient_id)
             if recipient_acnt.shell:
-                self.throwError(6, 'a', get_last(), response=response)
+                error = self.throwError(6, 'a', get_last(), response=response)
                 self.log.log(addr[0], '- Client gave an invalid account id.', lvl=Log.ERROR)
-            sender_acnt = get_account_by_id(sender_id)
-            a = sender_acnt
+                return
+            a = client
             ar = recipient_acnt
 
-            if not sender_acnt.pay(amount, recipient_acnt):
+            if not a.pay(amount, recipient_acnt):
                 response.attach_file('account.html')
                 tid = '%19d' % random.randint(1, 2**64)
                 f = open('logs/transactions.log', 'at')
@@ -225,16 +239,15 @@ def handle(self, conn, addr, req):
                     ar.transaction_history.append('CB income of ₢{}|7{}|{}'.format(amount, tid, time.strftime('%c - %x')))
                 f.close()
             else:
-                self.throwError(3, 'a', get_last(), response=response)
+                error = self.throwError(3, 'a', get_last(), response=response)
                 self.log.log(addr[0], '- Client tried to overdraft.', lvl=Log.ERROR)
+                return
 
-    if reqadr[-1].split('.')[-1] == 'html':
-        response.add_cookie('page', reqadr[-1])
+    error = ''
+    if reqadr[-1].split('.')[-1] in ('html', 'htm'):
+        response.add_cookie('page', '/'.join(reqadr))
     self.send(response)
     conn.close()
-
-
-print(accounts)
 
 s = Server(debug=True, include_debug_level=False)
 s.set_request_handler(handle)

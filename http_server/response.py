@@ -38,7 +38,11 @@ def create_navbar(active, logged_in):
 
 def render(text, **resources):
     if type(text) == type(bytes()):
-        text = text.decode(ENCODING)
+        try:
+            text = text.decode(ENCODING)
+        except Exception as e:
+            print(text)
+            raise e
     for i in list(resources.keys()):
         # print('#', '[['+i+']]')
         # print('@', resources[i])
@@ -120,7 +124,7 @@ class Response:
         self.body = string
 
     # Puts a file in the body
-    def attach_file(self, faddr, nb_page='none', logged_in=None, rendr=True, rendrtypes=(), error='', **renderopts):
+    def attach_file(self, faddr, nb_page='none', logged_in=None, rendr=True, rendrtypes=(), **renderopts):
         """faddr should be the file address accounting for ext.cfg
         rendr specifies whether the page should be rendered or not (so it doesn't try to render an image)
         rendrtypes adds extra control when you don't know if you'll be passed an image or a webpage and want to only render one; should be a tuple of files exts
@@ -138,7 +142,7 @@ class Response:
         try:
             f = open(faddr, 'rb')
             if rendr and (rendrtypes == () or faddr.split('.')[-1] in rendrtypes):
-                fl = render(f.read(), error=error, **renderopts, **self.default_renderopts)
+                fl = render(f.read(), **renderopts, **self.default_renderopts)
             else:
                 fl = f.read()
             self.set_body(fl)
