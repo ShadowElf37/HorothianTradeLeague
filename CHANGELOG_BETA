@@ -5,3 +5,7 @@ BETA v0.1.0.0 (2/11/2018)
 
 BETA v0.1.0.0a (2/11/2018)
     - Made signup.html CSS more scalable
+
+BETA v0.1.0.0b (2/11/2018)
+    - Fixed font sending
+    - Added localhost kwarg in server init

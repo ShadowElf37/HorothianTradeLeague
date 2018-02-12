@@ -327,7 +327,7 @@ def handle(self, conn, addr, req):
     self.send(response)
     conn.close()
 
-s = Server(debug=True, include_debug_level=False)
+s = Server(localhost=True, debug=True, include_debug_level=False)
 s.set_request_handler(handle)
 s.open()
 save_users()

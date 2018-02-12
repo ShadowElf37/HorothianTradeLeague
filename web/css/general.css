@@ -1,6 +1,7 @@
 @font-face{
     font-family: "Corbel", sans-serif;
-    src: local("Corbel"), url("corbel.ttf");
+    font-family: "Corbel";
+    src: local("Corbel"), url("corbel.ttf") format("truetype");
 }
 
 .error{
@@ -70,7 +71,7 @@ button a{
 
 body{
     background-color: #FFF;
-    font-family: "Corbel", sans-serif;
+    font-family: Corbel;
     font-size: 100%;
     overflow: auto;
 }

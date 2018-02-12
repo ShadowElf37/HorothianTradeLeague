@@ -19,9 +19,9 @@ def get_error(num, let=''):
                 return ('<center><div class="error">Error %d%s: ' % (num, let)) + line[line.find(':')+1:].strip()+'</div></center>'
 
 class Server:
-    def __init__(self, debug=False, include_debug_level=False):
+    def __init__(self, localhost=False, debug=False, include_debug_level=False):
         # Socket init stuff
-        self.host = 'localhost' #socket.gethostbyname(socket.gethostname())
+        self.host = 'localhost' if localhost else socket.gethostbyname(socket.gethostname())
         self.port = 8080
         self.buffer = 1024
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
