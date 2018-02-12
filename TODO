@@ -1,30 +1,33 @@
+Upon completion of all URGENT (and some IMPORTANT as deemed necessary) work, Project Mercury can move into a Closed Beta
 
 
+URGENT
+    1. Fix page <title>s, most are wrong; all Horothian Trade League should be replaced with Project Mercury for now
+    2. Messages page (can send and recv from any user)
+    3. Input field tooltips (on question marks beside)
+
+IMPORTANT
+    1. Thread for eval/exec(input()) so we can do maintenance without restarting the server
+	2. Improve page CSS and add "aesthetic features"
+	3. Account settings; ability to change password, etc.
+	4. Passwords should be stored using homemade encryption (sha is too irreversible - yeah we sneaky like that)
+	5. Change bans to IP as well
+	6. Unlockables/Progress page (for coalitions, hunt submission, etc.)
 
 LESS IMPORTANT
-	Work:
-	    1. Fix page <title>s, most are wrong
-		2. Scripting console.html
-		3. Overhaul of request handling; should be abstracted class like Response
-		4. That last account.html button should be a messages page (can send and recv from any user)
-		5. Improve page CSS and add "aesthetic features"
-		6. Validator cookie should be dynamic with session for increased security
-		7. SSL
-		8. Input field tooltips (on question marks beside)
-		9. Thread for eval/exec(input()) so we can do maintenance without restarting the server
-		10. Account settings; ability to change password, etc.
-		11. Passwords should be stored using homemade encryption (sha is too irreversible - yeah we sneaky like that)
-		12. Change bans to IP as well
+    1. Overhaul of client request; should be abstracted class like Response, not a list of header options
+    2. Validator cookie should be dynamic with session for increased security
+    3. Coalitions (shared pools) / Guilds (companies)
+    4. Hunt action, hunts.dat, hunts.html
+    5. Scripting console.html
 
-	Creative vision:
-		1. Hunt action, hunts.dat, hunts.html
-		2. Coalitions (shared pools) / Guilds (companies)
-		3. console.html commands (not the basic scripting)
-		4. Hunt submission
-		5. Real about.html
-		6. Some kind of news feed on home.html when logged in
-		7. Real home.html
-		8. Unlockables/Progress page (for coalitions, hunt submission, etc.)
-		9. Treaty
-		10. Market for online-hosted trade
-		11. Port forward
+FINAL PRODUCT:
+    1. SSL
+    2. Port forward
+    3. Treaty
+    4. Hunt submission
+    5. Market for online-hosted trade
+    6. Real about.html
+    7. Real news.html
+    8. Real home.html
+    9. console.html commands (not the basic scripting)
