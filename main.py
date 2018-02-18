@@ -178,7 +178,8 @@ def handle(self, conn, addr, req):
         elif reqadr[0] == 'messages.html':
             messages = []
             for msg in sorted(client.messages, key=lambda m: -float(m.sort_date)):
-                m = '<div class="preview">\n\t<span class="sender">{}</span><br>\n\t<span class="subject">{}</span>\n\t<span class="date">{}</span>\n</div>'.format(
+                m = '<div onmouseover="updateMessage({})" class="preview">\n\t<span class="sender">{}</span><br>\n\t<span class="subject">{}</span>\n\t<span class="date">{}</span>\n</div>'.format(
+                    msg.id,
                     msg.sender.get_name(),
                     msg.subject,
                     msg.formal_date
