@@ -178,7 +178,11 @@ def handle(self, conn, addr, req):
         elif reqadr[0] == 'messages.html':
             messages = []
             for msg in sorted(client.messages, key=lambda m: -m.sort_date):
-                m = msg.sender.get_name() + msg.subject
+                m = '<div class="preview">\n\t<span class="sender">{}</span><br>\n\t<span class="subject">{}</span>\n\t<span class="date">{}</span>\n</div>'.format(
+                    msg.sender.get_name(),
+                    msg.subject,
+                    msg.formal_date
+                    )
                 messages.append(m)
             response.attach_file('messages.html', nb_page='account.html', messages='\n'.join(messages))
 

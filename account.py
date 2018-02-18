@@ -33,7 +33,7 @@ class Infinity:
 class Message:
     def __init__(self, subject, msg, sender, recipient):
         self.msg = msg
-        self.formal_date = time.strftime('%m/%d/%y\n%I:%M %p')
+        self.formal_date = time.strftime('%m/%d/%y<br>%I:%M %p')
         self.sort_date = str(time.time())
         self.id = '%08d' % random.randint(10**8, 10**9-1)
         self.sender = sender
