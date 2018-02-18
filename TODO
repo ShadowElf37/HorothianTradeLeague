@@ -3,7 +3,7 @@ Upon completion of all URGENT (and some IMPORTANT as deemed necessary) work, Pro
 
 URGENT
     1. Fix page <title>s, most are wrong; all Horothian Trade League should be replaced with Project Mercury for now
-    2. Messages page (can send and recv from any user)
+    2. When you hover over a message there should be a button that appears so you can delete it
     3. Input field tooltips (on question marks beside)
 
 IMPORTANT

@@ -185,6 +185,8 @@ def handle(self, conn, addr, req):
                     msg.formal_date
                     )
                 messages.append(m)
+            if not messages:
+                messages.append('<span class="no-message">Inbox empty...</span>')
             response.attach_file('messages.html', nb_page='account.html', messages='\n'.join(messages))
 
         # ACTIONS
@@ -223,8 +225,13 @@ def handle(self, conn, addr, req):
             response.attach_file(reqadr[0], rendr=True, rendrtypes=('html', 'htm'), nb_page=reqadr[0])
 
     elif method == "POST":
-        # user=asd&pass=dsa --> {'user':'asd', 'pass':'dsa'}
-        flags = {i.split('=')[0]:i.split('=')[1] for i in req[3][-1].split('&')}
+        # user=asd&pass=dsa --> {'user':'asd', 'pass':'dsa'}]
+        try:
+            flags = {i.split('=')[0]:i.split('=')[1] for i in req[3][-1].split('&')}
+        except IndexError:
+            error = self.throwError(0, 'b', get_last(), response=response)
+            self.log.log(addr[0], '- That thing happened again... sigh.', lvl=Log.ERROR)
+            return
 
         if reqadr[0] == 'login.act':
             usr = flags['user']

@@ -41,7 +41,12 @@ class Message:
         self.subject = subject
 
         self.file = open("data/messages/"+self.id+".msg", 'w')
-        self.file.write(self.msg)
+        if self.msg == '':
+            print('ACTUAL EMPTY MESSAGE')
+        else:
+            print('MESSAGE:::::', self.msg)
+        self.file.write(self.msg.replace('+', ' '))
+        self.file.close()
 
 
 class Account:

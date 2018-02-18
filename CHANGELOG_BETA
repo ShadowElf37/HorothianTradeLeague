@@ -8,3 +8,8 @@ BETA v0.1.0.1 (2/17/18)
     - Fixed font sending
     - Added localhost kwarg in server init
     - Some work on messages html, css, action, and class in account.py
+
+BETA v0.1.0.2 (2/18/18)
+    - Messages html & js complete, css could use a little work
+    - Messages can be SENT AND RECEIVED!
+    - Excepted that weird bug where POSTs are empty when they're really not, unsure how to fix it though
