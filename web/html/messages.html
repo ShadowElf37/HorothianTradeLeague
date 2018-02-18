@@ -6,6 +6,7 @@
     <link rel="stylesheet" type="text/css" href="general.css">
     <link rel="stylesheet" type="text/css" href="buttons.css">
     <link rel="stylesheet" type="text/css" href="messages.css">
+    <script src="messages.js"></script>
 </head>
 <body>
     <img src="white_background.png" class="background-img">
@@ -18,11 +19,11 @@
         <div class="previews">
             <h3>Messages</h3>
             <div class="preview">
-                <span class="sender">Yovel Key-Cohen</span><br>
+                <span onmouseover="updateMessage('0')" class="sender">Yovel Key-Cohen</span><br>
                 <span class="subject">Sample Message</span>
                 <span class="date">7:55 PM<br>2/17/2018</span>
             </div>
-            <div class="preview">
+            <div onmouseover="updateMessage('1')" class="preview">
                 <span class="sender">Yovel Key-Cohen</span><br>
                 <span class="subject">Sample Message</span>
                 <span class="date">8:25 PM<br>2/17/2018</span>
@@ -31,13 +32,18 @@
         </div>
         <div class="message-big">
             <h3>Selected</h3>
-            <span class="subject">Sample Message</span><br>
-            <span class="sender">From: Yovel Key-Cohen</span>
+            <span class="subject" id="main-subject">Sample Message</span><br>
+            <span class="sender" id="main-sender">From: Yovel Key-Cohen</span>
             <div id="msg-body">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed commodo venenatis justo, non dapibus nisi vehicula id. Aenean consectetur finibus magna in consequat. Vestibulum lobortis leo sed urna iaculis, non venenatis sem porttitor. Praesent ex neque, efficitur eget tellus sit amet, consequat commodo lacus. Vivamus urna felis, viverra a leo et, euismod rutrum velit. Duis turpis nisl, rutrum et justo ut, consequat mollis tellus. Etiam ut nisi et eros convallis malesuada. Etiam quis sem enim. Etiam in ante feugiat, ornare turpis non, vehicula mi. Duis ultricies pellentesque lorem, finibus euismod ipsum consequat vitae. Fusce in mattis leo, et facilisis odio.</div>
         </div>
         <div class="message-big">
             <h3>Compose</h3>
-
+            <form style="padding: 10px;" method="post" action="/message.act">
+                To: <input type="text" name="recp" maxlength="4" minlength="4" value="0000" style="width: 40px;"><br>
+                Subject: <input type="text" name="subject"><br>
+                <textarea name="msg" rows="4" cols="50"></textarea><br>
+                <input class="form-button" type="submit" value="Send" style="margin-top: 0;">
+            </form>
         </div>
     </div>
 </body>

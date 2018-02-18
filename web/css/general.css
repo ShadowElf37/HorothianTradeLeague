@@ -49,7 +49,7 @@ table{
       background: transparent;
   }
 
-input{
+input, textarea{
     box-shadow: 0 0 3px #E00;
     border-radius: 3px;
     font-size: 1.1em;

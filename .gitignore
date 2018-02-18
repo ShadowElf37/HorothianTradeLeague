@@ -3,3 +3,4 @@ __pycache__
 .idea
 logs/*.log
 data/users.dat
+data/messages/*.msg

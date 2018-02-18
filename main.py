@@ -119,7 +119,7 @@ def handle(self, conn, addr, req):
         response.add_cookie('client-id', 'none')
         response.add_cookie('validator', 'none')
         response.logged_in = False
-        error = self.throwError(5, 'a', 'login.html', response=response)
+        error = self.throwError(5, 'a', '/login.html', response=response)
         self.log.log(addr[0], '- Client\'s cookies don\'t match.', lvl=Log.ERROR)
         return
     elif response.logged_in:
@@ -130,12 +130,12 @@ def handle(self, conn, addr, req):
 
     if method == "GET":
         if reqadr[0] == '':
-            response.set_status_code(307, location='home.html')
+            response.set_status_code(307, location='/home.html')
         elif reqadr[0] == 'home.html':
             if client_id == 'none':
                 response.attach_file('home.html')
             else:
-                response.set_status_code(307, location='news.html')
+                response.set_status_code(307, location='/news.html')
 
         elif reqadr[0] == 'news.html':
             response.attach_file('news.html', nb_page='home.html')
@@ -149,7 +149,7 @@ def handle(self, conn, addr, req):
             if not account.shell:
                 response.attach_file('account.html')
             else:
-                response.set_status_code(307, location='login.html')
+                response.set_status_code(307, location='/login.html')
 
         elif reqadr[0] == 'login.html':
             response.attach_file('login.html', nb_page="account.html")
@@ -177,7 +177,7 @@ def handle(self, conn, addr, req):
 
         elif reqadr[0] == 'messages.html':
             messages = []
-            for msg in sorted(client.messages, key=lambda m: -m.sort_date):
+            for msg in sorted(client.messages, key=lambda m: -float(m.sort_date)):
                 m = '<div class="preview">\n\t<span class="sender">{}</span><br>\n\t<span class="subject">{}</span>\n\t<span class="date">{}</span>\n</div>'.format(
                     msg.sender.get_name(),
                     msg.subject,
@@ -186,6 +186,7 @@ def handle(self, conn, addr, req):
                 messages.append(m)
             response.attach_file('messages.html', nb_page='account.html', messages='\n'.join(messages))
 
+        # ACTIONS
         elif reqadr[0].split('.')[-1] == 'act':
             if reqadr[0] == 'logout.act':
                 response.add_cookie('client-id', 'none')
@@ -203,6 +204,16 @@ def handle(self, conn, addr, req):
                 error = self.throwError(2, 'a', get_last(), response=response)
                 self.log.log(addr[0], '- Client requested non-existent action.', lvl=Log.ERROR)
                 return
+
+        # MESSAGE FILES
+        elif reqadr[0] == 'm':
+            print('m')
+            try:
+                d = open('data/messages/' + reqadr[1] + '.msg', 'r').read()
+                response.body = d
+            except FileNotFoundError:
+                response.body = "|ERR|"
+                self.log.log(addr[0], '- Client requested non-existent message file.', lvl=Log.ERROR)
 
 
         else:
@@ -345,13 +356,15 @@ def handle(self, conn, addr, req):
 
             recipient = get_account_by_id(flags['recp'])
             if recipient.shell:
-                error = self.throwError(14, 'c', get_last(), response=response)
-                self.log.log(addr[0], '- Client tried to message banned account.', lvl=Log.ERROR)
+                error = self.throwError(6, 'b', get_last(), response=response)
+                self.log.log(addr[0], '- Client tried to message non-existent account.', lvl=Log.ERROR)
                 return
 
             msg = flags['msg']
+            subject = flags['subject']
+            client.send_message(subject, msg, recipient)
 
-            client.send_message(msg, recipient)
+            response.set_status_code(303, location="messages.html")
 
     error = ''
     if reqadr[-1].split('.')[-1] in ('html', 'htm'):

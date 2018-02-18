@@ -40,6 +40,9 @@ class Message:
         self.recipient = recipient
         self.subject = subject
 
+        self.file = open("data/messages/"+self.id+".msg", 'w')
+        self.file.write(self.msg)
+
 
 class Account:
     def __init__(self, firstname, lastname, username, password, email, id):
