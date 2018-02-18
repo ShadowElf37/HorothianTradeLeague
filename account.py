@@ -30,6 +30,17 @@ class Infinity:
         return '∞'
 
 
+class Message:
+    def __init__(self, subject, msg, sender, recipient):
+        self.msg = msg
+        self.formal_date = time.strftime('%m/%d/%y\n%I:%M %p')
+        self.sort_date = str(time.time())
+        self.id = '%08d' % random.randint(10**8, 10**9-1)
+        self.sender = sender
+        self.recipient = recipient
+        self.subject = subject
+
+
 class Account:
     def __init__(self, firstname, lastname, username, password, email, id):
         self.id = id
@@ -42,6 +53,8 @@ class Account:
         self.coalition = 'none'
         self.session_id = 'none'
         self.transaction_history = []
+        self.messages = []
+        self.sent_messages = []
         self.shell = False
         self.validator = self.get_new_validator()
         self.total_hunts = 0
@@ -75,6 +88,14 @@ class Account:
         s = '%64d' % random.randint(10 ** 64, 10 ** 65 - 1)  # 512-bit validator
         return s
 
+    def get_name(self):
+        return self.firstname + ' ' + self.lastname
+
+    def send_message(self, subject, msg, recpt):
+        m = Message(subject, msg, self, recpt)
+        self.sent_messages.append(m)
+        recpt.messages.append(m)
+
 
 class ShellAccount:
     def __init__(self):
@@ -95,3 +116,4 @@ class ShellAccount:
         self.admin = False
         self.email = 'none'
         self.blacklisted = False
+        self.messages = []

@@ -175,6 +175,13 @@ def handle(self, conn, addr, req):
                 acnts.append('<tr>' + td_wrap(a.firstname + ' ' + a.lastname) + td_wrap(a.id) + td_wrap(a.coalition) + td_wrap(a.last_activity) + td_wrap(a.date_of_creation) + '\n</tr>')
             response.attach_file('registry.html', nb_page='account.html', accounts='\n'.join(acnts))
 
+        elif reqadr[0] == 'messages.html':
+            messages = []
+            for msg in sorted(client.messages, key=lambda m: -m.sort_date):
+                m = msg.sender.get_name() + msg.subject
+                messages.append(m)
+            response.attach_file('messages.html', nb_page='account.html', messages='\n'.join(messages))
+
         elif reqadr[0].split('.')[-1] == 'act':
             if reqadr[0] == 'logout.act':
                 response.add_cookie('client-id', 'none')
@@ -320,6 +327,27 @@ def handle(self, conn, addr, req):
                 error = self.throwError(3, 'a', get_last(), response=response)
                 self.log.log(addr[0], '- Client tried to overdraft.', lvl=Log.ERROR)
                 return
+
+        elif reqadr[0] == 'message.act':
+            if not all(flags.values()):
+                error = self.throwError(13, 'd', get_last(), response=response)
+                self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
+                return
+
+            elif get_account_by_id(flags['recp']).blacklisted:
+                error = self.throwError(14, 'c', get_last(), response=response)
+                self.log.log(addr[0], '- Client tried to message banned account.', lvl=Log.ERROR)
+                return
+
+            recipient = get_account_by_id(flags['recp'])
+            if recipient.shell:
+                error = self.throwError(14, 'c', get_last(), response=response)
+                self.log.log(addr[0], '- Client tried to message banned account.', lvl=Log.ERROR)
+                return
+
+            msg = flags['msg']
+
+            client.send_message(msg, recipient)
 
     error = ''
     if reqadr[-1].split('.')[-1] in ('html', 'htm'):
