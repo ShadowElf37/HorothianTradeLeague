@@ -72,6 +72,27 @@
 	line-height: 13px;
 }
 
+.message-big .subject{
+    font-size: 36px;
+    margin: 5px;
+
+}
+
+.message-big .sender{
+    font-size: 18px;
+    margin: 5px;
+}
+
+#msg-body{
+	line-height: 20px;
+	font-size: 16px;
+	margin: 10px;
+	border: 1px solid #EBB;
+	padding: 10px;
+	min-height: 150px;
+	overflow-y: auto;
+}
+
 h3{
 	color: #EE3535;
 	font-size: 36px;
