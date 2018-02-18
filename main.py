@@ -14,6 +14,10 @@ import time
 import random
 from encrypt import encrypt
 
+
+require_validator = True
+
+
 def client_error_msg(msg):
     return '<html>' + msg + '<br><a href="home.html">Go back.</a></html>'
 
@@ -115,14 +119,13 @@ def handle(self, conn, addr, req):
 
     if client_id is None:
         response.add_cookie('client-id', 'none')
-        """
-    elif cookies.get('validator') != get_account_by_id(client_id).validator and response.logged_in:
+    elif cookies.get('validator') != get_account_by_id(client_id).validator and response.logged_in and require_validator:
         response.add_cookie('client-id', 'none')
         response.add_cookie('validator', 'none')
         response.logged_in = False
         error = self.throwError(5, 'a', '/login.html', response=response)
         self.log.log(addr[0], '- Client\'s cookies don\'t match.', lvl=Log.ERROR)
-        return"""
+        return
     elif response.logged_in:
         get_account_by_id(client_id).last_activity = time.strftime('%X (%x)')
 
@@ -204,10 +207,7 @@ def handle(self, conn, addr, req):
             elif reqadr[0] == 'shutdown_force.act':
                 exit()
             elif reqadr[0] == 'del_msg.act':
-                print(client.messages)
-                for m in client.messages:
-                    print('@', m.id)
-                print('#', reqadr[1])
+                client = get_account_by_id(reqadr[2])
                 msg = next( m for m in client.messages if m.id == reqadr[1] )
                 client.messages.remove(msg)
                 response.body = "0"
@@ -259,7 +259,7 @@ def handle(self, conn, addr, req):
             try:
                 acnt = list(filter(lambda u: u.username == usr and u.password == pwd, accounts))[0]
 
-                response.add_cookie('client-id', acnt.id, 'Max-Age=604800', 'HttpOnly')  # 2 weeks
+                response.add_cookie('client-id', acnt.id, 'Max-Age=604800')  # 2 weeks
                 response.add_cookie('validator', acnt.validator, 'Max-Age=604800', 'HttpOnly')
 
                 response.set_status_code(303, location='account.html')
@@ -313,7 +313,7 @@ def handle(self, conn, addr, req):
             acnt = Account(first, last, usr, pwd, mail, id)
             accounts.append(acnt)
 
-            response.add_cookie('client-id', id, 'Max-Age=604800', 'HttpOnly')  # 2 weeks
+            response.add_cookie('client-id', id, 'Max-Age=604800')  # 2 weeks
             response.add_cookie('validator', acnt.validator, 'Max-Age=604800', 'HttpOnly')
 
             response.set_status_code(303, location='account.html')

@@ -13,3 +13,8 @@ BETA v0.1.0.2 (2/18/18)
     - Messages html & js complete, css could use a little work
     - Messages can be SENT AND RECEIVED!
     - Excepted that weird bug where POSTs are empty when they're really not, unsure how to fix it though
+
+BETA v0.1.0.3 (2/18/18)
+    - Messages can be deleted (THIS WAS REALLY HARD) with a trash-can icon in the preview's corner
+    - Modifications to CSS and JS for messages
+    - Corrected page titles to be more accurate, changes all HTL to Project Mercury (formal name to be determined)
