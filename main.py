@@ -115,13 +115,14 @@ def handle(self, conn, addr, req):
 
     if client_id is None:
         response.add_cookie('client-id', 'none')
+        """
     elif cookies.get('validator') != get_account_by_id(client_id).validator and response.logged_in:
         response.add_cookie('client-id', 'none')
         response.add_cookie('validator', 'none')
         response.logged_in = False
         error = self.throwError(5, 'a', '/login.html', response=response)
         self.log.log(addr[0], '- Client\'s cookies don\'t match.', lvl=Log.ERROR)
-        return
+        return"""
     elif response.logged_in:
         get_account_by_id(client_id).last_activity = time.strftime('%X (%x)')
 
@@ -178,7 +179,7 @@ def handle(self, conn, addr, req):
         elif reqadr[0] == 'messages.html':
             messages = []
             for msg in sorted(client.messages, key=lambda m: -float(m.sort_date)):
-                m = '<div onmouseover="updateMessage({})" class="preview">\n\t<span class="sender">{}</span><br>\n\t<span class="subject">{}</span>\n\t<span class="date">{}</span>\n</div>'.format(
+                m = '<div onmouseleave="mouseLeave(this)" onmouseover="updateMessage(\'{0}\', this)" class="preview" id="{0}">\n<span class="sender">{1}</span><br>\n<span class="subject">{2}</span>\n<span class="date">{3}</span>\n</div>'.format(
                     msg.id,
                     msg.sender.get_name(),
                     msg.subject,
@@ -202,6 +203,14 @@ def handle(self, conn, addr, req):
                 exit()
             elif reqadr[0] == 'shutdown_force.act':
                 exit()
+            elif reqadr[0] == 'del_msg.act':
+                print(client.messages)
+                for m in client.messages:
+                    print('@', m.id)
+                print('#', reqadr[1])
+                msg = next( m for m in client.messages if m.id == reqadr[1] )
+                client.messages.remove(msg)
+                response.body = "0"
             else:
                 # Proper error handling
                 error = self.throwError(2, 'a', get_last(), response=response)
@@ -212,6 +221,7 @@ def handle(self, conn, addr, req):
         elif reqadr[0] == 'm':
             try:
                 d = open('data/messages/' + reqadr[1] + '.msg', 'r').read()
+                d = '\n'.join(d.split('\n')[1:])
                 response.body = d
             except FileNotFoundError:
                 response.body = "|ERR|"

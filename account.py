@@ -38,14 +38,11 @@ class Message:
         self.id = '%08d' % random.randint(10**8, 10**9-1)
         self.sender = sender
         self.recipient = recipient
-        self.subject = subject
+        self.subject = subject.replace('+', ' ')
 
         self.file = open("data/messages/"+self.id+".msg", 'w')
-        if self.msg == '':
-            print('ACTUAL EMPTY MESSAGE')
-        else:
-            print('MESSAGE:::::', self.msg)
-        self.file.write(self.msg.replace('+', ' '))
+        h = '# ' + self.sender.id + ' -> ' + self.recipient.id + ' | ' + self.formal_date + '\n'
+        self.file.write(h + self.msg.replace('+', ' '))
         self.file.close()
 
 
