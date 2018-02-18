@@ -207,7 +207,6 @@ def handle(self, conn, addr, req):
 
         # MESSAGE FILES
         elif reqadr[0] == 'm':
-            print('m')
             try:
                 d = open('data/messages/' + reqadr[1] + '.msg', 'r').read()
                 response.body = d
