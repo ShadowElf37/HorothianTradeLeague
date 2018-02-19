@@ -23,8 +23,9 @@
 .message-big{
 	width: 54%;
 	height: 35vh;
-	overflow-y: auto;
 	padding: 0;
+	display: block;
+	overflow-y: auto;
 }
 
 .preview{
@@ -90,7 +91,7 @@
 	border: 1px solid #EBB;
 	padding: 10px;
 	min-height: 70%;
-	overflow-y: auto;
+
 }
 
 h3{
