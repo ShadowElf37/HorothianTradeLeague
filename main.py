@@ -145,7 +145,7 @@ def handle(self, conn, addr, req):
             response.attach_file('news.html', nb_page='home.html')
 
         elif reqadr[0] == 'treaty.html':
-            response.set_body(client_error_msg('Nothing here now.'))
+            response.set_body(client_error_msg('For those of you here in the closed beta: YOU CAN\'T TELL ANYONE ABOUT THIS.<br>Don\'t even mention money or trades with other people around. This isn\'t the time for public advertisement.'))
             # response.set_status_code(307, location='https://drive.google.com/open?id=1vylaFRMUhj0fCGqDVhn0RC7xXmOegabodKs9YK-8zbs')
 
         elif reqadr[0] == 'account.html':

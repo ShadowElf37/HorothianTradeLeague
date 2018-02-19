@@ -52,6 +52,17 @@ def render(text, **resources):
         # print('#', '[['+i+']]')
         # print('@', resources[i])
         text = text.replace('[['+i+']]', str(resources[i]))
+
+    while text.find('{{') != -1:
+        s = text.find('{{')+2
+        e = text.find('}}')
+        t = text[s:e]
+        try:
+            v = str(eval(t))
+        except Exception as e:
+            v = '<span style="color: red;">%RenderError%<span>'
+        text = text.replace('{{'+t+'}}', v)
+
     return text.encode(ENCODING)
 
 

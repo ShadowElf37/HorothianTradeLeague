@@ -29,3 +29,6 @@ BETA v0.1.1.0 (2/18/18)
 
 BETA v0.1.1.1 (2/19/18)
     - Modified navbar, added progress link
+    - Added checkbox confirming treaty acknowledgement in signup.html
+    - Added links to treaty and settings in account.html
+    - You can now use {{}} to render python code
