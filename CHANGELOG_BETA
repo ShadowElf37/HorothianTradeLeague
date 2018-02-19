@@ -18,3 +18,7 @@ BETA v0.1.0.3 (2/18/18)
     - Messages can be deleted (THIS WAS REALLY HARD) with a trash-can icon in the preview's corner
     - Modifications to CSS and JS for messages
     - Corrected page titles to be more accurate, changes all HTL to Project Mercury (formal name to be determined)
+
+BETA v0.1.1.0 (2/18/18)
+    - Minor modifications to CSS and HTML across the board
+    - Home, news, and about pages now have reasonable, applicable text - ready for small-scale testing!

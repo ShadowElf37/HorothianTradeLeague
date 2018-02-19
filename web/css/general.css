@@ -182,3 +182,14 @@ p{
 .disabled-nav:hover{
     background-color: #FDDD !important;
 }
+
+
+.tooltip{
+  color: #7A2;
+  border-bottom: 1px dashed;
+  font-size: 20px;
+  transition-duration: 0.1s;
+}
+.tooltip:hover{
+  color: #CC2;
+}

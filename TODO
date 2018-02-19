@@ -2,8 +2,7 @@ Upon completion of all URGENT (and some IMPORTANT as deemed necessary) work, Pro
 
 
 URGENT
-    1. Input field tooltips (on question marks beside)
-    2. Home.html should at least look presentable; news.html & about.html would be nice
+    All done!
 
 IMPORTANT
     1. Thread for eval/exec(input()) so we can do maintenance without restarting the server
