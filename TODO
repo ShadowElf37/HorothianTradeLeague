@@ -4,29 +4,35 @@ Upon completion of all URGENT (and some IMPORTANT as deemed necessary) work, Pro
 URGENT
     All done!
 
+
 IMPORTANT
     1. Thread for eval/exec(input()) so we can do maintenance without restarting the server
 	2. Improve page CSS and add "aesthetic features"
-	3. Account settings; ability to change password, etc.
-	4. Passwords should be stored using homemade encryption (sha is too irreversible - yeah we sneaky like that)
-	5. Change bans to IP as well
+	3. Passwords should be stored using homemade encryption (sha is too irreversible - yeah we sneaky like that)
+	4. Change bans to IP as well
+
+	5. Account settings; ability to change password, etc.
 	6. Unlockables/Progress page (for coalitions, hunt submission, etc.)
+
 
 LESS IMPORTANT
     1. Overhaul of client request; should be abstracted class like Response, not a list of header options
     2. Validator cookie should be dynamic with session for increased security
-    3. Coalitions (shared pools) / Guilds (companies)
-    4. Hunt action, hunts.dat, hunts.html
-    5. Scripting console.html
+    3. Scripting console.html
+
+    4. Coalitions (shared pools) / Guilds (companies)
+    5. Hunt action, hunts.dat, hunts.html
+
 
 FINAL PRODUCT:
     1. SSL
     2. Port forward
     3. Treaty
-    4. Hunt submission
-    5. Market for online-hosted trade
-    6. Real about.html
-    7. Real news.html
-    8. Real home.html
-    9. console.html commands (not the basic scripting)
-    10. Have dummy file with everyone in school for potential unlocking of the whitelist
+    4. Real about.html
+    5. Real home.html
+    6. console.html commands (not the basic scripting)
+    7. Have dummy file with everyone in school for potential unlocking of the whitelist
+
+    8. Hunt submission
+    9. Market for online-hosted trade
+    10. Real news.html
