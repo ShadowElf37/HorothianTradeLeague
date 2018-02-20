@@ -43,3 +43,4 @@ BETA v0.1.1.3 (2/20/18)
     - Added settings attribute to Account
     - Fixed a couple bugs, particularly in transaction logging
     - Fixed IP banning (now it's just a .dat)
+    - Fixed password encryption issue
