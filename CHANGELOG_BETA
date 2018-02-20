@@ -36,5 +36,9 @@ BETA v0.1.1.1 (2/19/18)
 BETA v0.1.1.2 (2/20/18)
     - IP bans; IPs stored in accounts
     - Passwords are stored with homemade encryption - it's almost useless because the setter/getter auto crypts, mostly a selling point
-    - Commented some of main.py
+    - Commented and cleaned some of main.py
     - Logged requests are limited to .html when debug is turned off
+
+BETA v0.1.1.3 (2/20/18)
+    - Added settings attribute to Account
+    - Fixed a couple bugs in transaction logging

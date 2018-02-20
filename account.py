@@ -70,6 +70,7 @@ class Account:
         self.admin = False
         self.blacklisted = False
         self.ip_addresses = set()
+        self.settings = {}
 
     @property
     def password(self):
@@ -134,3 +135,4 @@ class ShellAccount:
         self.blacklisted = False
         self.messages = []
         self.ip_addresses = set()
+        self.settings = {}

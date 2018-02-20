@@ -353,13 +353,13 @@ def handle(self, conn, addr, req):
                 response.attach_file('account.html')
                 tid = '%19d' % random.randint(1, 2**64)
                 f = open('logs/transactions.log', 'at')
-                gl = '{0} -> {1}; Cr{2} ({3}) -- {4}\n'.format(sender_id, recipient_id, amount, tid, time.strftime('%c - %x'))
+                gl = '{0} -> {1}; Cr{2} ({3}) -- {4}\n'.format(sender_id, recipient_id, amount, tid, time.strftime('%X - %x'))
                 f.write(gl)
-                a.transaction_history.append('₢{} sent to {} {}|3{}|{}'.format(amount, ar.firstname, ar.lastname, tid, time.strftime('%c - %x')))
+                a.transaction_history.append('&#8354;{} sent to {} {}|3{}|{}'.format(amount, ar.firstname, ar.lastname, tid, time.strftime('%c - %x')))
                 if a.id != '1377':
-                    ar.transaction_history.append('{} {} sent you ₢{}|2{}|{}'.format(a.firstname, a.lastname, amount, tid, time.strftime('%c - %x')))
+                    ar.transaction_history.append('{} {} sent you &#8354;{}|2{}|{}'.format(a.firstname, a.lastname, amount, tid, time.strftime('%c - %x')))
                 else:
-                    ar.transaction_history.append('CB income of ₢{}|7{}|{}'.format(amount, tid, time.strftime('%c - %x')))
+                    ar.transaction_history.append('CB income of &#8354;{}|7{}|{}'.format(amount, tid, time.strftime('%c - %x')))
                 f.close()
             else:
                 error = self.throwError(3, 'a', get_last(), response=response)
