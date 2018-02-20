@@ -52,7 +52,7 @@ class Account:
         self.id = id
         self._balance = 0
         self.username = username
-        self._password = password
+        self._password = encrypt.encrypt(password, 'c')
         self.firstname = firstname
         self.lastname = lastname
         self.email = email
