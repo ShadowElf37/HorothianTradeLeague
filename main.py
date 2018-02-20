@@ -12,7 +12,6 @@ from account import *
 import pickle
 import time
 import random
-from encrypt import encrypt
 
 
 require_validator = True
@@ -96,27 +95,31 @@ error = ''
 
 def handle(self, conn, addr, req):
     global error
-    self.log.log("Request from ", addr[0], ":", req)
 
+    # Log request
+    if not self.debug or req[1].split('.')[-1] == 'html':
+        self.log.log("Request from ", addr[0], ":", req)
+
+    # Probably should throw this all in a class - splits the request into variables
     method = req[0]
     reqadr = req[1]
     cookies = parse_cookie(req[2])
-    flags = req[3]
+    http_flags = req[3]
 
+    # Finds the client by cookie, creates a response to modify later
     response = Response()
     response.logged_in = cookies.get('client-id', 'none') != 'none'
     client_id = cookies.get('client-id')
     client = get_account_by_id(client_id)
 
-    # Legacy solution to the error-handling fiasco, no longer needed
-    #hist = ['<tr>\n' + '<td>\n' + item.split('|')[0] + '\n</td>' + '\n<td>' + item.split('|')[1] + '\n</td>' + '\n<td>' + item.split('|')[
-            #2] + '\n</td>''\n</tr>' for item in client.transaction_history]
-    #ac = ['<tr>\n' + '<td>\n' + a.firstname + ' ' + a.lastname + '\n</td>' + '\n<td>' + a.id + '\n</td>' + '\n<td>' + a.coalition + '\n</td>' + '\n</tr>'\
-            #for a in sorted(accounts, key=lambda u: u.lastname if u.id not in admin_accounts else u.id)]
+    # Adds ip to their account for IP banning
+    client.ip_addresses.add(addr[0])
 
+    # Default render values - these are input automatically to renders
     render_defaults = {'error':error, 'username':client.username, 'id':client_id, 'hunt_total':client.total_hunts, 'hunt_count':client.active_hunts, 'balance':client.balance}
     response.default_renderopts = render_defaults
 
+    # Make sure client has a cookie and that it's valid - activity time is recorded
     if client_id is None:
         response.add_cookie('client-id', 'none')
     elif cookies.get('validator') != get_account_by_id(client_id).validator and response.logged_in and require_validator:
@@ -130,8 +133,10 @@ def handle(self, conn, addr, req):
         get_account_by_id(client_id).last_activity = time.strftime('%X (%x)')
 
 
+    # Grabs cookie to determine last location in case of error
     get_last = lambda: cookies.get('page', 'home.html')
 
+    # Off to the request handling!
     if method == "GET":
         if reqadr[0] == '':
             response.set_status_code(307, location='/home.html')
@@ -246,12 +251,13 @@ def handle(self, conn, addr, req):
         if reqadr[0] == 'login.act':
             usr = flags['user']
             pwd = flags['pass']
+            u = get_account_by_username(usr)
 
             if not all(flags.values()):
                 error = self.throwError(13, 'a', get_last(), response=response)
                 self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
                 return
-            elif get_account_by_username(usr).blacklisted:
+            elif u.blacklisted or addr[0] in u.ip_addresses:
                 error = self.throwError(14, 'a', get_last(), response=response)
                 self.log.log(addr[0], '- Client tried to log in to banned account.', lvl=Log.ERROR)
                 return
@@ -383,12 +389,16 @@ def handle(self, conn, addr, req):
 
             response.set_status_code(303, location="messages.html")
 
+    # Adds an error, sets page cookie (that thing that lets you go back if error), and sends the response off
     error = ''
     if reqadr[-1].split('.')[-1] in ('html', 'htm'):
         response.add_cookie('page', '/'.join(reqadr))
     self.send(response)
     conn.close()
 
+
+# TURN DEBUG OFF FOR ALL REAL-WORLD TRIALS OR ANY ERROR WILL CAUSE A CRASH
+# USE SHUTDOWN URLs TO TURN OFF
 s = Server(localhost=True, debug=True, include_debug_level=False)
 s.set_request_handler(handle)
 s.open()

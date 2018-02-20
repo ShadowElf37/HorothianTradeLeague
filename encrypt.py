@@ -1,3 +1,9 @@
+"""
+encrypt.py
+Project Mercury
+Yovel Key-Cohen
+"""
+
 def encrypt(msg, key):
     for char in key:
         keys = [chr(ord(char)+i) for i in range(len(msg))]

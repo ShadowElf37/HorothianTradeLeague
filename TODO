@@ -8,11 +8,10 @@ URGENT
 IMPORTANT
     1. Thread for eval/exec(input()) so we can do maintenance without restarting the server
 	2. Improve page CSS and add "aesthetic features"
-	3. Passwords should be stored using homemade encryption (sha is too irreversible - yeah we sneaky like that)
-	4. Change bans to IP as well
+	3. Variables at top of main.py to determine availability of certain features - right now it's mostly Server().debug, should be more specific
 
-	5. Account settings; ability to change password, etc.
-	6. Unlockables/Progress page (for coalitions, hunt submission, etc.)
+	4. Account settings; ability to change password, etc.
+	5. Unlockables/Progress page (for coalitions, hunt submission, etc.)
 
 
 LESS IMPORTANT

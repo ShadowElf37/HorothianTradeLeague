@@ -6,6 +6,7 @@ Yovel Key-Cohen
 
 import random
 import time
+import encrypt
 
 class Infinity:
     def __int__(self):
@@ -51,7 +52,7 @@ class Account:
         self.id = id
         self._balance = 0
         self.username = username
-        self.password = password
+        self._password = password
         self.firstname = firstname
         self.lastname = lastname
         self.email = email
@@ -68,6 +69,16 @@ class Account:
         self.date_of_creation = time.strftime('%c')
         self.admin = False
         self.blacklisted = False
+        self.ip_addresses = set()
+
+    @property
+    def password(self):
+        return encrypt.decrypt(self._password, 'c')
+
+    @password.setter
+    def password(self, val):
+        self._password = encrypt.encrypt(val, 'c')
+
 
     @property
     def balance(self):
@@ -122,3 +133,4 @@ class ShellAccount:
         self.email = 'none'
         self.blacklisted = False
         self.messages = []
+        self.ip_addresses = set()
