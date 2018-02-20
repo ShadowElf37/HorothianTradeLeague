@@ -97,7 +97,7 @@ def handle(self, conn, addr, req):
     global error
 
     # Log request
-    if not self.debug or req[1].split('.')[-1] == 'html':
+    if not self.debug or req[1][-1].split('.')[-1] == 'html':
         self.log.log("Request from ", addr[0], ":", req)
 
     # Probably should throw this all in a class - splits the request into variables
@@ -257,7 +257,7 @@ def handle(self, conn, addr, req):
                 error = self.throwError(13, 'a', get_last(), response=response)
                 self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
                 return
-            elif u.blacklisted or addr[0] in u.ip_addresses:
+            elif u.blacklisted or addr[0] in open('data/banned_ip.dat').readlines():
                 error = self.throwError(14, 'a', get_last(), response=response)
                 self.log.log(addr[0], '- Client tried to log in to banned account.', lvl=Log.ERROR)
                 return
