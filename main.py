@@ -26,19 +26,15 @@ cmd_file = open('cmd.py', 'r').read()
 def infinite_file():
     global cmd_file
     while True:
-        cmd = open('cmd.py', 'r')
-        r = cmd.read()
+        r = open('cmd.py', 'r').read()
         if cmd_file != r:
             cmd_file = r
             for c in r.split('\n'):
                 try:
-                    eval(c)
-                except:
-                    try:
-                        exec(c)
-                    except Exception as e:
-                        print('CMD ERROR:', e)
-        time.sleep(0.12)
+                    exec(c)
+                except Exception as e:
+                    print('CMD ERROR:', e)
+        time.sleep(1)
 Thread(target=infinite_file).start()
 
 
@@ -233,7 +229,7 @@ def handle(self, conn, addr, req):
             for line in lines:
                 compose.append('<h3>' + line[0] + '</h3>' + '<div class="prog-bar"><div class="prog-bar-int" style="width: {}">{}</div></div><br>'.format(
                 str(100*eval(line[1])) + '%',
-                line[1]
+                line[1] if len(line) == 2 else line[2]
                 ))
 
             response.attach_file('progress.html', bars='\n'.join(compose))
@@ -446,3 +442,4 @@ s = Server(localhost=True, debug=True, include_debug_level=False)
 s.set_request_handler(handle)
 s.open()
 save_users()
+cmd_file.close()
