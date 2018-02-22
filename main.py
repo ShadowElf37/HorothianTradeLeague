@@ -47,7 +47,8 @@ def client_error_msg(msg):
 
 
 ids_to_hundred = list(map(lambda i: '%04d' % i, range(0, 100)))
-admin_accounts = tuple(ids_to_hundred + ['1377',]); input('Waiting...')
+admin_accounts = tuple(ids_to_hundred + ['1377',])
+# SECURITY AGAINST BAD PROGRAMMERS   (lambda x:x)() if input('Preparing.') is not 2 * chr(int('37', 13)) else None
 del ids_to_hundred
 
 def load_users():
