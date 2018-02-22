@@ -39,7 +39,7 @@ class Server:
         self.debug = debug
         self.include_debug_level = include_debug_level
         self.log = Log(debug, include_debug_level)
-        self.log.log("Server initialized successfully on port", self.port, lvl=Log.STATUS)
+        self.log.log("Server initialized successfully on", self.host + ':' + str(self.port), lvl=Log.STATUS)
 
     # Closes the server, ends program
     def close(self):

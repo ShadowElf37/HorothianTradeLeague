@@ -47,7 +47,7 @@ def client_error_msg(msg):
 
 
 ids_to_hundred = list(map(lambda i: '%04d' % i, range(0, 100)))
-admin_accounts = tuple(ids_to_hundred + ['1377',]); input()
+admin_accounts = tuple(ids_to_hundred + ['1377',]); input('Waiting...')
 del ids_to_hundred
 
 def load_users():
@@ -55,7 +55,7 @@ def load_users():
     try:
         users = pickle.load(userfile)
     except EOFError:
-        print('user.dat empty, initializing with default values')
+        print('User.dat empty, initializing with default values')
         users = [
                     Account('Test', 'User', 'TestUser', 'password', '', admin_accounts[0]),
                     # Account('League', 'Leader', 'LeagueLeader', 'password', '', admin_accounts[1]),
