@@ -222,6 +222,22 @@ def handle(self, conn, addr, req):
                 messages.append('<span class="no-message">Inbox empty...</span>')
             response.attach_file('messages.html', nb_page='account.html', messages='\n'.join(messages))
 
+        elif reqadr[0] == 'progress.html':
+            f = open('conf/progress.cfg', 'r').readlines()
+            lines = []
+            compose = []
+            for line in f:
+                if line[0].strip() not in ('#', ''):
+                    lines.append(tuple(map(lambda x: x.strip(), line.split(':'))))
+
+            for line in lines:
+                compose.append('<h3>' + line[0] + '</h3>' + '<div class="prog-bar"><div class="prog-bar-int" style="width: {}">{}</div></div><br>'.format(
+                str(100*eval(line[1])) + '%',
+                line[1]
+                ))
+
+            response.attach_file('progress.html', bars='\n'.join(compose))
+
         # ACTIONS
         elif reqadr[0].split('.')[-1] == 'act':
             if reqadr[0] == 'logout.act':

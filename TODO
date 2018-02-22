@@ -7,13 +7,13 @@ URGENT
 
 IMPORTANT
 	1. Account settings; ability to change password, etc.
-	2. Unlockables/Progress page (for coalitions, hunt submission, etc.)
 
 
 LESS IMPORTANT
     1. Overhaul of client request; should be abstracted class like Response, not a list of header options
     2. Validator cookie should be dynamic with session for increased security
     3. Scripting console.html
+    4. Dynamic progress.cfg
 
     4. Coalitions / Guilds
     5. Hunts
