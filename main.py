@@ -21,6 +21,7 @@ log_request = True
 log_transactions = False
 log_signin = True
 log_signup = True
+log_request_flags = False
 
 cmd_file = open('cmd.py', 'r').read()
 def infinite_file():
@@ -109,7 +110,7 @@ def get_account_by_email(email):
 def td_wrap(s):
     return '\n<td>' + s + '</td>'
 
-whitelist = open('conf/whitelist.cfg', 'r').readlines()
+whitelist = tuple(map(lambda x: x.strip(), open('conf/whitelist.cfg', 'r').readlines()))
 accounts = load_users()
 error = ''
 
@@ -120,7 +121,7 @@ def handle(self, conn, addr, req):
 
     # Log request
     if not log_request or req[1][-1].split('.')[-1] == 'html':
-        self.log.log("Request from ", addr[0], ":", req)
+        self.log.log("Request from ", addr[0], ":", req[0:4 if log_request_flags else 3])
 
     # Probably should throw this all in a class - splits the request into variables
     method = req[0]
@@ -151,7 +152,6 @@ def handle(self, conn, addr, req):
         return
     elif response.logged_in:
         get_account_by_id(client_id).last_activity = time.strftime('%X (%x)')
-
 
     # Grabs cookie to determine last location in case of error
     get_last = lambda: cookies.get('page', 'home.html')
@@ -263,6 +263,16 @@ def handle(self, conn, addr, req):
             try:
                 d = open('data/messages/' + reqadr[1] + '.msg', 'r').read()
                 d = '\n'.join(d.split('\n')[1:])
+
+                # Replaces all the %21 with ! (relevant html escape) and such
+                i = d.find('%')
+                while True:
+                    i = d.find('%')
+                    code = d[i+1:i+3]
+                    if i == -1:
+                        break
+                    d = d.replace('%' + code, '&#x{};'.format(code))
+
                 response.body = d
             except FileNotFoundError:
                 response.body = "|ERR|"
@@ -394,11 +404,11 @@ def handle(self, conn, addr, req):
                 gl = '{0} -> {1}; Cr{2} ({3}) -- {4}\n'.format(sender_id, recipient_id, amount, tid, time.strftime('%X - %x'))
                 f.write(gl)
                 if log_transactions: self.log.log('Transaction:', gl)
-                a.transaction_history.append('&#8354;{} sent to {} {}|3{}|{}'.format(amount, ar.firstname, ar.lastname, tid, time.strftime('%c - %x')))
+                a.transaction_history.append('&#8354;{} sent to {} {}|3{}|{}'.format(amount, ar.firstname, ar.lastname, tid, time.strftime('%X - %x')))
                 if a.id != '1377':
-                    ar.transaction_history.append('{} {} sent you &#8354;{}|2{}|{}'.format(a.firstname, a.lastname, amount, tid, time.strftime('%c - %x')))
+                    ar.transaction_history.append('{} {} sent you &#8354;{}|2{}|{}'.format(a.firstname, a.lastname, amount, tid, time.strftime('%X - %x')))
                 else:
-                    ar.transaction_history.append('CB income of &#8354;{}|7{}|{}'.format(amount, tid, time.strftime('%c - %x')))
+                    ar.transaction_history.append('CB income of &#8354;{}|7{}|{}'.format(amount, tid, time.strftime('%X - %x')))
                 f.close()
             else:
                 error = self.throwError(3, 'a', get_last(), response=response)
@@ -442,4 +452,3 @@ s = Server(localhost=True, debug=True, include_debug_level=False)
 s.set_request_handler(handle)
 s.open()
 save_users()
-cmd_file.close()

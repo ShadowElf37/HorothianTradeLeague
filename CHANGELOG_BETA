@@ -52,3 +52,7 @@ BETA v0.1.1.4 (2/21/18)
 BETA v0.1.1.5 (2/22/18)
     - Progress navbar link enabled
     - Created a nice milestones page
+
+BETA v0.1.1.6 (2/22/18)
+    - Fixed a number of bugs
+    - Puncuation in messages now displays properly

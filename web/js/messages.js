@@ -22,7 +22,7 @@ function updateMessage(id, caller) {
 
 		fetch("http://localhost:8080/m/" + id).then(function(response) {
 			response.text().then(function(text) {
-				document.getElementById("msg-body").textContent = text;
+				document.getElementById("msg-body").innerHTML = text;
 			});
 		});
 		console.log('Pulled contents of message ' + id);

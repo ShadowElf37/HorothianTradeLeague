@@ -1,6 +1,11 @@
 Upon completion of all IMPORTANT work, Project Mercury will have a solid base of useability for the final features
 
 
+KNOWN BUGS
+    There may be an issue with message deletion?
+    Safari is incapable of POSTing data
+    IE is incapable of requesting general.css
+
 URGENT
     All done!
 

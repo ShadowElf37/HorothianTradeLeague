@@ -87,6 +87,9 @@ class Server:
         except AttributeError:
             self.log.log("Tried to receive with no client connected.", lvl=Log.ERROR)
             return 1
+        except ConnectionResetError:
+            self.log.log("Client forcibly closed existing connection.", lvl=Log.ERROR)
+            return 1
 
     # Opens the server to requests
     def open(self):
