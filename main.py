@@ -22,7 +22,7 @@ def client_error_msg(msg):
 
 
 ids_to_hundred = list(map(lambda i: '%04d' % i, range(0, 100)))
-admin_accounts = tuple(ids_to_hundred + ['1377',])
+admin_accounts = tuple(ids_to_hundred + ['1377',]); input()
 del ids_to_hundred
 
 def load_users():
@@ -111,8 +111,6 @@ def handle(self, conn, addr, req):
     response.logged_in = cookies.get('client-id', 'none') != 'none'
     client_id = cookies.get('client-id')
     client = get_account_by_id(client_id)
-
-    # Adds ip to their account for IP banning
     client.ip_addresses.add(addr[0])
 
     # Default render values - these are input automatically to renders
