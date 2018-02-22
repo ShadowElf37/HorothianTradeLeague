@@ -44,3 +44,7 @@ BETA v0.1.1.3 (2/20/18)
     - Fixed a couple bugs, particularly in transaction logging
     - Fixed IP banning (now it's just a .dat)
     - Fixed password encryption issue
+
+BETA v0.1.1.4 (2/21/18)
+    - Every 0.12 seconds, cmd.py is checked for changes; if it's different, all its contents are executed
+    - Several variables added at top of main.py for finer output control

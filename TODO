@@ -6,11 +6,8 @@ URGENT
 
 
 IMPORTANT
-    1. Thread for eval/exec(input()) so we can do maintenance without restarting the server
-	2. Variables at top of main.py to determine availability of certain features - right now it's mostly Server().debug, should be more specific
-
-	3. Account settings; ability to change password, etc.
-	4. Unlockables/Progress page (for coalitions, hunt submission, etc.)
+	1. Account settings; ability to change password, etc.
+	2. Unlockables/Progress page (for coalitions, hunt submission, etc.)
 
 
 LESS IMPORTANT

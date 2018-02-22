@@ -12,9 +12,34 @@ from account import *
 import pickle
 import time
 import random
+from threading import Thread
 
 
+# Config
 require_validator = True
+log_request = True
+log_transactions = False
+log_signin = True
+log_signup = True
+
+cmd_file = open('cmd.py', 'r').read()
+def infinite_file():
+    global cmd_file
+    while True:
+        cmd = open('cmd.py', 'r')
+        r = cmd.read()
+        if cmd_file != r:
+            cmd_file = r
+            for c in r.split('\n'):
+                try:
+                    eval(c)
+                except:
+                    try:
+                        exec(c)
+                    except Exception as e:
+                        print('CMD ERROR:', e)
+        time.sleep(0.12)
+Thread(target=infinite_file).start()
 
 
 def client_error_msg(msg):
@@ -97,7 +122,7 @@ def handle(self, conn, addr, req):
     global error
 
     # Log request
-    if not self.debug or req[1][-1].split('.')[-1] == 'html':
+    if not log_request or req[1][-1].split('.')[-1] == 'html':
         self.log.log("Request from ", addr[0], ":", req)
 
     # Probably should throw this all in a class - splits the request into variables
@@ -267,6 +292,7 @@ def handle(self, conn, addr, req):
                 response.add_cookie('validator', acnt.validator, 'Max-Age=604800', 'HttpOnly')
 
                 response.set_status_code(303, location='account.html')
+                if log_signin: self.log.log('Log in:', u.id)
             except IndexError:
                 error = self.throwError(4, 'a', get_last(), response=response)
                 self.log.log(addr[0], '- Client entered incorrect login information.', lvl=Log.ERROR)
@@ -321,6 +347,7 @@ def handle(self, conn, addr, req):
             response.add_cookie('validator', acnt.validator, 'Max-Age=604800', 'HttpOnly')
 
             response.set_status_code(303, location='account.html')
+            if log_signup: self.log.log('Sign up:', acnt.get_name(), acnt.id)
 
         elif reqadr[0] == 'pay.act':
             sender_id = client_id
@@ -353,6 +380,7 @@ def handle(self, conn, addr, req):
                 f = open('logs/transactions.log', 'at')
                 gl = '{0} -> {1}; Cr{2} ({3}) -- {4}\n'.format(sender_id, recipient_id, amount, tid, time.strftime('%X - %x'))
                 f.write(gl)
+                if log_transactions: self.log.log('Transaction:', gl)
                 a.transaction_history.append('&#8354;{} sent to {} {}|3{}|{}'.format(amount, ar.firstname, ar.lastname, tid, time.strftime('%c - %x')))
                 if a.id != '1377':
                     ar.transaction_history.append('{} {} sent you &#8354;{}|2{}|{}'.format(a.firstname, a.lastname, amount, tid, time.strftime('%c - %x')))
