@@ -1,17 +1,16 @@
-Upon completion of all IMPORTANT work, Project Mercury will have a solid base of useability for the final features
+Upon completion of all LESS IMPORTANT work, it'll have all its required features and the version can jump to v0.2.0.0
+In truth, the rest could be developed as people use the website (with a few exceptions like SSL and port forwarding being necessary)
 
 
 KNOWN BUGS
-    There may be an issue with message deletion?
-    Safari is incapable of POSTing data
-    IE is incapable of requesting general.css
+    All done!
 
 URGENT
     All done!
 
 
 IMPORTANT
-	1. Account settings; ability to change password, etc.
+	All done!
 
 
 LESS IMPORTANT

@@ -56,3 +56,11 @@ BETA v0.1.1.5 (2/22/18)
 BETA v0.1.1.6 (2/22/18)
     - Fixed a number of bugs
     - Puncuation in messages now displays properly
+
+#------------------#
+
+BETA v0.1.2.0 (2/22/18)
+    - Changed favicon.ico
+    - CSS modifications, added settings.css
+    - Added client_settings.cfg to configure fields in settings.html more easily
+    - Created save_settings.act; it must be updated with changes in the .cfg

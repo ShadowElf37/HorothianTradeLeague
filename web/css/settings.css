@@ -1,0 +1,18 @@
+input:not(.form-button){
+    float: right;
+}
+
+.desc-text{
+    float: left;
+}
+
+form{
+    width: 500px;
+    height: 100%;
+}
+
+h4{
+    line-height: 20px;
+    margin: 30px;
+    margin-bottom: 0px;
+}

@@ -13,10 +13,11 @@ import pickle
 import time
 import random
 from threading import Thread
+from boilerplate import *
 
 
 # Config
-require_validator = True
+require_validator = False
 log_request = True
 log_transactions = False
 log_signin = True
@@ -227,12 +228,27 @@ def handle(self, conn, addr, req):
                     lines.append(tuple(map(lambda x: x.strip(), line.split(':'))))
 
             for line in lines:
-                compose.append('<h3>' + line[0] + '</h3>' + '<div class="prog-bar"><div class="prog-bar-int" style="width: {}">{}</div></div><br>'.format(
+                compose.append('<h3>' + line[0] + '</h3>' + '<div class="prog-bar"><div class="prog-bar-int" style="width: {}"><span class="prog-bar-int-text">{}</span></div></div><br>'.format(
                 str(100*eval(line[1])) + '%',
                 line[1] if len(line) == 2 else line[2]
                 ))
 
             response.attach_file('progress.html', bars='\n'.join(compose))
+
+        elif reqadr[0] == 'settings.html':
+            settings = open('conf/client_settings.cfg', 'r').read()
+            fields = []
+            for line in settings.split('\n'):
+                if line != '' and line[0] != '#' and line[:4] != '<br>' and line[:2] != 'h.':
+                    opts = line.split('|')
+                    field = "<span class=\"desc-text\">{2}</span><input type=\"{0}\" name=\"{1}\" {3}>".format(*opts)
+                    fields.append(field)
+                elif line[:2] == 'h.':
+                    fields.append("<h4>{}</h4>".format(line[2:]))
+                elif line[:4] == '<br>':
+                    fields.append('<br>'*int(line[4:]))
+
+            response.attach_file('settings.html', settings='<br>\n'.join(fields))
 
         # ACTIONS
         elif reqadr[0].split('.')[-1] == 'act':
@@ -437,6 +453,36 @@ def handle(self, conn, addr, req):
             client.send_message(subject, msg, recipient)
 
             response.set_status_code(303, location="messages.html")
+
+        elif reqadr[0] == 'save_settings.act':
+            old_pwd = flags['old-pwd']
+            new_pwd = flags['new-pwd']
+            cnew_pwd = flags['cnew-pwd']
+            new_usr = flags['new-usr']
+
+            # This nall() thing is neat - like XOR but for a list
+            if not nall(old_pwd, new_pwd, cnew_pwd) or not nall(new_usr,):
+                error = self.throwError(13, 'e', get_last(), response=response)
+                self.log.log(addr[0], '- Client failed to complete a settings form-group.', lvl=Log.ERROR)
+                return
+
+            if old_pwd:
+                if new_pwd != cnew_pwd:
+                    error = self.throwError(7, 'b', get_last(), response=response)
+                    self.log.log(addr[0], '- Client pwd does not equal confirm pwd (settings).', lvl=Log.ERROR)
+                    return
+                if old_pwd == client.password:
+                    client.password = new_pwd
+                else:
+                    error = self.throwError(4, 'b', get_last(), response=response)
+                    self.log.log(addr[0], '- Client pwd incorrect (settings).', lvl=Log.ERROR)
+                    return
+
+            if new_usr:
+                client.username = new_usr
+
+            response.set_status_code(303, location='account.html')
+
 
     # Adds an error, sets page cookie (that thing that lets you go back if error), and sends the response off
     error = ''

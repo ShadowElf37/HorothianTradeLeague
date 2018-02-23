@@ -50,12 +50,19 @@ table{
   }
 
 input, textarea{
-    box-shadow: 0 0 3px #E00;
     border-radius: 3px;
     font-size: 1.1em;
     padding: 5px;
     font-family: inherit;
     margin: 5px;
+    /*border: 1px solid #CCC;*/
+    box-shadow: 0 0 3px #E00;
+}
+
+input:focus, input:hover, textarea:focus, textarea:hover{
+    box-shadow: 0 0 6px #E00;
+    /*border: 1px solid #FFF;*/
+    transition-duration: 0.1s;
 }
 
 a{
