@@ -17,12 +17,12 @@ from boilerplate import *
 
 
 # Config
-require_validator = False
+require_validator = True
 log_request = True
 log_transactions = False
 log_signin = True
 log_signup = True
-log_request_flags = False
+log_request_flags = True
 
 cmd_file = open('cmd.py', 'r').read()
 def infinite_file():
@@ -121,13 +121,15 @@ def handle(self, conn, addr, req):
     global error
 
     # Log request
-    if not log_request or req[1][-1].split('.')[-1] == 'html':
+    if log_request or req[1][-1].split('.')[-1] == 'html':
         self.log.log("Request from ", addr[0], ":", req[0:4 if log_request_flags else 3])
 
     # Probably should throw this all in a class - splits the request into variables
     method = req[0]
     reqadr = req[1]
     cookies = parse_cookie(req[2])
+    # This dict is mostly for the get_last(), but it could be useful for other things
+    http_flags_dict = dict(map(lambda x: x.lower().split(': ') + [''] * (2 - len(x.lower().split(': '))), req[3]))
     http_flags = req[3]
 
     # Finds the client by cookie, creates a response to modify later
@@ -155,7 +157,11 @@ def handle(self, conn, addr, req):
         get_account_by_id(client_id).last_activity = time.strftime('%X (%x)')
 
     # Grabs cookie to determine last location in case of error
-    get_last = lambda: cookies.get('page', 'home.html')
+    get_last_c = lambda: cookies.get('page', 'home.html')
+    # This addition will solve an issue where you can click back in a browser and it'll use a stored copy of the page,
+    # so the 'page' cookie won't update and you can be sent to the wrong places if an error occurs
+    get_last = lambda: http_flags_dict.get('referer', get_last_c())
+
 
     # Off to the request handling!
     if method == "GET":
@@ -248,14 +254,14 @@ def handle(self, conn, addr, req):
                 elif line[:4] == '<br>':
                     fields.append('<br>'*int(line[4:]))
 
-            response.attach_file('settings.html', settings='<br>\n'.join(fields))
+            response.attach_file('settings.html', settings='<br>\n'.join(fields), nb_page="account.html")
 
         # ACTIONS
         elif reqadr[0].split('.')[-1] == 'act':
             if reqadr[0] == 'logout.act':
                 response.add_cookie('client-id', 'none')
                 response.add_cookie('validator', 'none')
-                response.attach_file('home.html', logged_in=False)
+                response.set_status_code(303, location='home.html')
             elif reqadr[0] == 'shutdown_normal.act':
                 self.log.log('Initiating server shutdown...')
                 self.close()
@@ -414,7 +420,7 @@ def handle(self, conn, addr, req):
             ar = recipient_acnt
 
             if not a.pay(amount, recipient_acnt):
-                response.attach_file('account.html')
+                response.set_status_code(303, location='account.html')
                 tid = '%19d' % random.randint(1, 2**64)
                 f = open('logs/transactions.log', 'at')
                 gl = '{0} -> {1}; Cr{2} ({3}) -- {4}\n'.format(sender_id, recipient_id, amount, tid, time.strftime('%X - %x'))

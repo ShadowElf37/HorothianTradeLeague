@@ -65,3 +65,9 @@ BETA v0.1.2.0 (2/22/18)
     - Added client_settings.cfg to configure fields in settings.html more easily
     - Created save_settings.act; it must be updated with changes in the .cfg
     - Added boilerplate.py; might want to move more junk over there
+
+BETA v0.1.2.1 (2/23/18)
+    - Messages are now pulled once from server and saved in a dict
+    - Moved account.html's massive <style> to a .css
+    - Fixed some minor issues in main.py responses
+    - Fixed an issue where you could be sent to the wrong place after an error if your browser used a saved copy of a page
