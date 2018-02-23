@@ -18,9 +18,10 @@ LESS IMPORTANT
     2. Validator cookie should be dynamic with session for increased security
     3. Scripting console.html
     4. Dynamic progress.cfg
+    5. Move junk over to boilerplate.py
 
-    4. Coalitions / Guilds
-    5. Hunts
+    6. Coalitions / Guilds
+    7. Hunts
 
 
 FINAL PRODUCT:

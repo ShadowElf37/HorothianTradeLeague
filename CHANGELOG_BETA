@@ -64,3 +64,4 @@ BETA v0.1.2.0 (2/22/18)
     - CSS modifications, added settings.css
     - Added client_settings.cfg to configure fields in settings.html more easily
     - Created save_settings.act; it must be updated with changes in the .cfg
+    - Added boilerplate.py; might want to move more junk over there
