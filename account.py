@@ -113,6 +113,10 @@ class Account:
         self.sent_messages.append(m)
         recpt.messages.append(m)
 
+    # Can be used for SID some time
+    def compose_validator_string(self):
+        return ''.join(list(map(lambda x: str(hex(ord(x) % 16)[2:]), encrypt.encrypt(self.validator, self.last_activity))))
+
 
 class ShellAccount:
     def __init__(self):
@@ -126,7 +130,6 @@ class ShellAccount:
         self.session_id = 'none'
         self.transaction_history = []
         self.shell = True
-        self.validator = None
         self.total_hunts = 0
         self.active_hunts = 0
         self.date_of_creation = 'none'
@@ -136,3 +139,4 @@ class ShellAccount:
         self.messages = []
         self.ip_addresses = set()
         self.settings = {}
+        self.validator = None

@@ -167,3 +167,44 @@ class Response:
         except AttributeError:
             b = self.body
         return '\r\n'.join(self.header).encode(ENCODING) + b'\r\n' + '\r\n'.join(self.cookie).encode(ENCODING) + b'\r\n' * (2 if self.cookie else 1) + b
+
+
+class Request:
+    def __init__(self, request):
+        self.request_text = request
+        self.req_list = self.parse(request)
+        if self.req_list == 'ERROR_0':
+            return
+
+        self.method = self.req_list[0]
+        self.address = self.req_list[1][1:]
+        self.file_type = self.address[-1].split('.')[-1]
+
+        self.flags = list(map(lambda x: x.split(': '), self.req_list[2]))
+        try:
+            self.post_values = dict(map(lambda x: x.strip().split('='), self.flags[-1][0].strip().split('&'))) if self.flags[-1][0] else dict()
+            self.cookies = dict(map(lambda x: x.strip().split('='), self.flags[-3][1].strip().split(';'))) if self.flags[-3][0] == 'Cookie' else dict()
+        except ValueError:
+            print('post###', self.flags[-1])
+            print('cook@@@', self.flags[-3])
+            print('all$$$', self.req_list[2])
+            raise ValueError('REALLY BAD ERROR IN REQUEST')
+
+        self.flags = dict(self.flags[:-3])
+
+    def get_cookie(self, cname):
+        return self.cookies.get(cname, None)
+
+    def get_last_page(self):
+        return self.flags.get('Referer', self.get_cookie('page'))
+
+    @staticmethod
+    def parse(request):
+        req = request.split('\r\n')
+        # Reduce the request to a list
+        request2 = request.split(' ')
+        try:
+            request = [request2[0], request2[1].split('/'), req[2:]]  # [GET, xx/x.x, [x:xx, x:xx]]
+        except IndexError:  # Sometimes this happens?
+            return 'ERROR_0'
+        return request

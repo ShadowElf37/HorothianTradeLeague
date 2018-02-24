@@ -14,12 +14,10 @@ IMPORTANT
 
 
 LESS IMPORTANT
-    1. Overhaul of client request; should be abstracted class like Response, not a list of header options
-    2. Validator cookie should be dynamic with session for increased security
-    3. Scripting console.html
+    1. Scripting console.html
 
-    4. Coalitions / Guilds
-    5. Hunts
+    2. Coalitions / Guilds
+    3. Hunts
 
 
 FINAL PRODUCT:
@@ -32,7 +30,8 @@ FINAL PRODUCT:
     7. Have dummy file with everyone in school for potential unlocking of the whitelist
     8. Improve page CSS and add "aesthetic features"
     9. Record more data
+    10. Dynamic SID?
 
-    10. Hunt submission
-    11. Market for online-hosted trade
-    12. Real news.html
+    11. Hunt submission
+    12. Market for online-hosted trade
+    13. Real news.html

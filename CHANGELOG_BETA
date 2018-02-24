@@ -77,3 +77,6 @@ BETA v0.1.2.2 (2/24/18)
     - Now that cmd-reading thread stops with shutdown
     - Moved some junk over to boilerplate.py
     - Progress.cfg now gets a little rendering; also, bars turn gold upon completion
+
+BETA v0.1.2.3 (2/24/18)
+    - I overthrew the government and reformed request handling; now a class in response.py, changed every damn instance to use the new setup, may be undiscovered bugs

@@ -25,7 +25,7 @@ function updateMessage(id, caller) {
         if (id in messages){
             document.getElementById("msg-body").innerHTML = messages[id];
         }
-		else {fetch("http://10.1.2.95:80/m/" + id).then(function(response) {
+		else {fetch("http://[[host]]:[[port]]/m/" + id).then(function(response) {
                 response.text().then(function(text) {
                     document.getElementById("msg-body").innerHTML = text;
                     messages[id] = text;

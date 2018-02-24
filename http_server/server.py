@@ -19,10 +19,10 @@ def get_error(num, let=''):
                 return ('<center><div class="error">Error %d%s: ' % (num, let)) + line[line.find(':')+1:].strip()+'</div></center>'
 
 class Server:
-    def __init__(self, localhost=False, debug=False, include_debug_level=False):
+    def __init__(self, host=None, port=None, debug=False, include_debug_level=False):
         # Socket init stuff
-        self.host = 'localhost' if localhost else socket.gethostbyname(socket.gethostname())
-        self.port = 8080
+        self.host = host if host else socket.gethostbyname(socket.gethostname())
+        self.port = port if port else 8080
         self.buffer = 1024
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -100,14 +100,14 @@ class Server:
                 self.connection, self.c_address = self.socket.accept()
             except (OSError, KeyboardInterrupt):  # When the server closed but tried to use socket
                 break
-            parsed_req = self.parse(self.recv())
-            if parsed_req == 'ERROR_0':
+            request = Request(self.recv())
+            if request.req_list == 'ERROR_0':
                 self.log.log('Client request is empty, ignoring.', lvl=Log.INFO)
                 continue
             else:
                 # Requests come in a list format, starting with 'GET' etc. and followed by the page address
                 try:
-                    self.handle_request(self, self.connection, self.c_address, parsed_req)
+                    self.handle_request(self, self.connection, self.c_address, request)
                 except (KeyboardInterrupt, SystemExit):
                     self.close()
                 except Exception as e:
@@ -117,23 +117,6 @@ class Server:
                     self.log.log('A fatal error occurred in handle(): {}'.format(e), lvl=Log.ERROR)
             self.handled_counter += 1
             self.connection = None
-
-    # Parses the request, simplifies to important information
-    def parse(self, request):
-        # Get the cookies
-        req = request.split('\r\n')
-        cookie = ''
-        for field in req:
-            if 'Cookie' in field:
-                cookie = field.strip()
-        # Reduce the request to a list
-        request2 = request.split(' ')
-        try:
-            request = [request2[0], request2[1][1:], cookie, req[2:]]  # [GET, xx, 'Cookie: a=b', [x:x, x:x]]
-        except IndexError:  # Sometimes this happens?
-            return 'ERROR_0'
-        request[1] = request[1].split('/')
-        return request
 
     # Sends a user-friendly error message
     def throwError(self, code, id, page, response=None):
