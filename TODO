@@ -17,11 +17,9 @@ LESS IMPORTANT
     1. Overhaul of client request; should be abstracted class like Response, not a list of header options
     2. Validator cookie should be dynamic with session for increased security
     3. Scripting console.html
-    4. Dynamic progress.cfg
-    5. Move junk over to boilerplate.py
 
-    6. Coalitions / Guilds
-    7. Hunts
+    4. Coalitions / Guilds
+    5. Hunts
 
 
 FINAL PRODUCT:
@@ -33,7 +31,8 @@ FINAL PRODUCT:
     6. console.html commands (not the basic scripting)
     7. Have dummy file with everyone in school for potential unlocking of the whitelist
     8. Improve page CSS and add "aesthetic features"
+    9. Record more data
 
-    8. Hunt submission
-    9. Market for online-hosted trade
-    10. Real news.html
+    10. Hunt submission
+    11. Market for online-hosted trade
+    12. Real news.html

@@ -16,6 +16,7 @@
     text-align: center;
     overflow: hidden;
     min-width: 5%;
+    max-width: 100%;
 }
 
 h3{
@@ -26,4 +27,13 @@ h3{
 
 .prog-bar-int-text{
 
+}
+
+.prog-bar-int-comp{
+    background-color: #FFC737;
+    width: 100% !important;
+    text-align: center;
+    overflow: hidden;
+    margin: 0;
+    height: 100%
 }

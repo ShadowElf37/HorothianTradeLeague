@@ -71,3 +71,9 @@ BETA v0.1.2.1 (2/23/18)
     - Moved account.html's massive <style> to a .css
     - Fixed some minor issues in main.py responses
     - Fixed an issue where you could be sent to the wrong place after an error if your browser used a saved copy of a page
+
+BETA v0.1.2.2 (2/24/18)
+    - Removed maxlength for most fields in signup.html
+    - Now that cmd-reading thread stops with shutdown
+    - Moved some junk over to boilerplate.py
+    - Progress.cfg now gets a little rendering; also, bars turn gold upon completion

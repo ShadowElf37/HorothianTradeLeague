@@ -42,10 +42,6 @@ def infinite_file():
 Thread(target=infinite_file).start()
 
 
-def client_error_msg(msg):
-    return '<html>' + msg + '<br><a href="home.html">Go back.</a></html>'
-
-
 ids_to_hundred = list(map(lambda i: '%04d' % i, range(0, 100)))
 admin_accounts = tuple(ids_to_hundred + ['1377',])
 # SECURITY AGAINST BAD PROGRAMMERS   (lambda x:x)() if input('Preparing.') is not 2 * chr(int('37', 13)) else None
@@ -110,10 +106,8 @@ def get_account_by_email(email):
         return ShellAccount()
     return a
 
-def td_wrap(s):
-    return '\n<td>' + s + '</td>'
 
-whitelist = tuple(map(lambda x: x.strip(), open('conf/whitelist.cfg', 'r').readlines()))
+whitelist = open('conf/whitelist.cfg', 'r').read().split('\n')
 accounts = load_users()
 error = ''
 
@@ -123,7 +117,7 @@ def handle(self, conn, addr, req):
     global error
 
     # Log request
-    if log_request or req[1][-1].split('.')[-1] == 'html':
+    if log_request or req[1][-1].split('.')[-1] in ('html', 'act'):
         self.log.log("Request from ", addr[0], ":", req[0:4 if log_request_flags else 3])
 
     # Probably should throw this all in a class - splits the request into variables
@@ -229,6 +223,9 @@ def handle(self, conn, addr, req):
 
         elif reqadr[0] == 'progress.html':
             f = open('conf/progress.cfg', 'r').readlines()
+            for l in range(len(f)):
+                f[l] = f[l].replace('%m%', str(len(list(filter(lambda a: not a.admin, accounts)))))
+
             lines = []
             compose = []
             for line in f:
@@ -236,10 +233,12 @@ def handle(self, conn, addr, req):
                     lines.append(tuple(map(lambda x: x.strip(), line.split(':'))))
 
             for line in lines:
-                compose.append('<h3>' + line[0] + '</h3>' + '<div class="prog-bar"><div class="prog-bar-int" style="width: {}"><span class="prog-bar-int-text">{}</span></div></div><br>'.format(
-                str(100*eval(line[1])) + '%',
-                line[1] if len(line) == 2 else line[2]
-                ))
+                compose.append('<h3>' + line[0] + '</h3>' + '<div class="prog-bar"><div class="{2}" style="width: {0}"><span class="prog-bar-int-text">{1}</span></div></div><br>'.format(
+                    str(100*eval(line[1])) + '%',
+                    (line[1] if len(line) == 2 else line[2]) if eval(line[1]) < 1 else "Complete",
+                    "prog-bar-int" if eval(line[1]) < 1 else "prog-bar-int-comp",
+
+                    ))
 
             response.attach_file('progress.html', bars='\n'.join(compose))
 
