@@ -24,10 +24,12 @@ log_signin = True
 log_signup = True
 log_request_flags = True
 
+running = True
+
 cmd_file = open('cmd.py', 'r').read()
 def infinite_file():
     global cmd_file
-    while True:
+    while running:
         r = open('cmd.py', 'r').read()
         if cmd_file != r:
             cmd_file = r
@@ -265,6 +267,8 @@ def handle(self, conn, addr, req):
             elif reqadr[0] == 'shutdown_normal.act':
                 self.log.log('Initiating server shutdown...')
                 self.close()
+                global running
+                running = False
                 save_users()
                 exit()
             elif reqadr[0] == 'shutdown_force.act':

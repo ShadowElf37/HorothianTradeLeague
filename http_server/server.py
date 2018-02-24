@@ -109,9 +109,7 @@ class Server:
                 try:
                     self.handle_request(self, self.connection, self.c_address, parsed_req)
                 except (KeyboardInterrupt, SystemExit):
-                    global save_users
                     self.close()
-                    save_users()
                 except Exception as e:
                     if self.debug:
                         raise e
