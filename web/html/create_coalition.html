@@ -5,13 +5,60 @@
     <title>Create Coalition | Project Mercury</title>
     <link rel="stylesheet" type="text/css" href="general.css">
     <link rel="stylesheet" type="text/css" href="buttons.css">
+    <style>
+    	h5{
+    		font-size: 28px;
+    	}
+
+    	.radio{
+    		box-shadow: 0 0 !important;
+    		margin: 0px 38px;
+    	}
+    	.radiolabel{
+    		margin: 0px 15px;
+    	}
+
+    	.ta{
+    		width: 350px;
+    		height: 100px;
+    	}
+    	.img_upload{
+    		border: 1px solid #CCC;
+    		border-radius: 0;
+    		box-shadow: 0 0 !important;
+    		font-size: 16px;
+    	}
+    </style>
 </head>
 <body>
     <img src="white_background.png" class="background-img">
     [[navbar]]
     [[error]]
     <div id="big-center-text" class="center-text-div">
-
+    	<h1>Create Coalition</h1>
+    	<center>
+    		<form style="color: black;" method="post" action="/create_coalition.act">
+	    		<h5>Name</h5>
+	    		<input autocomplete="off" type="text" name="name" maxlength="22" required>
+	    		<h5>Type</h5>
+	    		<div style="text-align: center; width: 300px; line-height: 20px">
+		    		<input id="crb" class="radio" autocomplete="off" type="radio" name="type" value="c" required>
+		    		<input id="grb" class="radio" autocomplete="off" type="radio" name="type" value="g" required><br>
+		    		<label for="crb" class="radiolabel">Coalition</label>
+		    		<label for="grb" class="radiolabel">Guild</label>
+	    		</div>
+	    		<br>
+	    		<h5>Coalition Icon</h5>
+	    		<input class="img_upload" type="file" name="img" accept="image/*">
+	    		<br><br>
+	    		<h5>Description</h5>
+	    		<textarea name="desc" class="ta" required></textarea>
+	    		<br><br>
+	    		<p>WARNING:<br>Creating a new coalition will cause you to leave your old one.</p>
+	    		<input style="margin: 0" class="form-button" type="submit" value="Create">
+	    		<br><br>
+	    	</form>
+	    </center>
     </div>
 </body>
 </html>

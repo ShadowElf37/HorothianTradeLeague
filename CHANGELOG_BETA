@@ -89,3 +89,6 @@ BETA v0.1.2.4 (2/25/18)
         - Created create_coalition.html, coalition.html, coalition_list.html
         - Users default to Project Mercury Beta coalition
 
+BETA v0.1.2.5 (2/25/18)
+    - The message button in account.html now has a ticker next to it that tells you how many unread (unhovered-on) messages you have
+    - Fixed message deletion bugs in messages.js

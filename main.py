@@ -50,12 +50,13 @@ del ids_to_hundred
 def load_users():
     userfile = open('data/users.dat', 'rb')
     groupfile = open('data/groups.dat', 'rb')
+    central_bank = Account('Central', 'Bank', 'CentralBank', 'password', 'ykey-cohen@emeryweiner.org', admin_accounts[100])
     try:
         groups = pickle.load(groupfile)
     except EOFError:
         print('Groups.dat empty, initializing with default values')
         groups = [
-            Group('Project Mercury Beta', 'red_background.png', 'This is the default group for league members. No exemptions or special privileges are granted by this group.'),
+            Group('Project Mercury Beta', central_bank, 'This is the default group for league members. No exemptions or special privileges are granted by this group.', img='red_background.png'),
         ]
         groups[0].default = True
     try:
@@ -66,10 +67,10 @@ def load_users():
                     Account('Test', 'User', 'TestUser', 'password', '', admin_accounts[0]),
                     # Account('League', 'Leader', 'LeagueLeader', 'password', '', admin_accounts[1]),
                     Account('Yovel', 'Key-Cohen', 'ShadowElf37', 'password', 'yovelkeycohen@gmail.com', admin_accounts[99]),
-                    Account('Central', 'Bank', 'CentralBank', 'password', 'ykey-cohen@emeryweiner.org', admin_accounts[100]),
+                    central_bank,
                  ]
 
-        for a in users:
+        for a in users[:-1]:
             a.admin = True
             groups[0].add_member(a)
 
@@ -79,6 +80,8 @@ def load_users():
 def save_users():
     userfile = open('data/users.dat', 'wb')
     pickle.dump(accounts, userfile, protocol=pickle.HIGHEST_PROTOCOL)
+    groupfile = open('data/groups.dat', 'wb')
+    pickle.dump(groups, groupfile, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 def get_account_by_id(id):
@@ -131,7 +134,7 @@ def handle(self, conn, addr, request):
 
     # Default render values - these are input automatically to renders
     global host, port
-    render_defaults = {'error':error, 'host':host, 'port':port, 'username':client.username, 'id':client_id, 'hunt_total':client.total_hunts, 'hunt_count':client.active_hunts, 'balance':client.balance}
+    render_defaults = {'error':error, 'number_of_messages':len(list(filter(lambda x: not x.read, client.messages))), 'host':host, 'port':port, 'username':client.username, 'id':client_id, 'hunt_total':client.total_hunts, 'hunt_count':client.active_hunts, 'balance':client.balance}
     response.default_renderopts = render_defaults
 
     # Make sure client has a cookie and that it's valid - activity time is recorded
@@ -264,6 +267,7 @@ def handle(self, conn, addr, request):
                             Members: {3}<br>
                             Created: {4}<br>
                             Coalit. ID: {0}
+                            Type: {5}
                         </p>
                     </div>
                 </a>""".format(
@@ -272,11 +276,12 @@ def handle(self, conn, addr, request):
                         group.name,
                         str(len(group.members)),
                         group.creation_date,
+                        "Guild" if isinstance(group, Guild) else "Coalition"
                     ))
                 response.attach_file('coalition_list.html', groups='\n'.join(coalitions), nb_page='account.html')
 
         elif request.address[0] == 'coalition.html':
-            response.attach_file('coalition.html', coalition_name=client.coalition, nb_page='account.html')
+            response.attach_file('coalition.html', coalition_name=client.coalition.name, nb_page='account.html')
 
         elif request.address[0] == 'create_coalition.html':
             response.attach_file('create_coalition.html', nb_page='account.html')
@@ -313,10 +318,25 @@ def handle(self, conn, addr, request):
         # MESSAGE FILES
         elif request.address[0] == 'm':
             try:
+                # Open message, ignore metadata first line
                 d = open('data/messages/' + request.address[1] + '.msg', 'r').read()
+                head = d.split('\n')[0]
+                id = head[head.find('->')+2:head.find(' |')].strip()
                 d = '\n'.join(d.split('\n')[1:])
+                # Set message to read for account.html message button rendering
+                client = get_account_by_id(id)
+                try:
+                    msg = next( m for m in client.messages if m.id == request.address[1] )
+                except StopIteration:
+                    print('@', [m.id for m in client.messages])
+                    print('!', client.id)
+                    print('$', id)
+                    print('#', request.address[1])
+                    self.log.log(addr[0], "- SOMETHING VERY BAD HAPPENED IN MESSAGE FETCH")
+                    return
+                msg.read = True
 
-                # Replaces all the %21 with ! (relevant html escape) and such
+                # Replaces all the %21 with ! etc.
                 i = d.find('%')
                 while True:
                     i = d.find('%')
@@ -515,6 +535,32 @@ def handle(self, conn, addr, request):
                 client.username = new_usr
 
             response.set_status_code(303, location='account.html')
+
+        elif request.address[0] == 'create_coalition.act':
+            name = request.post_values['name'].replace('+', ' ')
+            type = request.post_values['type']
+            img = request.post_values['img']
+            desc = request.post_values['desc']
+
+
+
+            if not all(request.post_values.values()):
+                error = self.throwError(13, 'f', request.get_last_page(), response=response)
+                self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
+                return
+
+            if type == 'c':
+                new = Coalition(name, client, desc)
+            else:
+                new = Guild(name, client, desc)
+
+            print(img)
+            img_file = open('web/assets/image/coalition/img_' +new.cid, 'w')
+            img_file.write(img)
+            groups.append(new)
+            print(new)
+            response.set_status_code(303, location="coalition.html")
+
 
 
     # Adds an error, sets page cookie (that thing that lets you go back if error), and sends the response off

@@ -46,16 +46,16 @@ function mouseLeave(caller) {
 
 // Tells server to delete message
 function deleteMessage(id){
-	document.getElementById("msg-body").textContent = "No message selected.";
 	var elem = document.getElementById(id);
 	var parent = elem.parentNode
 	parent.removeChild(elem);
 
-	fetch("http://localhost:8080/del_msg.act/" + id + '/' + getCookie('client-id')).then(function(response) {
+	fetch("http://[[host]]:[[port]]/del_msg.act/" + id + '/' + getCookie('client-id')).then(function(response) {
 		response.text().then(function(text) {});
 	});
 
-	if (parent.innerHTML == ""){
+	if (parent.innerHTML.trim() == ""){
 		parent.innerHTML = '<span class="no-message">Inbox empty...</span>'
 	}
+    document.getElementById("msg-body").textContent = "No message selected.";
 }

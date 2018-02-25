@@ -42,6 +42,7 @@ class Message:
         self.sender = sender
         self.recipient = recipient
         self.subject = subject.replace('+', ' ')
+        self.read = False
 
         self.file = open("data/messages/"+self.id+".msg", 'w')
         h = '# ' + self.sender.id + ' -> ' + self.recipient.id + ' | ' + self.formal_date + '\n'
@@ -145,7 +146,7 @@ class ShellAccount:
 
 
 class Group:
-    def __init__(self, name, img_name, desc):
+    def __init__(self, name, founder, desc, img=None):
         self.tax = 0.05
         self.internal_tax = 0.05
         self.max_members = 5
@@ -154,9 +155,11 @@ class Group:
         self.member_ids = []
         self.description = desc
         self.creation_date = time.strftime('%x')
-        self.img = img_name
-        self.cid = '%10d' % random.randint(1, 2**32)
+        self.cid = '%10d' % random.randint(1, 2 ** 32)
+        self.img = ('img_' + self.cid + '.png') if img is None else img
         self.default = False
+        self.founder = founder
+        self.add_member(founder)
 
     def add_member(self, account):
         if len(self.members) < self.max_members:
@@ -168,15 +171,15 @@ class Group:
 
 
 class Coalition(Group):  # Simply a sub-group of the League
-    def __init__(self, name, img, desc):
-        super().__init__(name, img, desc)
+    def __init__(self, name, founder, desc):
+        super().__init__(name, founder, desc)
         self.internal_tax = 0.0
 
 
 class Guild(Group):  # A company which can set salaries and sell goods as a body of members
-    def __init__(self, name, img, desc, std_salary):
-        super().__init__(name, img, desc)
+    def __init__(self, name, founder, desc):
+        super().__init__(name, founder, desc)
         self.internal_tax = 0.2
         self.tax = 0.2
         self.max_members = 20
-        self.std_salary = std_salary  # Should be string; for display in page
+        self.std_salary = 1.0
