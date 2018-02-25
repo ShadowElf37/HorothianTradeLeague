@@ -22,7 +22,7 @@ log_request = True
 log_transactions = False
 log_signin = True
 log_signup = True
-log_post_flags = False
+log_request_flags = False
 
 running = True
 
@@ -49,6 +49,15 @@ del ids_to_hundred
 
 def load_users():
     userfile = open('data/users.dat', 'rb')
+    groupfile = open('data/groups.dat', 'rb')
+    try:
+        groups = pickle.load(groupfile)
+    except EOFError:
+        print('Groups.dat empty, initializing with default values')
+        groups = [
+            Group('Project Mercury Beta', 'red_background.png', 'This is the default group for league members. No exemptions or special privileges are granted by this group.'),
+        ]
+        groups[0].default = True
     try:
         users = pickle.load(userfile)
     except EOFError:
@@ -57,15 +66,19 @@ def load_users():
                     Account('Test', 'User', 'TestUser', 'password', '', admin_accounts[0]),
                     # Account('League', 'Leader', 'LeagueLeader', 'password', '', admin_accounts[1]),
                     Account('Yovel', 'Key-Cohen', 'ShadowElf37', 'password', 'yovelkeycohen@gmail.com', admin_accounts[99]),
-                    Account('Central', 'Bank', 'CentralBank', 'password', 'ykey-cohen@emeryweiner.org', admin_accounts[100])
+                    Account('Central', 'Bank', 'CentralBank', 'password', 'ykey-cohen@emeryweiner.org', admin_accounts[100]),
                  ]
+
         for a in users:
             a.admin = True
-    return users
+            groups[0].add_member(a)
+
+    return users, groups
+
 
 def save_users():
     userfile = open('data/users.dat', 'wb')
-    pickle.dump(accounts, userfile)
+    pickle.dump(accounts, userfile, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 def get_account_by_id(id):
@@ -97,7 +110,7 @@ def get_account_by_email(email):
 
 
 whitelist = open('conf/whitelist.cfg', 'r').read().split('\n')
-accounts = load_users()
+accounts, groups = load_users()
 error = ''
 
 # ---------------------------------
@@ -106,8 +119,8 @@ def handle(self, conn, addr, request):
     global error
 
     # Log request
-    if log_request or request.file_type in ('html', 'act'):
-        self.log.log("Request from ", addr[0], ":", [request.method, request.address, request.cookies] + ([request.post_values,] if request.post_values else []) + [request.post_values,])
+    if log_request or request.file_type in ('html', 'htm', 'act'):
+        self.log.log("Request from ", addr[0], ":", [request.method, request.address, request.cookies] + ([request.flags,] if log_request_flags else []) + [request.post_values,])
 
     # Finds the client by cookie, creates a response to modify later
     response = Response()
@@ -148,7 +161,8 @@ def handle(self, conn, addr, request):
             response.attach_file('news.html', nb_page='home.html')
 
         elif request.address[0] == 'treaty.html':
-            response.set_body(client_error_msg('For those of you here in the closed beta: YOU CAN\'T TELL ANYONE ABOUT THIS.<br>Don\'t even mention money or trades with other people around. This isn\'t the time for public advertisement.'))
+            response.set_body(client_error_msg('For those of you here in the closed beta: YOU CAN\'T TELL ANYONE ABOUT THIS.\
+            <br>Don\'t even mention money or trades with other people around. This isn\'t the time for public advertisement.'))
             # response.set_status_code(307, location='https://drive.google.com/open?id=1vylaFRMUhj0fCGqDVhn0RC7xXmOegabodKs9YK-8zbs')
 
         elif request.address[0] == 'account.html':
@@ -179,7 +193,7 @@ def handle(self, conn, addr, request):
         elif request.address[0] == 'registry.html':
             acnts = []
             for a in sorted(accounts, key=lambda u: u.lastname if not u.admin else u.id):
-                acnts.append('<tr>' + td_wrap(a.firstname + ' ' + a.lastname) + td_wrap(a.id) + td_wrap(a.coalition) + td_wrap(a.last_activity) + td_wrap(a.date_of_creation) + '\n</tr>')
+                acnts.append('<tr>' + td_wrap(a.firstname + ' ' + a.lastname) + td_wrap(a.id) + td_wrap(a.coalition.name) + td_wrap(a.last_activity) + td_wrap(a.date_of_creation) + '\n</tr>')
             response.attach_file('registry.html', nb_page='account.html', accounts='\n'.join(acnts))
 
         elif request.address[0] == 'messages.html':
@@ -188,7 +202,7 @@ def handle(self, conn, addr, request):
                 m = '<div onmouseleave="mouseLeave(this)" onmouseover="updateMessage(\'{0}\', this)" class="preview" id="{0}">\n<span class="sender">{1}</span><br>\n<span class="subject">{2}</span>\n<span class="date">{3}</span>\n</div>'.format(
                     msg.id,
                     msg.sender.get_name(),
-                    msg.subject,
+                    msg.subject.title() if msg.subject else 'No Subject',
                     msg.formal_date
                     )
                 messages.append(m)
@@ -232,6 +246,41 @@ def handle(self, conn, addr, request):
 
             response.attach_file('settings.html', settings='<br>\n'.join(fields), nb_page="account.html")
 
+        elif request.address[0] == 'coalitions.html':
+            if not client.coalition.default:
+                response.set_status_code(303, location='coalition.html')
+            else:
+                response.set_status_code(303, location='coalition_list.html')
+
+        elif request.address[0] == 'coalition_list.html':
+                coalitions = []
+                for group in groups:
+                    coalitions.append("""<a href="c/{0}.html">
+                    <div class="c-listing">
+                        <img src="{1}">
+                        <div class="white-back"></div>
+                        <h4>{2}</h4><br>
+                        <p>
+                            Members: {3}<br>
+                            Created: {4}<br>
+                            Coalit. ID: {0}
+                        </p>
+                    </div>
+                </a>""".format(
+                        group.cid,
+                        group.img,
+                        group.name,
+                        str(len(group.members)),
+                        group.creation_date,
+                    ))
+                response.attach_file('coalition_list.html', groups='\n'.join(coalitions), nb_page='account.html')
+
+        elif request.address[0] == 'coalition.html':
+            response.attach_file('coalition.html', coalition_name=client.coalition, nb_page='account.html')
+
+        elif request.address[0] == 'create_coalition.html':
+            response.attach_file('create_coalition.html', nb_page='account.html')
+
         # ACTIONS
         elif request.address[0].split('.')[-1] == 'act':
             if request.address[0] == 'logout.act':
@@ -251,10 +300,10 @@ def handle(self, conn, addr, request):
                 client = get_account_by_id(request.address[2])
                 try:
                     msg = next( m for m in client.messages if m.id == request.address[1] )
+                    client.messages.remove(msg)
                 except StopIteration:
                     self.log.log(addr[0], '- Client tried to delete non-existant message.')
-                client.messages.remove(msg)
-                response.body = "0"
+                response.body = "Success"
             else:
                 # Proper error handling
                 error = self.throwError(2, 'a', request.get_last_page(), response=response)
@@ -281,11 +330,10 @@ def handle(self, conn, addr, request):
                 response.body = "|ERR|"
                 self.log.log(addr[0], '- Client requested non-existent message file.', lvl=Log.ERROR)
 
-
+        # --THIS HANDLES EXTRANEOUS REQUESTS--
+        # --PLEASE AVOID BY SPECIFYING MANUAL HANDLE CONDITIONS--
+        # --INTENDED FOR IMAGES AND OTHER RESOURCES--
         else:
-            # --THIS HANDLES EXTRANEOUS REQUESTS--
-            # --PLEASE AVOID BY SPECIFYING MANUAL HANDLE CONDITIONS--
-            # --INTENDED FOR IMAGES AND OTHER RESOURCES--
             response.attach_file(request.address[0], rendr=True, rendrtypes=('html', 'htm', 'js', 'css'), nb_page=request.address[0])
 
     elif request.method == "POST":
@@ -364,6 +412,7 @@ def handle(self, conn, addr, request):
                 id = '%04d' % random.randint(0, 9999)
                 self.log.log("New account created with ID", id, "- first name is", first)
             acnt = Account(first, last, usr, pwd, mail, id)
+            groups[0].add_member(acnt)
             accounts.append(acnt)
 
             response.add_cookie('client-id', id, 'Max-Age=604800')  # 2 weeks

@@ -21,12 +21,14 @@ class Infinity:
         return False
     def __le__(self, *args):
         return False
+    def __eq__(self, *args):
+        return False
     def __add__(self, other):
         return 2 ** 64
     def __sub__(self, other):
         return 2 ** 64
     def __mul__(self, other):
-        return 2**64
+        return 2 ** 64
     def __str__(self):
         return '∞'
 
@@ -56,7 +58,7 @@ class Account:
         self.firstname = firstname
         self.lastname = lastname
         self.email = email
-        self.coalition = 'none'
+        self.coalition = None
         self.session_id = 'none'
         self.transaction_history = []
         self.messages = []
@@ -126,7 +128,7 @@ class ShellAccount:
         self.password = None
         self.firstname = None
         self.lastname = None
-        self.coalition = 'none'
+        self.coalition = None
         self.session_id = 'none'
         self.transaction_history = []
         self.shell = True
@@ -140,3 +142,41 @@ class ShellAccount:
         self.ip_addresses = set()
         self.settings = {}
         self.validator = None
+
+
+class Group:
+    def __init__(self, name, img_name, desc):
+        self.tax = 0.05
+        self.internal_tax = 0.05
+        self.max_members = 5
+        self.name = name
+        self.members = []
+        self.member_ids = []
+        self.description = desc
+        self.creation_date = time.strftime('%x')
+        self.img = img_name
+        self.cid = '%10d' % random.randint(1, 2**32)
+        self.default = False
+
+    def add_member(self, account):
+        if len(self.members) < self.max_members:
+            self.members.append(account)
+            self.member_ids.append(account.id)
+            account.coalition = self
+        else:
+            return 'E0'
+
+
+class Coalition(Group):  # Simply a sub-group of the League
+    def __init__(self, name, img, desc):
+        super().__init__(name, img, desc)
+        self.internal_tax = 0.0
+
+
+class Guild(Group):  # A company which can set salaries and sell goods as a body of members
+    def __init__(self, name, img, desc, std_salary):
+        super().__init__(name, img, desc)
+        self.internal_tax = 0.2
+        self.tax = 0.2
+        self.max_members = 20
+        self.std_salary = std_salary  # Should be string; for display in page

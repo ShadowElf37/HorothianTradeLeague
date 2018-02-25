@@ -80,3 +80,12 @@ BETA v0.1.2.2 (2/24/18)
 
 BETA v0.1.2.3 (2/24/18)
     - I overthrew the government and reformed request handling; now a class in response.py, changed every damn instance to use the new setup, may be undiscovered bugs
+
+BETA v0.1.2.4 (2/25/18)
+    - Made most fields required in login, etc. to decrease annoying server errors
+    - Fixed some bugs with the request reformation
+    - Extensive work on coalitions
+        - Added several classes in account.py
+        - Created create_coalition.html, coalition.html, coalition_list.html
+        - Users default to Project Mercury Beta coalition
+
