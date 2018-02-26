@@ -92,3 +92,6 @@ BETA v0.1.2.4 (2/25/18)
 BETA v0.1.2.5 (2/25/18)
     - The message button in account.html now has a ticker next to it that tells you how many unread (unhovered-on) messages you have
     - Fixed message deletion bugs in messages.js
+    - Added coalition creation page and action
+    - Added image selection for listing background in coalition creation
+    - Threw some more junk in the new bootstrapper.py

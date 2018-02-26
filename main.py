@@ -14,6 +14,7 @@ import time
 import random
 from threading import Thread
 from boilerplate import *
+from bootstrapper import *
 
 
 # Config
@@ -24,94 +25,10 @@ log_signin = True
 log_signup = True
 log_request_flags = False
 
-running = True
-
-cmd_file = open('cmd.py', 'r').read()
-def infinite_file():
-    global cmd_file
-    while running:
-        r = open('cmd.py', 'r').read()
-        if cmd_file != r:
-            cmd_file = r
-            for c in r.split('\n'):
-                try:
-                    exec(c)
-                except Exception as e:
-                    print('CMD ERROR:', e)
-        time.sleep(1)
+# Watcher for cmd.py - upon change of contents, runs file
 Thread(target=infinite_file).start()
 
-
-ids_to_hundred = list(map(lambda i: '%04d' % i, range(0, 100)))
-admin_accounts = tuple(ids_to_hundred + ['1377',])
-# SECURITY AGAINST BAD PROGRAMMERS   (lambda x:x)() if input('Preparing.') is not 2 * chr(int('37', 13)) else None
-del ids_to_hundred
-
-def load_users():
-    userfile = open('data/users.dat', 'rb')
-    groupfile = open('data/groups.dat', 'rb')
-    central_bank = Account('Central', 'Bank', 'CentralBank', 'password', 'ykey-cohen@emeryweiner.org', admin_accounts[100])
-    try:
-        groups = pickle.load(groupfile)
-    except EOFError:
-        print('Groups.dat empty, initializing with default values')
-        groups = [
-            Group('Project Mercury Beta', central_bank, 'This is the default group for league members. No exemptions or special privileges are granted by this group.', img='red_background.png'),
-        ]
-        groups[0].default = True
-    try:
-        users = pickle.load(userfile)
-    except EOFError:
-        print('User.dat empty, initializing with default values')
-        users = [
-                    Account('Test', 'User', 'TestUser', 'password', '', admin_accounts[0]),
-                    # Account('League', 'Leader', 'LeagueLeader', 'password', '', admin_accounts[1]),
-                    Account('Yovel', 'Key-Cohen', 'ShadowElf37', 'password', 'yovelkeycohen@gmail.com', admin_accounts[99]),
-                    central_bank,
-                 ]
-
-        for a in users[:-1]:
-            a.admin = True
-            groups[0].add_member(a)
-
-    return users, groups
-
-
-def save_users():
-    userfile = open('data/users.dat', 'wb')
-    pickle.dump(accounts, userfile, protocol=pickle.HIGHEST_PROTOCOL)
-    groupfile = open('data/groups.dat', 'wb')
-    pickle.dump(groups, groupfile, protocol=pickle.HIGHEST_PROTOCOL)
-
-
-def get_account_by_id(id):
-    if id == 'none':
-        return ShellAccount()
-    try:
-        a = list(filter(lambda u: u.id == id, accounts))[0]
-    except IndexError:
-        return ShellAccount()
-    return a
-def get_account_by_name(firstname, lastname):
-    try:
-        a = list(filter(lambda u: u.firstname == firstname and u.lastname == lastname, accounts))[0]
-    except IndexError:
-        return ShellAccount()
-    return a
-def get_account_by_username(username):
-    try:
-        a = list(filter(lambda u: u.username == username, accounts))[0]
-    except IndexError:
-        return ShellAccount()
-    return a
-def get_account_by_email(email):
-    try:
-        a = list(filter(lambda u: u.email == email, accounts))[0]
-    except IndexError:
-        return ShellAccount()
-    return a
-
-
+# Initializes the important things
 whitelist = open('conf/whitelist.cfg', 'r').read().split('\n')
 accounts, groups = load_users()
 error = ''
@@ -265,9 +182,10 @@ def handle(self, conn, addr, request):
                         <h4>{2}</h4><br>
                         <p>
                             Members: {3}<br>
-                            Created: {4}<br>
+                            Type: {4}<br>
+                            Created: {5}<br>
+                            Owner: {6}<br>
                             Coalit. ID: {0}
-                            Type: {5}
                         </p>
                     </div>
                 </a>""".format(
@@ -275,8 +193,9 @@ def handle(self, conn, addr, request):
                         group.img,
                         group.name,
                         str(len(group.members)),
+                        "Guild" if isinstance(group, Guild) else "Coalition",
                         group.creation_date,
-                        "Guild" if isinstance(group, Guild) else "Coalition"
+                        group.founder.get_name()
                     ))
                 response.attach_file('coalition_list.html', groups='\n'.join(coalitions), nb_page='account.html')
 
@@ -542,23 +461,18 @@ def handle(self, conn, addr, request):
             img = request.post_values['img']
             desc = request.post_values['desc']
 
-
-
             if not all(request.post_values.values()):
                 error = self.throwError(13, 'f', request.get_last_page(), response=response)
                 self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
                 return
 
+            client.coalition.remove(client)
             if type == 'c':
-                new = Coalition(name, client, desc)
+                new = Coalition(name, img, client, desc)
             else:
-                new = Guild(name, client, desc)
+                new = Guild(name, img, client, desc)
 
-            print(img)
-            img_file = open('web/assets/image/coalition/img_' +new.cid, 'w')
-            img_file.write(img)
             groups.append(new)
-            print(new)
             response.set_status_code(303, location="coalition.html")
 
 

@@ -146,7 +146,7 @@ class ShellAccount:
 
 
 class Group:
-    def __init__(self, name, founder, desc, img=None):
+    def __init__(self, name, img, founder, desc):
         self.tax = 0.05
         self.internal_tax = 0.05
         self.max_members = 5
@@ -156,10 +156,12 @@ class Group:
         self.description = desc
         self.creation_date = time.strftime('%x')
         self.cid = '%10d' % random.randint(1, 2 ** 32)
-        self.img = ('img_' + self.cid + '.png') if img is None else img
+        self.img = 'favicon.ico' if img is None else img
         self.default = False
         self.founder = founder
+        self.owner = founder
         self.add_member(founder)
+        self.exists = True
 
     def add_member(self, account):
         if len(self.members) < self.max_members:
@@ -169,16 +171,29 @@ class Group:
         else:
             return 'E0'
 
+    def remove_member(self, account):
+        self.members.remove(account)
+        self.member_ids.remove(account.id)
+
+    def change_owner(self, new_account):
+        self.owner = new_account
+
+    def dismantle(self, default_group):
+        for member in self.members:
+            member.group = default_group
+        self.members = []
+        self.exists = False
+
 
 class Coalition(Group):  # Simply a sub-group of the League
-    def __init__(self, name, founder, desc):
-        super().__init__(name, founder, desc)
+    def __init__(self, name, img, founder, desc):
+        super().__init__(name, img, founder, desc)
         self.internal_tax = 0.0
 
 
 class Guild(Group):  # A company which can set salaries and sell goods as a body of members
-    def __init__(self, name, founder, desc):
-        super().__init__(name, founder, desc)
+    def __init__(self, name, img, founder, desc):
+        super().__init__(name, img, founder, desc)
         self.internal_tax = 0.2
         self.tax = 0.2
         self.max_members = 20
