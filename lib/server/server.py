@@ -5,10 +5,8 @@ Yovel Key-Cohen
 """
 
 import socket
-import time
-from http_server.log import *
-from http_server.response import *
-from sys import exit
+from lib.server.log import *
+from lib.server.response import *
 
 def get_error(num, let=''):
     codes = open('conf/errors.cfg', 'r').readlines()

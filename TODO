@@ -15,9 +15,10 @@ IMPORTANT
 
 LESS IMPORTANT
     1. Scripting console.html
+    2. Coalition taxes (really simple)
 
-    2. Coalitions - individual pages
-    3. Hunts
+    3. Individual coalition pages; should have g/1234.clt and c/1234.clt request mapping to avoid difficulties
+    4. Hunts
 
 
 FINAL PRODUCT:

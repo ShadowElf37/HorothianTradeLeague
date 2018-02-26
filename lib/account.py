@@ -6,7 +6,8 @@ Yovel Key-Cohen
 
 import random
 import time
-import encrypt
+from lib import encrypt
+
 
 class Infinity:
     def __int__(self):

@@ -5,16 +5,15 @@ Project Mercury
 Yovel Key-Cohen & Alwinfy
 """
 
-from http_server.server import *
-from http_server.log import *
-from http_server.response import *
-from account import *
-import pickle
-import time
+from lib.server.server import *
+from lib.server.log import *
+from lib.server.response import *
+from lib.account import *
+from lib.boilerplate import *
+from lib.bootstrapper import *
+import lib.bootstrapper
 import random
 from threading import Thread
-from boilerplate import *
-from bootstrapper import *
 
 
 # Config
@@ -31,6 +30,7 @@ Thread(target=infinite_file).start()
 # Initializes the important things
 whitelist = open('conf/whitelist.cfg', 'r').read().split('\n')
 accounts, groups = load_users()
+lib.bootstrapper.accounts = accounts  # Not sure why this is necessary, but the funcs in there can't handle main's vars
 error = ''
 
 # ---------------------------------
@@ -203,7 +203,9 @@ def handle(self, conn, addr, request):
             response.attach_file('coalition.html', coalition_name=client.coalition.name, nb_page='account.html')
 
         elif request.address[0] == 'create_coalition.html':
-            response.attach_file('create_coalition.html', nb_page='account.html')
+            img_opts = open('conf/clt_img.cfg').read().split('\n')
+            opts = ['<option value="{}">{}</option>'.format(*line.split('|')) for line in img_opts]
+            response.attach_file('create_coalition.html', nb_page='account.html', img_opts='\n'.join(list(opts)))
 
         # ACTIONS
         elif request.address[0].split('.')[-1] == 'act':
@@ -466,7 +468,7 @@ def handle(self, conn, addr, request):
                 self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
                 return
 
-            client.coalition.remove(client)
+            client.coalition.remove_member(client)
             if type == 'c':
                 new = Coalition(name, img, client, desc)
             else:
