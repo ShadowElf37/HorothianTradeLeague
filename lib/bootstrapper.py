@@ -37,7 +37,7 @@ def load_users():
     except EOFError:
         print('Groups.dat empty, initializing with default values')
         groups = [
-            Group('Project Mercury Beta', 'myal.jpg', central_bank, 'This is the default group for league members. No exemptions or special privileges are granted by this group.'),
+            Group('Project Mercury Beta', 'red_background.png', central_bank, 'This is the default group for league members. No exemptions or special privileges are granted by this group.'),
         ]
         groups[0].default = True
     try:

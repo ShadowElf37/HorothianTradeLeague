@@ -108,7 +108,8 @@ def handle(self, conn, addr, request):
             hist = []
             for item in acnt.transaction_history:
                 item = item.split('|')
-                hist.append('<tr>'+td_wrap(item[0])+td_wrap(item[1])+td_wrap(item[2])+'\n</tr>')
+                #.format(amount, taxed, tid, time.strftime('%X - %x')))
+                hist.append('<tr>'+''.join(tuple(map(td_wrap, item)))+'\n</tr>')
             response.attach_file('transaction_history.html', nb_page='account.html', history='\n'.join(hist))
 
         elif request.address[0] == 'registry.html':
@@ -389,20 +390,25 @@ def handle(self, conn, addr, request):
                 return
             a = client
             ar = recipient_acnt
+            tax = a.coalition.internal_tax if a.coalition == ar.coalition else a.coalition.tax
+            taxed = tax * amount
+            amount -= taxed
 
             if not a.pay(amount, recipient_acnt):
                 response.set_status_code(303, location='account.html')
                 tid = '%19d' % random.randint(1, 2**64)
                 f = open('logs/transactions.log', 'at')
-                gl = '{0} -> {1}; Cr{2} ({3}) -- {4}\n'.format(sender_id, recipient_id, amount, tid, time.strftime('%X - %x'))
+                gl = '{0} -> {1}; Cr{2} [-{3}] ({4}) -- {5}\n'.format(sender_id, recipient_id, '%.2f' % amount, '%.2f' % taxed if taxed != 0 else 'EXEMPT', tid, time.strftime('%X - %x'))
                 f.write(gl)
                 if log_transactions: self.log.log('Transaction:', gl)
-                a.transaction_history.append('&#8354;{} sent to {} {}|3{}|{}'.format(amount, ar.firstname, ar.lastname, tid, time.strftime('%X - %x')))
+                a.transaction_history.append('&#8354;{0} sent to {1}|&#8354;{2}|3{3}|{4}'.format('%.2f' % amount, ar.get_name(), '%.2f' % taxed if taxed != 0 else 'EXEMPT', tid, time.strftime('%X - %x')))
                 if a.id != '1377':
-                    ar.transaction_history.append('{} {} sent you &#8354;{}|2{}|{}'.format(a.firstname, a.lastname, amount, tid, time.strftime('%X - %x')))
+                    ar.transaction_history.append('{0} sent you &#8354;{1}|&#8354;{2}|2{3}|{4}'.format(a.get_name(), '%.2f' % amount, '%.2f' % taxed if taxed != 0 else 'EXEMPT', tid, time.strftime('%X - %x')))
                 else:
-                    ar.transaction_history.append('CB income of &#8354;{}|7{}|{}'.format(amount, tid, time.strftime('%X - %x')))
+                    ar.transaction_history.append('CB income of &#8354;{0}|&#8354;{1}|7{2}|{3}'.format('%.2f' % amount, '%.2f' % taxed if taxed != 0 else 'EXEMPT', tid, time.strftime('%X - %x')))
                 f.close()
+                get_account_by_id('1377').pay(float(taxed), get_account_by_id('0099'))
+                get_account_by_id('0099').transaction_history.append('Tax income of &#8354;{0} from {1} -> {2}|EXEMPT|7{3}|{4}'.format('%.2f' % taxed, a.get_name(), ar.get_name(), tid, time.strftime('%X - %x')))
             else:
                 error = self.throwError(3, 'a', request.get_last_page(), response=response)
                 self.log.log(addr[0], '- Client tried to overdraft.', lvl=Log.ERROR)
