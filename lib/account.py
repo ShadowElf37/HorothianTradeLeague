@@ -75,6 +75,7 @@ class Account:
         self.blacklisted = False
         self.ip_addresses = set()
         self.settings = {}
+        self.requested_coalition = False
 
     @property
     def password(self):
@@ -144,6 +145,7 @@ class ShellAccount:
         self.ip_addresses = set()
         self.settings = {}
         self.validator = None
+        self.requested_coalition = False
 
 
 class Group:
@@ -157,7 +159,7 @@ class Group:
         self.description = desc
         self.creation_date = time.strftime('%x')
         self.cid = '%10d' % random.randint(1, 2 ** 32)
-        self.img = 'favicon.ico' if img is None else img
+        self.img = img
         self.default = False
         self.founder = founder
         self.owner = founder

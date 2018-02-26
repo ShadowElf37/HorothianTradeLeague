@@ -32,7 +32,8 @@ FINAL PRODUCT:
     8. Improve page CSS and add "aesthetic features"
     9. Record more data
     10. Dynamic SID?
+    11. Socket that opens up after shutdown_normal.act and tells clients that the server is down for maintenance
 
-    11. Hunt submission
-    12. Market for online-hosted trade
-    13. Real news.html
+    12. Hunt submission
+    13. Market for online-hosted trade
+    14. Real news.html

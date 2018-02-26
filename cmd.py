@@ -1,0 +1,1 @@
+print(groups[1].img)

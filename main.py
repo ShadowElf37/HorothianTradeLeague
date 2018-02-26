@@ -31,6 +31,7 @@ Thread(target=infinite_file).start()
 whitelist = open('conf/whitelist.cfg', 'r').read().split('\n')
 accounts, groups = load_users()
 lib.bootstrapper.accounts = accounts  # Not sure why this is necessary, but the funcs in there can't handle main's vars
+lib.bootstrapper.groups = groups
 error = ''
 
 # ---------------------------------
@@ -216,11 +217,13 @@ def handle(self, conn, addr, request):
             elif request.address[0] == 'shutdown_normal.act':
                 self.log.log('Initiating server shutdown...')
                 self.close()
-                global running
-                running = False
+                lib.bootstrapper.running = False
+                lib.bootstrapper.accounts = accounts
+                lib.bootstrapper.groups = groups
                 save_users()
                 exit()
             elif request.address[0] == 'shutdown_force.act':
+                lib.bootstrapper.running = False
                 exit()
             elif request.address[0] == 'del_msg.act':
                 client = get_account_by_id(request.address[2])
@@ -468,6 +471,7 @@ def handle(self, conn, addr, request):
                 self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
                 return
 
+            print(img)
             client.coalition.remove_member(client)
             if type == 'c':
                 new = Coalition(name, img, client, desc)
@@ -493,6 +497,8 @@ def handle(self, conn, addr, request):
 host = 'localhost'
 port = 8080
 s = Server(host=host, port=port, debug=True, include_debug_level=False)
+s.log.log('Accounts:', accounts, lvl=Log.INFO)
+s.log.log('Groups:', groups, lvl=Log.INFO)
 s.set_request_handler(handle)
 s.open()
 save_users()

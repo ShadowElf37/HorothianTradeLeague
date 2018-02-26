@@ -41,11 +41,12 @@ class Server:
 
     # Closes the server, ends program
     def close(self):
-        self.socket.close()
-        self.log.log("Server closed successfully.", lvl=Log.STATUS)
-        self.log.dump()
-        self.running = False
-        print('Process exit.')
+        if self.running:
+            self.socket.close()
+            self.log.log("Server closed successfully.", lvl=Log.STATUS)
+            self.log.dump()
+            self.running = False
+            print('Process exit.')
 
     # Sends a message; recommended to use Response class as a wrapper
     def send(self, msg):

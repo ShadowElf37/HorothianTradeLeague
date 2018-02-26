@@ -99,3 +99,6 @@ BETA v0.1.2.5 (2/25/18)
 BETA v0.1.2.6 (2/25/18)
     - Moved all that modularized code into lib folder; took a bit of import reorganizing to get it working
     - Image options in create_coalition.html are now controlled by clt_img.cfg
+
+BETA v0.1.2.7 (2/26/18)
+    - Fixed a number of bad bugs
