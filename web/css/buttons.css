@@ -46,39 +46,39 @@ button a{
 
 
 .green-button{
-    background-color: #260D;
+    background-color: #0A0;
 }
 
 .green-button:hover{
-    background-color: #150E;
+    background-color: #170;
 }
 
 .green-button:active{
-    background-color: #040F;
+    background-color: #250;
 }
 
 .blue-button{
-    background-color: #147D;
+    background-color: #00A;
 }
 
 .blue-button:hover{
-    background-color: #036E;
+    background-color: #017;
 }
 
 .blue-button:active{
-    background-color: #024F;
+    background-color: #025;
 }
 
 .red-button{
-    background-color: #721D;
+    background-color: #F00;
 }
 
 .red-button:hover{
-    background-color: #6A1111E0;
+    background-color: #C10;
 }
 
 .red-button:active{
-    background-color: #500F;
+    background-color: #A21;
 }
 
 

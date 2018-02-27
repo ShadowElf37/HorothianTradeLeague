@@ -7,6 +7,7 @@ Yovel Key-Cohen
 import random
 import time
 from lib import encrypt
+from lib import boilerplate
 
 
 class Infinity:
@@ -76,6 +77,7 @@ class Account:
         self.ip_addresses = set()
         self.settings = {}
         self.requested_coalition = False
+        self.coal_pct_loaned = 0.0
 
     @property
     def password(self):
@@ -158,7 +160,7 @@ class Group:
         self.member_ids = []
         self.description = desc
         self.creation_date = time.strftime('%x')
-        self.cid = '%10d' % random.randint(1, 2 ** 32)
+        self.cid = ('%10d' % random.randint(1, 2 ** 32)).strip()
         self.img = img
         self.default = False
         self.founder = founder
@@ -192,6 +194,27 @@ class Coalition(Group):  # Simply a sub-group of the League
     def __init__(self, name, img, founder, desc):
         super().__init__(name, img, founder, desc)
         self.internal_tax = 0.0
+        self.pool = 0.0
+        self.max_pool = 0.0
+
+    def get_loan_size(self):
+        return boilerplate.cap(150 // (len(self.members)), 100) / 100.0
+
+    def add_to_pool(self, amt, acnt):
+        if acnt.balance >= amt:
+            acnt.balance -= amt
+            self.pool += amt
+            self.max_pool += amt
+            return 0
+        return 1
+
+    def loan(self, percent, acnt):
+        if percent + acnt.coal_pct_loaned < 1.5/(len(self.members)):  # A user cannot loan more than 30% for 5 members etc.
+            self.pool -= self.pool * percent
+            acnt.coal_pct_loaned += percent
+            acnt.balance += self.pool * percent
+            return 0
+        return 1
 
 
 class Guild(Group):  # A company which can set salaries and sell goods as a body of members

@@ -29,7 +29,7 @@ def create_navbar(active, logged_in):
     for i in range(len(pages)):
         if (pages[i][0] != '_' and not logged_in) or (pages[i][1] != '_' and logged_in):
             if enabled[i] == 'e':
-                navbar.append('<li><a href="{0}"{2}>{1}</a></li>'.format(links[i],
+                navbar.append('<li><a href="/{0}"{2}>{1}</a></li>'.format(links[i],
                                                                         (pages[i][0] if not logged_in else pages[i][1]),
                                                                         (' class="active-nav"' if links[i] == active else '')))
             else:

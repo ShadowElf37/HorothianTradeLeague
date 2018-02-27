@@ -177,7 +177,7 @@ def handle(self, conn, addr, request):
         elif request.address[0] == 'coalition_list.html':
                 coalitions = []
                 for group in groups:
-                    coalitions.append("""<a href="c/{0}.html">
+                    coalitions.append("""<a href="/c/{0}.{7}">
                     <div class="c-listing">
                         <img src="{1}">
                         <div class="white-back"></div>
@@ -197,12 +197,14 @@ def handle(self, conn, addr, request):
                         str(len(group.members)),
                         "Guild" if isinstance(group, Guild) else "Coalition",
                         group.creation_date,
-                        group.founder.get_name()
+                        group.founder.get_name(),
+                        'gld' if isinstance(group, Guild) else 'clt' if isinstance(group, Coalition) else 'std'
                     ))
                 response.attach_file('coalition_list.html', groups='\n'.join(coalitions), nb_page='account.html')
 
         elif request.address[0] == 'coalition.html':
-            response.attach_file('coalition.html', coalition_name=client.coalition.name, nb_page='account.html')
+            c = 'clt' if isinstance(client.coalition, Coalition) else 'gld' if isinstance(client.coalition, Guild) else 'std'
+            response.set_status_code(303, location='/c/'+client.coalition.cid+'.'+c)
 
         elif request.address[0] == 'create_coalition.html':
             img_opts = open('conf/clt_img.cfg').read().split('\n')
@@ -240,6 +242,37 @@ def handle(self, conn, addr, request):
                 self.log.log(addr[0], '- Client requested non-existent action.', lvl=Log.ERROR)
                 return
 
+        elif request.address[0] == 'c':
+            id, type = request.address[1].split('.')
+
+            if type == 'clt':
+                try:
+                    coalition = next(i for i in groups if i.cid == id)
+                except StopIteration:
+                    error = self.throwError(1, 'a', '/'+request.get_last_page(), response=response)
+                    self.log.log(addr[0], '- Client requested non-existant coalition', lvl=Log.ERROR)
+                    return
+                li = lambda x: '<li>' + x + '</li>'
+                response.attach_file('coalition.html',
+                                     members='\n'.join(tuple(map(lambda x: li(x.get_name()), coalition.members))),
+                                     c_id=coalition.cid,
+                                     c_desc=coalition.description,
+                                     c_owner=coalition.owner.get_name(),
+                                     coalition_name=coalition.name,
+                                     pool=coalition.pool,
+                                     max_pool=coalition.max_pool,
+                                     pct_loan=100 * coalition.get_loan_size(),
+                                     amt_loan='%.2f' % float(coalition.get_loan_size() * coalition.max_pool),
+                                     nb_page='account.html')
+            elif type == 'gld':
+                ...
+            elif type == 'std':
+                error = self.throwError(15, 'a', request.get_last_page(), response=response)
+                self.log.log(addr[0], '- Client requested a non-coalition coalition page (like Group() instance)', lvl=Log.ERROR)
+                return
+            else:
+                response.set_status_code(303, location='/' + '/'.join(request.address[1:]))
+
         # MESSAGE FILES
         elif request.address[0] == 'm':
             try:
@@ -261,14 +294,7 @@ def handle(self, conn, addr, request):
                     return
                 msg.read = True
 
-                # Replaces all the %21 with ! etc.
-                i = d.find('%')
-                while True:
-                    i = d.find('%')
-                    code = d[i+1:i+3]
-                    if i == -1:
-                        break
-                    d = d.replace('%' + code, '&#x{};'.format(code))
+                d = post_to_html_escape(d)
 
                 response.body = d
             except FileNotFoundError:
@@ -467,10 +493,10 @@ def handle(self, conn, addr, request):
             response.set_status_code(303, location='account.html')
 
         elif request.address[0] == 'create_coalition.act':
-            name = request.post_values['name'].replace('+', ' ')
+            name = post_to_html_escape(request.post_values['name'].replace('+', ' '))
             type = request.post_values['type']
             img = request.post_values['img']
-            desc = request.post_values['desc']
+            desc = post_to_html_escape(request.post_values['desc'].replace('+', ' '))
 
             if not all(request.post_values.values()):
                 error = self.throwError(13, 'f', request.get_last_page(), response=response)

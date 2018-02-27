@@ -103,3 +103,10 @@ BETA v0.1.2.6 (2/25/18)
 BETA v0.1.2.7 (2/26/18)
     - Fixed a number of bad bugs
     - Added taxes to account 0099 (because hunts aren't completable by me so I'd have no income)
+
+BETA v0.1.2.8 (2/26/18)
+    - Extensive work on coalition.html
+    - Guilds and coalition pages are linked in listing; c/1234.clt
+    - Fixed a lot of bugs
+    - Coalition pages are available and renderable; still have to do button scripting and guild pages
+    - Added some boilerplate.py
