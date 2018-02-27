@@ -190,7 +190,7 @@ class Group:
         self.exists = False
 
 
-class Coalition(Group):  # Simply a sub-group of the League
+class Coalition(Group):  # Get with your friends and make a living together
     def __init__(self, name, img, founder, desc):
         super().__init__(name, img, founder, desc)
         self.internal_tax = 0.0
@@ -216,11 +216,11 @@ class Coalition(Group):  # Simply a sub-group of the League
             return 0
         return 1
 
-
-class Guild(Group):  # A company which can set salaries and sell goods as a body of members
+# Join a guild and enjoy the benefits of capitalism!
+# You wouldn't want to join just any guild because you might end up selling to them if they don't have a surplus of the same stuff as you
+class Guild(Group):
     def __init__(self, name, img, founder, desc):
         super().__init__(name, img, founder, desc)
-        self.internal_tax = 0.2
         self.tax = 0.2
-        self.max_members = 20
+        self.max_members = 12
         self.std_salary = 1.0

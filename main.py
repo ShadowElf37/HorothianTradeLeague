@@ -243,16 +243,17 @@ def handle(self, conn, addr, request):
                 return
 
         elif request.address[0] == 'c':
-            id, type = request.address[1].split('.')
+            id, type = request.address[-1].split('.')
+            li = lambda x: '<li>' + x + '</li>'
 
             if type == 'clt':
                 try:
                     coalition = next(i for i in groups if i.cid == id)
                 except StopIteration:
-                    error = self.throwError(1, 'a', '/'+request.get_last_page(), response=response)
-                    self.log.log(addr[0], '- Client requested non-existant coalition', lvl=Log.ERROR)
+                    error = self.throwError(1, 'a', '/' + request.get_last_page(), response=response)
+                    self.log.log(addr[0], '- Client requested non-existent coalition', lvl=Log.ERROR)
                     return
-                li = lambda x: '<li>' + x + '</li>'
+
                 response.attach_file('coalition.html',
                                      members='\n'.join(tuple(map(lambda x: li(x.get_name()), coalition.members))),
                                      c_id=coalition.cid,
@@ -265,7 +266,20 @@ def handle(self, conn, addr, request):
                                      amt_loan='%.2f' % float(coalition.get_loan_size() * coalition.max_pool),
                                      nb_page='account.html')
             elif type == 'gld':
-                ...
+                try:
+                    coalition = next(i for i in groups if i.cid == id)
+                except StopIteration:
+                    error = self.throwError(1, 'b', '/' + request.get_last_page(), response=response)
+                    self.log.log(addr[0], '- Client requested non-existent coalition', lvl=Log.ERROR)
+                    return
+
+                response.attach_file('guild.html',
+                                     coalition_name=coalition.name,
+                                     members='\n'.join(tuple(map(lambda x: li(x.get_name()), coalition.members))),
+                                     c_id=coalition.cid,
+                                     c_desc=coalition.description,
+                                     c_owner=coalition.owner.get_name(),
+                                     nb_page='account.html')
             elif type == 'std':
                 error = self.throwError(15, 'a', request.get_last_page(), response=response)
                 self.log.log(addr[0], '- Client requested a non-coalition coalition page (like Group() instance)', lvl=Log.ERROR)
@@ -503,7 +517,6 @@ def handle(self, conn, addr, request):
                 self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
                 return
 
-            print(img)
             client.coalition.remove_member(client)
             if type == 'c':
                 new = Coalition(name, img, client, desc)
@@ -526,7 +539,7 @@ def handle(self, conn, addr, request):
 # TURN DEBUG OFF FOR ALL REAL-WORLD TRIALS OR ANY ERROR WILL CAUSE A CRASH
 # USE SHUTDOWN URLs TO TURN OFF
 
-host = 'localhost'
+host = '192.168.1.177'
 port = 8080
 s = Server(host=host, port=port, debug=True, include_debug_level=False)
 s.log.log('Accounts:', accounts, lvl=Log.INFO)
@@ -534,3 +547,4 @@ s.log.log('Groups:', groups, lvl=Log.INFO)
 s.set_request_handler(handle)
 s.open()
 save_users()
+lib.bootstrapper.running = False

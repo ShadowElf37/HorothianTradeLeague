@@ -178,19 +178,20 @@ class Request:
 
         self.method = self.req_list[0]
         self.address = self.req_list[1][1:]
+        if self.address[0] in ('http:', 'https:'):
+            self.address = self.address[3:]
         self.file_type = self.address[-1].split('.')[-1]
 
-        self.flags = list(map(lambda x: x.split(': '), self.req_list[2]))
+        self.flist = list(map(lambda x: x.split(': '), self.req_list[2]))
+        self.flags = dict(self.flist[:-2])
         try:
-            self.post_values = dict(map(lambda x: x.strip().split('='), self.flags[-1][0].strip().split('&'))) if self.flags[-1][0] else dict()
-            self.cookies = dict(map(lambda x: x.strip().split('='), self.flags[-3][1].strip().split(';'))) if self.flags[-3][0] == 'Cookie' else dict()
+            self.post_values = dict(map(lambda x: x.strip().split('='), self.flist[-1][0].strip().split('&'))) if self.flist[-1][0] else dict()
+            self.cookies = dict(map(lambda x: x.strip().split('='), self.flags['Cookie'].strip().split(';'))) if self.flags.get('Cookie') else dict()
         except ValueError:
             print('post###', self.flags[-1])
             print('cook@@@', self.flags[-3])
             print('all$$$', self.req_list[2])
             raise ValueError('REALLY BAD ERROR IN REQUEST')
-
-        self.flags = dict(self.flags[:-3])
 
     def get_cookie(self, cname):
         return self.cookies.get(cname, None)

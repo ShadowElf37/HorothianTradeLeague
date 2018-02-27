@@ -110,3 +110,8 @@ BETA v0.1.2.8 (2/26/18)
     - Fixed a lot of bugs
     - Coalition pages are available and renderable; still have to do button scripting and guild pages
     - Added some boilerplate.py
+
+BETA v0.1.2.9 (2/27/18)
+    - Fixed a horrible but simple bug in request that prevented use of cookies in Firefox
+    - Work on guild.html
+    - Added faq.html, link at bottom of account.html
