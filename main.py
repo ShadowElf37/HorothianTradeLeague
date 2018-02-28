@@ -213,6 +213,9 @@ def handle(self, conn, addr, request):
             opts = ['<option value="{}">{}</option>'.format(*line.split('|')) for line in img_opts]
             response.attach_file('create_coalition.html', nb_page='account.html', img_opts='\n'.join(list(opts)))
 
+        elif request.address[0] == 'clt_transfer_ownership.html':
+            response.attach_file('clt_transfer_ownership.html', nb_page='account.html')
+
         # ACTIONS
         elif request.address[0].split('.')[-1] == 'act':
             if request.address[0] == 'logout.act':
@@ -231,13 +234,28 @@ def handle(self, conn, addr, request):
                 lib.bootstrapper.running = False
                 exit()
             elif request.address[0] == 'del_msg.act':
-                client = get_account_by_id(request.address[2])
                 try:
                     msg = next( m for m in client.messages if m.id == request.address[1] )
                     client.messages.remove(msg)
                 except StopIteration:
                     self.log.log(addr[0], '- Client tried to delete non-existant message.')
                 response.body = "Success"
+            elif request.address[0] == 'disband_coalition.act':
+                client.coalition.dismantle(groups[0])
+                response.set_status_code(303, location='coalitions.html')
+            elif request.address[0] == 'collect_guild_salary.act':
+                tid = '%19d' % random.randint(1, 2 ** 64)
+                c = client.coalition.credit[client]
+                taxed = c * 0.2
+                client.transaction_history.append('Guild salary '.format('%.2f' % c, '%.2f' % taxed, tid, time.strftime('%X - %x')))
+                f = open('logs/transactions.log', 'at')
+                gl = '{0} -> {1}; Cr{2} [-{3}] ({4}) -- {5}\n'.format(client.coalition.cid, client_id, '%.2f' % c, '%.2f' % taxed, tid, time.strftime('%X - %x'))
+                f.write(gl)
+                if log_transactions:
+                    self.log.log(addr[0], '- Client collected guild salary of', c)
+                client.coalition.get_credit(client)
+
+                response.set_status_code(303, location='coalitions.html')
             else:
                 # Proper error handling
                 error = self.throwError(2, 'a', request.get_last_page(), response=response)
@@ -248,9 +266,10 @@ def handle(self, conn, addr, request):
             id, type = request.address[-1].split('.')
             li = lambda x: '<li>' + x + '</li>'
 
+
             if type == 'clt':
                 try:
-                    coalition = next(i for i in groups if i.cid == id)
+                    coalition = next(i for i in groups if i.cid == id and i.exists)
                 except StopIteration:
                     error = self.throwError(1, 'a', '/' + request.get_last_page(), response=response)
                     self.log.log(addr[0], '- Client requested non-existent coalition', lvl=Log.ERROR)
@@ -269,7 +288,7 @@ def handle(self, conn, addr, request):
                                      nb_page='account.html')
             elif type == 'gld':
                 try:
-                    coalition = next(i for i in groups if i.cid == id)
+                    coalition = next(i for i in groups if i.cid == id and i.exists)
                 except StopIteration:
                     error = self.throwError(1, 'b', '/' + request.get_last_page(), response=response)
                     self.log.log(addr[0], '- Client requested non-existent coalition', lvl=Log.ERROR)
@@ -400,6 +419,7 @@ def handle(self, conn, addr, request):
                 self.log.log("New account created with ID", id, "- first name is", first)
             acnt = Account(first, last, usr, pwd, mail, id)
             groups[0].add_member(acnt)
+            acnt.signup_data = request.post_values
             accounts.append(acnt)
 
             response.add_cookie('client-id', id, 'Max-Age=604800')  # 2 weeks
@@ -529,6 +549,22 @@ def handle(self, conn, addr, request):
 
             groups.append(new)
             response.set_status_code(303, location="coalition.html")
+
+        elif request.address[0] == 'transfer_ownership.act':
+            target = get_account_by_id(request.post_values.get('id'))
+            if target == 'none':
+                error = self.throwError(6, 'c', request.get_last_page(), response=response)
+                self.log.log(addr[0], '- Client POSTed bad account ID.', lvl=Log.ERROR)
+                return
+
+            if target.coalition is client.coalition or target.coalition is groups[0]:
+                client.coalition.change_owner(target)
+            else:
+                error = self.throwError(16, 'a', request.get_last_page(), response=response)
+                self.log.log(addr[0], '- Client tried to make a coalition owner the owner of a coalition.', lvl=Log.ERROR)
+                return
+
+            response.set_status_code(303, location='coalitions.html')
 
 
 

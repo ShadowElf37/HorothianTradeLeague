@@ -12,6 +12,12 @@
             text-align: right;
             font-size: 1.1em;
         }
+        select{
+            border: 1px solid #CCC;
+            margin-top: 12px;
+            margin-bottom: 15px;
+            width: 190px;
+        }
     </style>
 </head>
 <body>
@@ -28,6 +34,7 @@
                         First Name:<br>
                         Last Name:<br>
                         Email:<br>
+                        Gender:<br>
                     </div>
                     <div style="margin-top: 25px;">
                         Username:<br>
@@ -39,6 +46,12 @@
                     <input autocomplete="off" type="text" name="first" required><br>
                     <input autocomplete="off" type="text" name="last" required><br>
                     <input autocomplete="off" type="text" name="mail" required><br>
+                    <select name="gender">
+                        <option>Male</option>
+                        <option>Female</option>
+                        <option>Wommyn</option>
+                        <option>Attack Helicopter</option>
+                    </select><br>
                     <br>
                     <input autocomplete="off" type="text" name="user" maxlength="25" required><br>
                     <input autocomplete="off" type="password" name="pass" required><br>

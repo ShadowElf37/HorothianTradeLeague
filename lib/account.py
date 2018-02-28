@@ -78,6 +78,7 @@ class Account:
         self.settings = {}
         self.requested_coalition = False
         self.coal_pct_loaned = 0.0
+        self.signup_data = dict()
 
     @property
     def password(self):
@@ -148,6 +149,7 @@ class ShellAccount:
         self.settings = {}
         self.validator = None
         self.requested_coalition = False
+        self.signup_data = dict()
 
 
 class Group:
@@ -185,7 +187,7 @@ class Group:
 
     def dismantle(self, default_group):
         for member in self.members:
-            member.group = default_group
+            default_group.add_member(member)
         self.members = []
         self.exists = False
 
