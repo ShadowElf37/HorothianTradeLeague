@@ -16,25 +16,25 @@ IMPORTANT
 LESS IMPORTANT
     1. Scripting console.html
 
-    2. Pages for guilds
-    3. Coalition/guild page buttons
-    4. Hunts
+    2. Coalition/guild buttons and their pages and actions
+    3. Hunts
 
 
 FINAL PRODUCT:
     1. SSL
     2. Port forward
     3. Treaty
-    4. Real about.html
-    5. Real home.html
-    6. console.html commands (not the basic scripting)
-    7. Have dummy file with everyone in school for potential unlocking of the whitelist
-    8. Improve page CSS and add "aesthetic features"
-    9. Record more data
-    10. Dynamic SID?
-    11. Socket that opens up after shutdown_normal.act and tells clients that the server is down for maintenance
-    12. FAQ
+    4. Tooltips, or at least links beside confusing inputs to FAQ and Treaty sections
+    5. Real about.html
+    6. Real home.html
+    7. console.html commands (not the basic scripting)
+    8. Have dummy file with everyone in school for potential unlocking of the whitelist
+    9. Improve page CSS and add "aesthetic features"
+    10. Record more data
+    11. Dynamic SID?
+    12. Socket that opens up after shutdown_normal.act and tells clients that the server is down for maintenance
+    13. FAQ
 
-    13. Hunt submission
-    14. Market for online-hosted trade
-    15. Real news.html
+    14. Hunt submission
+    15. Market for online-hosted trade
+    16. Real news.html

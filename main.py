@@ -177,6 +177,8 @@ def handle(self, conn, addr, request):
         elif request.address[0] == 'coalition_list.html':
                 coalitions = []
                 for group in groups:
+                    if not group.exists:
+                        continue
                     coalitions.append("""<a href="/c/{0}.{7}">
                     <div class="c-listing">
                         <img src="{1}">
@@ -518,6 +520,8 @@ def handle(self, conn, addr, request):
                 return
 
             client.coalition.remove_member(client)
+            if client.coalition.owner == client and client.coalition != groups[0]:
+                client.coalition.dismantle(groups[0])
             if type == 'c':
                 new = Coalition(name, img, client, desc)
             else:

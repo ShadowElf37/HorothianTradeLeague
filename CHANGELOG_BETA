@@ -114,4 +114,9 @@ BETA v0.1.2.8 (2/26/18)
 BETA v0.1.2.9 (2/27/18)
     - Fixed a horrible but simple bug in request that prevented use of cookies in Firefox
     - Work on guild.html
-    - Added faq.html, link at bottom of account.html
+    - Added faq.html; link at bottom of account.html
+
+BETA v0.1.2.10 (2/27/18)
+    - Now a coalition gets disbanded if you make a new one and you were the only member
+    - Added buttons to guild.html, functions to Guild(); ready to be scripted
+    -
