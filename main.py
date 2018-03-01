@@ -216,6 +216,10 @@ def handle(self, conn, addr, request):
         elif request.address[0] == 'clt_transfer_ownership.html':
             response.attach_file('clt_transfer_ownership.html', nb_page='account.html')
 
+        elif request.address[0] == 'pay_member.html':
+            mems = ['<option value="{}">{}</option>'.format(m.id, m.get_name()) for m in client.coalition.members]
+            response.attach_file('pay_member.html', nb_page='account.html', clt_balance=client.coalition.budget, members='\n'.join(mems))
+
         # ACTIONS
         elif request.address[0].split('.')[-1] == 'act':
             if request.address[0] == 'logout.act':
@@ -246,7 +250,7 @@ def handle(self, conn, addr, request):
             elif request.address[0] == 'collect_guild_salary.act':
                 tid = '%19d' % random.randint(1, 2 ** 64)
                 c = client.coalition.credit[client]
-                taxed = c * 0.2
+                taxed = c
                 client.transaction_history.append('Guild salary '.format('%.2f' % c, '%.2f' % taxed, tid, time.strftime('%X - %x')))
                 f = open('logs/transactions.log', 'at')
                 gl = '{0} -> {1}; Cr{2} [-{3}] ({4}) -- {5}\n'.format(client.coalition.cid, client_id, '%.2f' % c, '%.2f' % taxed, tid, time.strftime('%X - %x'))
@@ -256,6 +260,50 @@ def handle(self, conn, addr, request):
                 client.coalition.get_credit(client)
 
                 response.set_status_code(303, location='coalitions.html')
+            elif request.address[0] == 'request_join.act':
+                try:
+                    coalition = next(i for i in groups if i.cid == request.address[1] and i.exists)
+                except StopIteration:
+                    print(request.address[1])
+                    for c in groups:
+                        print(c.cid)
+                    return
+                if not client.requested_coalition:
+                    rid = str(random.randint(10**5, 10**6))
+                    client.requested_coalition = True
+                    f = open('data/clt_join_reqs.dat', 'w')
+                    f.write('{}|{}|{}'.format(
+                        client.id,
+                        coalition.cid,
+                        rid
+                    ))
+                    f.close()
+
+                    get_account_by_id('1377').send_message('Join Coalition Request', 'Your request to join coalition {} is pending approval by the owner.'.format(coalition.cid), client)
+                    get_account_by_id('1377').send_message('Join Coalition Request', '{} ({}) requested to join your coalition!\nYou can accept it by going to this link: {}:{}/accept_request.act/{}'.format(
+                        client.get_name(),
+                        client.id,
+                        host,
+                        port,
+                        rid
+                    ),coalition.owner)
+
+                    response.set_status_code(303, location="/coalitions.html")
+            elif request.address[0] == 'accept_request.act':
+                data = open('data/clt_join_reqs.dat', 'r').read().split('\n')
+                try:
+                    r = tuple(filter(lambda x: x.split('|')[2] == request.address[1], data))[0].split('|')
+                except IndexError:
+                    print("REALLY BAD ERROR")
+                    self.send('Well that didn\'t work!')
+                    return
+
+                tuple(filter(lambda x: x.cid == r[1], groups))[0].add_member(get_account_by_id(r[0]))
+                get_account_by_id('1377').send_message('Join Coalition Request',
+                                                       'Your request to join the coalition was approved! You can access it with the COALITIONS button in your account.',
+                                                       get_account_by_id(r[0]))
+
+                response.set_status_code(303, location="/coalitions.html")
             else:
                 # Proper error handling
                 error = self.throwError(2, 'a', request.get_last_page(), response=response)
@@ -263,11 +311,14 @@ def handle(self, conn, addr, request):
                 return
 
         elif request.address[0] == 'c':
-            id, type = request.address[-1].split('.')
+            try:
+                id, type = request.address[1].split('.')
+                othertype = False
+            except ValueError:
+                othertype = True
             li = lambda x: '<li>' + x + '</li>'
 
-
-            if type == 'clt':
+            if not othertype and type == 'clt':
                 try:
                     coalition = next(i for i in groups if i.cid == id and i.exists)
                 except StopIteration:
@@ -286,7 +337,7 @@ def handle(self, conn, addr, request):
                                      pct_loan=100 * coalition.get_loan_size(),
                                      amt_loan='%.2f' % float(coalition.get_loan_size() * coalition.max_pool),
                                      nb_page='account.html')
-            elif type == 'gld':
+            elif not othertype and type == 'gld':
                 try:
                     coalition = next(i for i in groups if i.cid == id and i.exists)
                 except StopIteration:
@@ -301,7 +352,7 @@ def handle(self, conn, addr, request):
                                      c_desc=coalition.description,
                                      c_owner=coalition.owner.get_name(),
                                      nb_page='account.html')
-            elif type == 'std':
+            elif othertype or type == 'std':
                 error = self.throwError(15, 'a', request.get_last_page(), response=response)
                 self.log.log(addr[0], '- Client requested a non-coalition coalition page (like Group() instance)', lvl=Log.ERROR)
                 return
@@ -551,6 +602,11 @@ def handle(self, conn, addr, request):
             response.set_status_code(303, location="coalition.html")
 
         elif request.address[0] == 'transfer_ownership.act':
+            if not all(request.post_values.values()):
+                error = self.throwError(13, 'g', request.get_last_page(), response=response)
+                self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
+                return
+
             target = get_account_by_id(request.post_values.get('id'))
             if target == 'none':
                 error = self.throwError(6, 'c', request.get_last_page(), response=response)
@@ -564,8 +620,23 @@ def handle(self, conn, addr, request):
                 self.log.log(addr[0], '- Client tried to make a coalition owner the owner of a coalition.', lvl=Log.ERROR)
                 return
 
+
             response.set_status_code(303, location='coalitions.html')
 
+        elif request.address[0] == 'pay_member.act':
+            if not all(request.post_values.values()):
+                error = self.throwError(13, 'g', request.get_last_page(), response=response)
+                self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
+                return
+
+            target = get_account_by_id(request.post_values.get('id'))
+            if target == 'none':
+                error = self.throwError(6, 'c', request.get_last_page(), response=response)
+                self.log.log(addr[0], '- Client POSTed bad account ID.', lvl=Log.ERROR)
+                return
+
+            client.coalition.pay_member(float(request.post_values.get('amt')), target)
+            response.set_status_code(303, location='coalitions.html')
 
 
     # Adds an error, sets page cookie (that thing that lets you go back if error), and sends the response off

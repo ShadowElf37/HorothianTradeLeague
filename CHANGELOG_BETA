@@ -120,6 +120,8 @@ BETA v0.1.2.10 (2/27/18)
     - Now a coalition gets disbanded if you make a new one and you were the only member
     - Added buttons to guild.html, functions to Guild(); ready to be scripted
 
-BETA V0.1.2.11 (2/28/18)
-    - Some button pages/actions created
+BETA v0.1.2.11 (2/28/18)
+    - You can now request to join a coalition
+    - You can now pay guild members
+    - You can now collect your wages as a guild member
     - Added gender in signup.html

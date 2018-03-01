@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Transfer Ownership | Project Mercury</title>
+    <title>Pay Member | Project Mercury</title>
     <link rel="stylesheet" type="text/css" href="general.css">
     <link rel="stylesheet" type="text/css" href="buttons.css">
 </head>
@@ -13,7 +13,12 @@
     <div id="big-center-text" class="center-text-div">
         <h1>Transfer Ownership</h1>
         <form method="post" action="transfer_ownership.act">
-            Account: <input type="text" name="id" value="0000" maxlength="4" minlength="4" style="width: 75px">
+            Account:
+            <select name="id">
+                [[members]]
+            </select>
+            <br>
+            Amount: <input type="number" name="amt" value="0.00" max="[[clt_balance]]" min="0.00" step="0.01">
             <br>
             <input class="form-submit" type="submit">
         </form>

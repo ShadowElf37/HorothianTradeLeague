@@ -221,18 +221,29 @@ class Coalition(Group):  # Get with your friends and make a living together
 # Join a guild and enjoy the benefits of capitalism!
 class Guild(Group):
     def __init__(self, name, img, founder, desc):
+        self.credit = dict()
         super().__init__(name, img, founder, desc)
         self.tax = 0.02
         self.max_members = 12
         self.std_salary = 1.0
-        self.credit = {m:0.0 for m in self.members}
-        self.budget = 0
+        self.budget = 100.0
 
     def pay_salary(self, amt, acnt):
-        if self.budget > amt:
+        if self.budget > amt and acnt in self.members:
             self.budget -= amt
             self.credit[acnt] += amt
+            return 0
+        return 1
 
     def get_credit(self, acnt):
         acnt.balance += self.credit[acnt] - (self.credit[acnt] * self.tax)
         self.credit[acnt] = 0
+
+    def add_member(self, account):
+        if len(self.members) < self.max_members:
+            self.members.append(account)
+            self.member_ids.append(account.id)
+            account.coalition = self
+            self.credit[account] = 0.0
+        else:
+            return 'E0'

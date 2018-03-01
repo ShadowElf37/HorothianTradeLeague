@@ -201,3 +201,7 @@ p{
 .tooltip:hover{
   color: #CC2;
 }
+
+select{
+    border: 1px solid #D7D7D7;
+}
