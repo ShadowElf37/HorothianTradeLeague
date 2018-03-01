@@ -169,6 +169,7 @@ class Group:
         self.owner = founder
         self.add_member(founder)
         self.exists = True
+        self.lost_members = []
 
     def add_member(self, account):
         if len(self.members) < self.max_members:
@@ -178,9 +179,11 @@ class Group:
         else:
             return 'E0'
 
-    def remove_member(self, account):
+    def remove_member(self, account, default_group):
         self.members.remove(account)
         self.member_ids.remove(account.id)
+        self.lost_members.append(account.id)
+        account.coalition = default_group
 
     def change_owner(self, new_account):
         self.owner = new_account

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Coalition | Project Mercury</title>
+    <link rel="stylesheet" type="text/css" href="general.css">
+    <link rel="stylesheet" type="text/css" href="buttons.css">
+	<link rel="stylesheet" type="text/css" href="clt_create.css">
+    <style>
+        #members{
+            list-style: none;
+            column-count: 2;
+            column-gap: 30px;
+            width: 300px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <img src="white_background.png" class="background-img">
+    [[navbar]]
+    [[error]]
+    <div id="big-center-text" class="center-text-div">
+    	<h1>Edit Coalition</h1>
+    	<center>
+    		<form style="color: black;" method="post" action="/edit_clt.act">
+	    		<h5>Edit Name:</h5>
+	    		<input autocomplete="off" type="text" name="name" value="[[c_name]]" maxlength="22" required>
+	    		<br>
+                <h5>Remove Members</h5>
+                <ul id="members">
+                    [[i_members]]
+                </ul>
+                <br>
+	    		<h5>Edit Coalition Icon</h5>
+	    		<select class="img_upload" name="img">
+	    			[[img_opts]]
+	    		</select>
+	    		<br><br>
+	    		<h5>Edit Description</h5>
+	    		<textarea name="desc" class="ta" required>[[c_desc]]</textarea>
+	    		<br><br>
+	    		<input style="margin: 0" class="form-button" type="submit" value="Save">
+	    		<br><br>
+	    	</form>
+	    </center>
+    </div>
+</body>
+</html>

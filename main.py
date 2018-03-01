@@ -220,6 +220,16 @@ def handle(self, conn, addr, request):
             mems = ['<option value="{}">{}</option>'.format(m.id, m.get_name()) for m in client.coalition.members]
             response.attach_file('pay_member.html', nb_page='account.html', clt_balance=client.coalition.budget, members='\n'.join(mems))
 
+        elif request.address[0] == 'edit_coalition.html':
+            mems = ['<li><input name="kick-mem" value="{}" type="checkbox" style="box-shadow: initial;">{}</li>'.format(m.id, m.get_name()) for m in client.coalition.members if m is not client.coalition.owner]
+            img_opts = open('conf/clt_img.cfg').read().split('\n')
+            opts = ['<option value="{}">{}</option>'.format(*line.split('|')) for line in img_opts]
+            response.attach_file('edit_coalition.html', nb_page='account.html',
+                                 i_members='\n'.join(mems),
+                                 c_name=client.coalition.name,
+                                 c_desc=client.coalition.description,
+                                 img_opts='\n'.join(list(opts)))
+
         # ACTIONS
         elif request.address[0].split('.')[-1] == 'act':
             if request.address[0] == 'logout.act':
@@ -590,7 +600,7 @@ def handle(self, conn, addr, request):
                 self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
                 return
 
-            client.coalition.remove_member(client)
+            client.coalition.remove_member(client, groups[0])
             if client.coalition.owner == client and client.coalition != groups[0]:
                 client.coalition.dismantle(groups[0])
             if type == 'c':
@@ -638,6 +648,30 @@ def handle(self, conn, addr, request):
             client.coalition.pay_member(float(request.post_values.get('amt')), target)
             response.set_status_code(303, location='coalitions.html')
 
+        elif request.address[0] == 'edit_clt.act':
+            c = client.coalition
+            if request.post_values.get('name'):
+                c.name = request.post_values['name']
+            if request.post_values.get('desc'):
+                c.description = request.post_values['desc']
+            if request.post_values.get('img'):
+                c.img = request.post_values['img']
+            if request.post_values.get('kick-mem'):
+                msg = 'The owner of your coalition decided to kick you out. If you think this was done unfairly, please submit an appeal to the Project Mercury Court. Keep in mind that the coalition is their property, not yours, and not ours.'
+                km = request.post_values['kick-mem']
+                self.log.log('Member kicked from a coalition by {}'.format(client.id))
+                if isinstance(km, list):
+                    for mem in km:
+                        m = get_account_by_id(mem)
+                        c.remove_member(m, groups[0])
+                        get_account_by_id('1377').send_message('Coalition Kick', msg, m)
+                else:
+                    m = get_account_by_id(km)
+                    c.remove_member(m, groups[0])
+                    get_account_by_id('1377').send_message('Coalition Kick', msg, m)
+
+
+            response.set_status_code(303, location='coalitions.html')
 
     # Adds an error, sets page cookie (that thing that lets you go back if error), and sends the response off
     error = ''

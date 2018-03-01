@@ -1,0 +1,21 @@
+h5{
+    font-size: 28px;
+}
+
+.radio{
+    box-shadow: 0 0 !important;
+    margin: 0px 38px;
+}
+.radiolabel{
+    margin: 0px 15px;
+}
+
+.ta{
+    width: 350px;
+    height: 100px;
+}
+.img_upload{
+    border: 1px solid #CCC;
+    border-radius: 0;
+    font-size: 16px;
+}

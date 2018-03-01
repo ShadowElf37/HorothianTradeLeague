@@ -125,3 +125,8 @@ BETA v0.1.2.11 (2/28/18)
     - You can now pay guild members
     - You can now collect your wages as a guild member
     - Added gender in signup.html
+
+BETA v0.1.2.12 (3/1/18)
+    - Added support for duplicate post variables (like checkboxes)
+    - You can now edit coalitions
+    - You can also remove members of coalitions

@@ -184,9 +184,22 @@ class Request:
 
         self.flist = list(map(lambda x: x.split(': '), self.req_list[2]))
         self.flags = dict(self.flist[:-2])
+        # All this is what allows us to have multiple values for one key in post
         try:
-            self.post_values = dict(map(lambda x: x.strip().split('='), self.flist[-1][0].strip().split('&'))) if self.flist[-1][0] else dict()
-            self.cookies = dict(map(lambda x: x.strip().split('='), self.flags['Cookie'].strip().split(';'))) if self.flags.get('Cookie') else dict()
+            pv_primer = list(map(lambda x: x.strip().split('='), self.flist[-1][0].strip().split('&')))
+            counter = dict()
+            for pair in pv_primer:
+                if not counter.get(pair[0]):
+                    counter[pair[0]] = [pair[1],]
+                else:
+                    counter[pair[0]].append(pair[1])
+            self.post_values = dict([(k,v) if (len(v) != 1) else (k,v[0]) for k,v in counter.items()]) if self.flist[-1][0] else dict()
+        except (IndexError, ValueError):
+            self.post_values = dict()
+        try:
+            self.cookies = dict(
+                map(lambda x: x.strip().split('='), self.flags['Cookie'].strip().split(';'))) if self.flags.get(
+                'Cookie') else dict()
         except ValueError:
             print('post###', self.flags[-1])
             print('cook@@@', self.flags[-3])

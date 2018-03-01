@@ -112,8 +112,8 @@ class Server:
                 except Exception as e:
                     if self.debug:
                         raise e
-                    self.throwError(0, 'h', 'home.html')
-                    self.log.log('A fatal error occurred in handle(): {}'.format(e), lvl=Log.ERROR)
+                    self.throwError(0, 'u', 'home.html')
+                    self.log.log('A fatal error occurred in handle():', e, lvl=Log.ERROR)
             self.handled_counter += 1
             self.connection = None
 
