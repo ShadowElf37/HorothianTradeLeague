@@ -203,7 +203,7 @@ class Coalition(Group):  # Get with your friends and make a living together
         self.max_pool = 0.0
 
     def get_loan_size(self):
-        return boilerplate.cap(150 // (len(self.members)), 100) / 100.0
+        return boilerplate.cap(130 // (len(self.members)), 100) / 100.0
 
     def add_to_pool(self, amt, acnt):
         if acnt.balance >= amt:
@@ -214,7 +214,7 @@ class Coalition(Group):  # Get with your friends and make a living together
         return 1
 
     def loan(self, percent, acnt):
-        if percent + acnt.coal_pct_loaned < 1.5/(len(self.members)):  # A user cannot loan more than 30% for 5 members etc.
+        if percent + acnt.coal_pct_loaned < 1.3/(len(self.members)):  # A user cannot loan more than 26% for 5 members etc.
             self.pool -= self.pool * percent
             acnt.coal_pct_loaned += percent
             acnt.balance += self.pool * percent

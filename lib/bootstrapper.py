@@ -91,3 +91,10 @@ def get_account_by_email(email):
     except IndexError:
         return ShellAccount()
     return a
+
+def record_transaction(self, sender_id, recipient_id, tid, amount, taxed, log_transactions=True):
+    f = open('logs/transactions.log', 'at')
+    gl = '{0} -> {1}; Cr{2} [-{3}] ({4}) -- {5}\n'.format(sender_id, recipient_id, '%.2f' % amount, '%.2f' % taxed if taxed != 0 else 'EXEMPT', tid, time.strftime('%X - %x'))
+    f.write(gl)
+    if log_transactions: self.log.log('Transaction:', gl)
+    f.close()

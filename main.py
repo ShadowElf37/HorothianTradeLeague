@@ -230,6 +230,10 @@ def handle(self, conn, addr, request):
                                  c_desc=client.coalition.description,
                                  img_opts='\n'.join(list(opts)))
 
+        elif request.address[0] == 'clt_pooladd.html':
+            c = client.coalition
+            response.attach_file('clt_pooladd.html', nb_page='account.html', cpool=c.pool)
+
         # ACTIONS
         elif request.address[0].split('.')[-1] == 'act':
             if request.address[0] == 'logout.act':
@@ -520,17 +524,23 @@ def handle(self, conn, addr, request):
             if not a.pay(amount, recipient_acnt):
                 response.set_status_code(303, location='account.html')
                 tid = '%19d' % random.randint(1, 2**64)
-                f = open('logs/transactions.log', 'at')
-                gl = '{0} -> {1}; Cr{2} [-{3}] ({4}) -- {5}\n'.format(sender_id, recipient_id, '%.2f' % amount, '%.2f' % taxed if taxed != 0 else 'EXEMPT', tid, time.strftime('%X - %x'))
-                f.write(gl)
-                if log_transactions: self.log.log('Transaction:', gl)
-                a.transaction_history.append('&#8354;{0} sent to {1}|&#8354;{2}|3{3}|{4}'.format('%.2f' % amount, ar.get_name(), '%.2f' % taxed if taxed != 0 else 'EXEMPT', tid, time.strftime('%X - %x')))
+                record_transaction(self, a, ar, tid, amount, taxed, log_transactions)
+                a.transaction_history.append(
+                    '&#8354;{0} sent to {1}|&#8354;{2}|3{3}|{4}'.format('%.2f' % amount, ar.get_name(),
+                                                                        '%.2f' % taxed if taxed != 0 else 'EXEMPT', tid,
+                                                                        time.strftime('%X - %x')))
                 if a.id != '1377':
-                    ar.transaction_history.append('{0} sent you &#8354;{1}|&#8354;{2}|2{3}|{4}'.format(a.get_name(), '%.2f' % amount, '%.2f' % taxed if taxed != 0 else 'EXEMPT', tid, time.strftime('%X - %x')))
+                    ar.transaction_history.append(
+                        '{0} sent you &#8354;{1}|&#8354;{2}|2{3}|{4}'.format(a.get_name(), '%.2f' % amount,
+                                                                             '%.2f' % taxed if taxed != 0 else 'EXEMPT',
+                                                                             tid, time.strftime('%X - %x')))
                 else:
-                    ar.transaction_history.append('CB income of &#8354;{0}|&#8354;{1}|7{2}|{3}'.format('%.2f' % amount, '%.2f' % taxed if taxed != 0 else 'EXEMPT', tid, time.strftime('%X - %x')))
-                f.close()
-                get_account_by_id('1377').pay(float(taxed), get_account_by_id('0099'))
+                    ar.transaction_history.append('CB income of &#8354;{0}|&#8354;{1}|7{2}|{3}'.format('%.2f' % amount,
+                                                                                                       '%.2f' % taxed if taxed != 0 else 'EXEMPT',
+                                                                                                       tid,
+                                                                                                       time.strftime(
+                                                                                                           '%X - %x')))
+                ar.pay(float(taxed), get_account_by_id('0099'))
                 get_account_by_id('0099').transaction_history.append('Tax income of &#8354;{0} from {1} -> {2}|EXEMPT|7{3}|{4}'.format('%.2f' % taxed, a.get_name(), ar.get_name(), tid, time.strftime('%X - %x')))
             else:
                 error = self.throwError(3, 'a', request.get_last_page(), response=response)
@@ -670,7 +680,14 @@ def handle(self, conn, addr, request):
                     c.remove_member(m, groups[0])
                     get_account_by_id('1377').send_message('Coalition Kick', msg, m)
 
-
+        elif request.address[0] == 'padd.act':
+            c = client.coalition
+            amt = float(request.post_values['amt'])
+            client.transaction_history.append('')
+            c.add_to_pool(amt, client)
+            tid = random.randint(10**5, 10**6)
+            client.transaction_history.append('&#8354;{0} donated to {1}|&#8354;{2}|3{3}|{4}'.format('%.2f' % amt, c.name, 'EXEMPT', tid, time.strftime('%X - %x')))
+            record_transaction(self, client.id, c.cid, tid, amt, 0, log_transactions)
             response.set_status_code(303, location='coalitions.html')
 
     # Adds an error, sets page cookie (that thing that lets you go back if error), and sends the response off
