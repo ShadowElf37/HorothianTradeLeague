@@ -232,7 +232,13 @@ def handle(self, conn, addr, request):
 
         elif request.address[0] == 'clt_pooladd.html':
             c = client.coalition
-            response.attach_file('clt_pooladd.html', nb_page='account.html', cpool=c.pool)
+            response.attach_file('clt_pooladd.html', nb_page='account.html', cpool='%.2f' % c.pool)
+
+        elif request.address[0] == 'loan.html':
+            c = client.coalition
+            response.attach_file('loan.html', nb_page='account.html', ceiling=cap(c.max_pool * c.get_loan_size(), c.pool))
+        elif request.address[0] == 'loan_view.js':
+            response.attach_file('loan_view.js', loan_ceiling=client.coalition.max_pool)
 
         # ACTIONS
         elif request.address[0].split('.')[-1] == 'act':
@@ -346,10 +352,12 @@ def handle(self, conn, addr, request):
                                      c_desc=coalition.description,
                                      c_owner=coalition.owner.get_name(),
                                      coalition_name=coalition.name,
-                                     pool=coalition.pool,
-                                     max_pool=coalition.max_pool,
+                                     pool='%.2f' % coalition.pool,
+                                     max_pool='%.2f' % coalition.max_pool,
                                      pct_loan=100 * coalition.get_loan_size(),
                                      amt_loan='%.2f' % float(coalition.get_loan_size() * coalition.max_pool),
+                                     pct_client_loan=('%.1f' % (client.coal_pct_loaned * 100)) if coalition == client.coalition else 'n/a',
+                                     amt_client_loan=('%.2f' % (client.coal_pct_loaned * coalition.max_pool)) if coalition == client.coalition else 'n/a',
                                      nb_page='account.html')
             elif not othertype and type == 'gld':
                 try:
@@ -679,6 +687,7 @@ def handle(self, conn, addr, request):
                     m = get_account_by_id(km)
                     c.remove_member(m, groups[0])
                     get_account_by_id('1377').send_message('Coalition Kick', msg, m)
+            response.set_status_code(303, location='coalitions.html')
 
         elif request.address[0] == 'padd.act':
             c = client.coalition
@@ -689,6 +698,12 @@ def handle(self, conn, addr, request):
             client.transaction_history.append('&#8354;{0} donated to {1}|&#8354;{2}|3{3}|{4}'.format('%.2f' % amt, c.name, 'EXEMPT', tid, time.strftime('%X - %x')))
             record_transaction(self, client.id, c.cid, tid, amt, 0, log_transactions)
             response.set_status_code(303, location='coalitions.html')
+
+        elif request.address[0] == 'loan.act':
+            c = client.coalition
+            amt = float(request.post_values['amt'])
+            c.loan(amt, client)
+            response.set_status_code(303, location="coalitions.html")
 
     # Adds an error, sets page cookie (that thing that lets you go back if error), and sends the response off
     error = ''

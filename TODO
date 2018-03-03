@@ -17,8 +17,8 @@ LESS IMPORTANT
     1. Scripting console.html
     2. Ability to have links and bolding (that's all) formats in messages
 
-    3. Coalition pages:  g budget, c add pool, c loan
-    4. Coalition buttons - conditional disable if not owner, etc.
+    3. Guild budget summary page
+    4. Conditional disable clt buttons if not owner, etc.
     5. Ability to leave coalitions
     6. Hunts
 

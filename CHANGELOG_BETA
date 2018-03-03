@@ -130,3 +130,8 @@ BETA v0.1.2.12 (3/1/18)
     - Added support for duplicate post variables (like checkboxes)
     - You can now edit coalitions
     - You can also remove members of coalitions
+
+BETA v0.1.2.13 (3/3/18)
+    - You can now loan
+    - You can now add to coalition pools
+    - Fixed some bugs
