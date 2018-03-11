@@ -30,6 +30,7 @@ Thread(target=infinite_file).start()
 # Initializes the important things
 whitelist = open('conf/whitelist.cfg', 'r').read().split('\n')
 accounts, groups = load_users()
+pm_group = groups[0]
 lib.bootstrapper.accounts = accounts  # Not sure why this is necessary, but the funcs in there can't handle main's vars
 lib.bootstrapper.groups = groups
 error = ''
@@ -265,13 +266,14 @@ def handle(self, conn, addr, request):
                     self.log.log(addr[0], '- Client tried to delete non-existant message.')
                 response.body = "Success"
             elif request.address[0] == 'disband_coalition.act':
-                client.coalition.dismantle(groups[0])
+                client.coalition.dismantle(pm_group)
                 response.set_status_code(303, location='coalitions.html')
             elif request.address[0] == 'collect_guild_salary.act':
                 tid = '%19d' % random.randint(1, 2 ** 64)
                 c = client.coalition.credit[client]
-                taxed = c
-                client.transaction_history.append('Guild salary '.format('%.2f' % c, '%.2f' % taxed, tid, time.strftime('%X - %x')))
+                taxed = c * client.coalition.internal_tax
+                c = c - taxed
+                client.transaction_history.append('Guild salary of &#8354;{0}|&#8354;{1}|9{2}|{3}'.format('%.2f' % c, '%.2f' % taxed, tid, time.strftime('%X - %x')))
                 f = open('logs/transactions.log', 'at')
                 gl = '{0} -> {1}; Cr{2} [-{3}] ({4}) -- {5}\n'.format(client.coalition.cid, client_id, '%.2f' % c, '%.2f' % taxed, tid, time.strftime('%X - %x'))
                 f.write(gl)
@@ -324,6 +326,12 @@ def handle(self, conn, addr, request):
                                                        get_account_by_id(r[0]))
 
                 response.set_status_code(303, location="/coalitions.html")
+            elif request.address[0] == 'leave_coalition.act':
+                client.coalition.remove_member(client, pm_group)
+                if isinstance(client.coalition, Guild):
+                    client.coalition.budget += client.coalition.credit[client]
+                    client.coalition.credit[client] = 0
+                response.set_status_code(303, location='coalitions.html')
             else:
                 # Proper error handling
                 error = self.throwError(2, 'a', request.get_last_page(), response=response)
@@ -346,6 +354,9 @@ def handle(self, conn, addr, request):
                     self.log.log(addr[0], '- Client requested non-existent coalition', lvl=Log.ERROR)
                     return
 
+                owner = coalition.owner is client
+                member = client.coalition is coalition
+                disabled = lambda condition: 'disabled' if condition else ''
                 response.attach_file('coalition.html',
                                      members='\n'.join(tuple(map(lambda x: li(x.get_name()), coalition.members))),
                                      c_id=coalition.cid,
@@ -358,6 +369,15 @@ def handle(self, conn, addr, request):
                                      amt_loan='%.2f' % float(coalition.get_loan_size() * coalition.max_pool),
                                      pct_client_loan=('%.1f' % (client.coal_pct_loaned * 100)) if coalition == client.coalition else 'n/a',
                                      amt_client_loan=('%.2f' % (client.coal_pct_loaned * coalition.max_pool)) if coalition == client.coalition else 'n/a',
+
+                                     disleave = 'disband_coalition.act' if owner else 'leave_coalition.act',
+                                     disleavet = 'Disband' if owner else 'Leave',
+                                     d1=disabled(member),
+                                     d2=disabled(not owner),
+                                     d3=disabled(not member),
+                                     d4=disabled(not member),
+                                     d5=disabled(not owner),
+                                     d6=disabled(not member or not client.coal_pct_loaned > 0),
                                      nb_page='account.html')
             elif not othertype and type == 'gld':
                 try:
@@ -367,13 +387,36 @@ def handle(self, conn, addr, request):
                     self.log.log(addr[0], '- Client requested non-existent coalition', lvl=Log.ERROR)
                     return
 
-                response.attach_file('guild.html',
-                                     coalition_name=coalition.name,
-                                     members='\n'.join(tuple(map(lambda x: li(x.get_name()), coalition.members))),
-                                     c_id=coalition.cid,
-                                     c_desc=coalition.description,
-                                     c_owner=coalition.owner.get_name(),
-                                     nb_page='account.html')
+                owner = coalition.owner is client
+                member = client.coalition is coalition
+                disabled = lambda condition: 'disabled' if condition else ''
+                if len(request.address) > 2:
+                    if request.address[2] == 'budget.html':
+                        response.attach_file('budget.html', nb_page='account.html',
+                                             name=coalition.name,
+                                             budget=coalition.budget,
+                                             credit=coalition.credit[client]
+                                             )
+                    else:
+                        response.set_status_code(303, location='/' + request.address[2])
+                else:
+                    response.attach_file('guild.html',
+                                         coalition_name=coalition.name,
+                                         members='\n'.join(tuple(map(lambda x: li(x.get_name()), coalition.members))),
+                                         c_id=coalition.cid,
+                                         c_desc=coalition.description,
+                                         c_owner=coalition.owner.get_name(),
+
+                                         disleave='disband_coalition.act' if owner else 'leave_coalition.act',
+                                         disleavet='Disband' if owner else 'Leave',
+                                         d1=disabled(member),
+                                         d2=disabled(not owner),
+                                         d3=disabled(not member),
+                                         d4=disabled(not member),
+                                         d5=disabled(not owner),
+                                         d6=disabled(not owner),
+                                         d7=disabled(not member),
+                                         nb_page='account.html')
             elif othertype or type == 'std':
                 error = self.throwError(15, 'a', request.get_last_page(), response=response)
                 self.log.log(addr[0], '- Client requested a non-coalition coalition page (like Group() instance)', lvl=Log.ERROR)
@@ -491,7 +534,7 @@ def handle(self, conn, addr, request):
                 id = '%04d' % random.randint(0, 9999)
                 self.log.log("New account created with ID", id, "- first name is", first)
             acnt = Account(first, last, usr, pwd, mail, id)
-            groups[0].add_member(acnt)
+            pm_group.add_member(acnt)
             acnt.signup_data = request.post_values
             accounts.append(acnt)
 
@@ -502,8 +545,6 @@ def handle(self, conn, addr, request):
             if log_signup: self.log.log('Sign up:', acnt.get_name(), acnt.id)
 
         elif request.address[0] == 'pay.act':
-            sender_id = client_id
-
             if not all(request.post_values.values()):
                 error = self.throwError(13, 'c', request.get_last_page(), response=response)
                 self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
@@ -618,9 +659,9 @@ def handle(self, conn, addr, request):
                 self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
                 return
 
-            client.coalition.remove_member(client, groups[0])
-            if client.coalition.owner == client and client.coalition != groups[0]:
-                client.coalition.dismantle(groups[0])
+            client.coalition.remove_member(client, pm_group)
+            if client.coalition.owner == client and client.coalition != pm_group:
+                client.coalition.dismantle(pm_group)
             if type == 'c':
                 new = Coalition(name, img, client, desc)
             else:
@@ -641,13 +682,12 @@ def handle(self, conn, addr, request):
                 self.log.log(addr[0], '- Client POSTed bad account ID.', lvl=Log.ERROR)
                 return
 
-            if target.coalition is client.coalition or target.coalition is groups[0]:
+            if target.coalition is client.coalition or target.coalition is pm_group:
                 client.coalition.change_owner(target)
             else:
                 error = self.throwError(16, 'a', request.get_last_page(), response=response)
                 self.log.log(addr[0], '- Client tried to make a coalition owner the owner of a coalition.', lvl=Log.ERROR)
                 return
-
 
             response.set_status_code(303, location='coalitions.html')
 
@@ -681,11 +721,11 @@ def handle(self, conn, addr, request):
                 if isinstance(km, list):
                     for mem in km:
                         m = get_account_by_id(mem)
-                        c.remove_member(m, groups[0])
+                        c.remove_member(m, pm_group)
                         get_account_by_id('1377').send_message('Coalition Kick', msg, m)
                 else:
                     m = get_account_by_id(km)
-                    c.remove_member(m, groups[0])
+                    c.remove_member(m, pm_group)
                     get_account_by_id('1377').send_message('Coalition Kick', msg, m)
             response.set_status_code(303, location='coalitions.html')
 
@@ -704,6 +744,7 @@ def handle(self, conn, addr, request):
             amt = float(request.post_values['amt'])
             c.loan(amt, client)
             response.set_status_code(303, location="coalitions.html")
+
 
     # Adds an error, sets page cookie (that thing that lets you go back if error), and sends the response off
     error = ''

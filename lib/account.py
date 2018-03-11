@@ -226,6 +226,7 @@ class Coalition(Group):  # Get with your friends and make a living together
         return 1
 
 # Join a guild and enjoy the benefits of capitalism!
+# Note that payments to a Guild should ONLY go through a sales.html
 class Guild(Group):
     def __init__(self, name, img, founder, desc):
         self.credit = dict()
@@ -233,9 +234,9 @@ class Guild(Group):
         self.tax = 0.02
         self.max_members = 12
         self.std_salary = 1.0
-        self.budget = 100.0
+        self.budget = 0.0
 
-    def pay_salary(self, amt, acnt):
+    def pay_member(self, amt, acnt):
         if self.budget > amt and acnt in self.members:
             self.budget -= amt
             self.credit[acnt] += amt

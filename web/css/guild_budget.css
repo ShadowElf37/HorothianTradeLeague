@@ -1,0 +1,29 @@
+h3{
+    margin: 0;
+    border-bottom: 1px solid #D7D7D7;
+    padding-bottom: 15px;
+}
+
+#budget{
+    border: 1px solid #D7D7D7;
+    border-top: 0;
+    padding: 50px;
+    padding-bottom: 75px;
+    width: 500px;
+    margin-top: 30px;
+    margin-bottom: 0;
+    display: block;
+}
+
+#credit{
+    border: 1px solid #D7D7D7;
+    border-bottom: 0;
+    width: 500px;
+    display: block;
+    margin-bottom: 50px;
+    padding: 50px;
+}
+
+h2{
+    margin: 10px;
+}

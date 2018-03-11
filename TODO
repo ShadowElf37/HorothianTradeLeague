@@ -13,14 +13,18 @@ IMPORTANT
 	All done!
 
 
+-----------------------------
+
+IDEAL LAUNCH DATE: April 9th
+
+-----------------------------
+
 LESS IMPORTANT
     1. Scripting console.html
     2. Ability to have links and bolding (that's all) formats in messages
+    3. Animated progress bars in progress.html (like when you load the page they do a little jump)
 
-    3. Guild budget summary page
-    4. Conditional disable clt buttons if not owner, etc.
-    5. Ability to leave coalitions
-    6. Hunts
+    4. Hunts
 
 
 FINAL PRODUCT:
@@ -37,7 +41,9 @@ FINAL PRODUCT:
     11. Dynamic SID?
     12. Socket that opens up after shutdown_normal.act and tells clients that the server is down for maintenance
     13. FAQ
+    14. Try to catch serious html-edit exploits
+    15. Pop-up "Are you sure?" messages
 
-    14. Hunt submission
-    15. Market for online-hosted trade
-    16. Real news.html
+    15. Hunt submission
+    16. Market for online-hosted trade
+    17. Real news.html
