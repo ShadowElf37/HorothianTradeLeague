@@ -4,13 +4,17 @@
     <meta charset="UTF-8">
     <title>Console | Project Mercury</title>
     <link rel="stylesheet" type="text/css" href="console.css">
+    <script src="console.js"></script>
 </head>
 <body>
     <div id="console">
         <span class="entry"><a href="home.html">Project Mercury</a></span><br>
-        <span class="entry">Running Mercury Console vers 0.1 ALPHA</span><br>
+        <span class="entry">Running Mercury Console vers 0.2 ALPHA</span><br>
         <span class="entry" style="margin: 0;">------------------------------</span><br>
-        <span class="entry">username: </span><input></input>
+        <form id="input" onsubmit="return catchSubmit();">
+            <span class="entry">username: </span><input id="current" autofocus autocomplete="off" name="usr">
+            <button type="submit" style="border: 0; background: 0;"></button>
+        </form>
     </div>
 </body>
 </html>

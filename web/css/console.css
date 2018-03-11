@@ -1,24 +1,28 @@
 body{
-background-color: #000;
+    background-color: #000;
 }
 
 #console{
-  font-family: "Lucida Console";
-  text-align: left;
-  margin: 3px 10px;
-  color: #FFF;
+    font-family: "Lucida Console";
+    text-align: left;
+    margin: 3px 10px;
+    color: #FFF;
 }
 
 input{
-  background-color: #000;
-  border: 0;
-  color: #FFF;
-  outline: none;
-  font-family: "Lucida Console";
-  font-size: 1.0em;
+    background-color: #000;
+    border: 0;
+    color: #FFF;
+    outline: none;
+    font-family: "Lucida Console";
+    font-size: 1.0em;
 }
 
 a{
-  color: #58D;
-  text-decoration: none;
+    color: #58D;
+    text-decoration: none;
+}
+
+entry{
+    display: block;
 }
