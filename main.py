@@ -17,7 +17,7 @@ from threading import Thread
 
 
 # Config
-require_validator = True
+require_validator = False
 log_request = True
 log_transactions = False
 log_signin = True
@@ -145,11 +145,11 @@ def handle(self, conn, addr, request):
                     lines.append(tuple(map(lambda x: x.strip(), line.split(':'))))
 
             for line in lines:
-                compose.append('<h3>' + line[0] + '</h3>' + '<div class="prog-bar"><div class="{2}" style="width: {0}"><span class="prog-bar-int-text">{1}</span></div></div><br>'.format(
-                    str(100*eval(line[1])) + '%',
+                compose.append('<h3>' + line[0] + '</h3>' + '<div class="prog-bar"><div class="{2}" style="width: 0%" id="{3}"><script>move(document.getElementById("{3}"), {0});</script><span class="prog-bar-int-text">{1}</span></div></div><br>'.format(
+                    str(100*eval(line[1])),
                     (line[1] if len(line) == 2 else line[2]) if eval(line[1]) < 1 else "Complete",
                     "prog-bar-int" if eval(line[1]) < 1 else "prog-bar-int-comp",
-
+                    lines.index(line) + 100
                     ))
 
             response.attach_file('progress.html', bars='\n'.join(compose))
