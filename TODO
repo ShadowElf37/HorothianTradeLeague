@@ -8,7 +8,6 @@ KNOWN BUGS
 URGENT
     All done!
 
-
 IMPORTANT
 	All done!
 
@@ -26,22 +25,30 @@ LESS IMPORTANT
 
 
 FINAL PRODUCT:
+
+    FUNCTIONALITY
+    1. Tooltips, or at least links beside confusing inputs to FAQ and Treaty sections
+    2. Pop-up "Are you sure?" messages
+    3. Socket that opens up after shutdown_normal.act and tells clients that the server is down for maintenance
+    4. Button disabling based on progress.cfg
+
+    USEABILITY
+    1. Improve page CSS and add "aesthetic features"
+    2. Record more data
+    3. Dynamic SID?
+    4. Try to catch serious html-edit exploits
+
+    WRITING
     1. SSL
     2. Port forward
     3. Treaty
-    4. Tooltips, or at least links beside confusing inputs to FAQ and Treaty sections
-    5. Real about.html
-    6. Real home.html
-    7. console.html commands (not the basic scripting)
-    8. Have dummy file with everyone in school for potential unlocking of the whitelist
-    9. Improve page CSS and add "aesthetic features"
-    10. Record more data
-    11. Dynamic SID?
-    12. Socket that opens up after shutdown_normal.act and tells clients that the server is down for maintenance
-    13. FAQ
-    14. Try to catch serious html-edit exploits
-    15. Pop-up "Are you sure?" messages
+    4. Real about.html
+    5. Real home.html
+    6. FAQ
+    7. Have dummy file with everyone in school for potential unlocking of the whitelist
 
-    15. Hunt submission
-    16. Market for online-hosted trade
-    17. Real news.html
+    FEATURES
+    1. Hunt submission
+    2. Market for online-hosted trade
+    3. Real news.html
+    4. console.html commands
