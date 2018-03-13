@@ -302,7 +302,7 @@ def handle(self, conn, addr, request):
                     f.close()
 
                     get_account_by_id('1377').send_message('Join Coalition Request', 'Your request to join coalition {} is pending approval by the owner.'.format(coalition.cid), client)
-                    get_account_by_id('1377').send_message('Join Coalition Request', '{} ({}) requested to join your coalition!\nYou can accept it by going to this link: {}:{}/accept_request.act/{}'.format(
+                    get_account_by_id('1377').send_message('Join Coalition Request', '{} ({}) requested to join your coalition!\nYou can accept it by going to {this link.|http://{}:{}/accept_request.act/{}}'.format(
                         client.get_name(),
                         client.id,
                         host,

@@ -15,7 +15,10 @@ function getCookie(cname) {
     return "";
 }
 
-var messages = {};
+// Stolen from stackoverflow
+function getPosition(str, m, i) { return str.split(m, i).join(m).length; }
+
+var messages = {}; // this is easy to render; instant loading is possible
 
 // This will update the message text and fetch from server
 function updateMessage(id, caller) {
@@ -27,7 +30,26 @@ function updateMessage(id, caller) {
         }
 		else {fetch("http://[[host]]:[[port]]/m/" + id).then(function(response) {
                 response.text().then(function(text) {
-                    document.getElementById("msg-body").innerHTML = text;
+                    body = document.getElementById("msg-body")
+
+                    console.log(text);
+                    while (text.search('&#x7B;') != -1) {
+                        i0 = text.search('&#x7B;');
+                        i1 = text.search('&#x7D;');
+                        s = text.slice(i0+6, i1);
+                        s = s.split('&#x7C;');
+                        console.log(s)
+                        text = text.replace(text.slice(i0, i1+6), "<a target=\"blank\" href=\""+s[1]+"\">"+s[0]+"</a>");
+                    }
+
+                    while (text.search('\\*') != -1) {
+                        i0 = getPosition(text, '*', 1);
+                        i1 = getPosition(text, '*', 2);
+                        s = text.slice(i0+1, i1);
+                        text = text.replace(text.slice(i0, i1+1), "<strong>"+s+"</strong>");
+                    }
+
+                    body.innerHTML = text;
                     messages[id] = text;
                 });
             });
