@@ -52,6 +52,39 @@ class Message:
         self.file.close()
 
 
+class Hunt:
+    def __init__(self, creator, title, description, deadline, max_contributors, reward):
+        self.title = title
+        self.desc = description
+        self.due_date = deadline
+        self.posted_date = time.strftime('%x')
+        self.max_contributors = max_contributors
+        self.reward = float(reward)
+        self.total_reward = self.max_contributors * self.reward
+        self.id = '%5d' % random.randint(10000, 99999)
+        self.creator = creator
+        self.complete = False
+        self.participants = []
+        self.completers = []
+
+    def join(self, acnt):
+        if len(self.participants) + len(self.completers) < self.max_contributors:
+            self.participants.append(acnt)
+            return 0
+        return 1
+
+    def finish(self, acnt):
+        self.completers.append(acnt)
+        self.participants.remove(acnt)
+
+    def end(self):
+        if not self.complete:
+            self.complete = True
+            for p in self.completers:
+                ...
+            #pay creator leftovers
+
+
 class Account:
     def __init__(self, firstname, lastname, username, password, email, id):
         self.id = id
@@ -70,6 +103,8 @@ class Account:
         self.validator = self.get_new_validator()
         self.total_hunts = 0
         self.active_hunts = 0
+        self.my_hunts = []
+        self.working_hunts = []
         self.last_activity = 'Unused'
         self.date_of_creation = time.strftime('%c')
         self.admin = False

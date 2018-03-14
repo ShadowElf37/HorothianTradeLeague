@@ -30,10 +30,13 @@ Thread(target=infinite_file).start()
 # Initializes the important things
 whitelist = open('conf/whitelist.cfg', 'r').read().split('\n')
 accounts, groups = load_users()
+hunts = [h for a in accounts for h in a.my_hunts]
 pm_group = groups[0]
 lib.bootstrapper.accounts = accounts  # Not sure why this is necessary, but the funcs in there can't handle main's vars
 lib.bootstrapper.groups = groups
 error = ''
+
+hunts.append(Hunt(get_account_by_id('1377'), 'Edit English Essay', 'I need someone to edit my essay for English please thanks.', '3/16/18', 5, 4))
 
 # ---------------------------------
 
@@ -240,6 +243,26 @@ def handle(self, conn, addr, request):
             response.attach_file('loan.html', nb_page='account.html', ceiling=cap(c.max_pool * c.get_loan_size(), c.pool))
         elif request.address[0] == 'loan_view.js':
             response.attach_file('loan_view.js', loan_ceiling=client.coalition.max_pool)
+
+        elif request.address[0] == 'hunts.html':
+            l = []
+            for h in hunts:
+                l.append("""<div class="hunt">
+                <img class="hunt-img" src="google_doc.png">
+                <div class="dark-overlay"></div>
+                <div class="dark-bar"></div>
+                <div class="dark-bar dark-bar-2">
+                    <span class="title">{0}</span>
+                    <span class="title author">Due {4}<br>{1}<br>Participants: {3}/{2}</span>
+                </div>
+            </div>""".format(
+                    h.title,
+                    h.creator.get_name(),
+                    h.max_contributors,
+                    len(h.participants),
+                    h.due_date
+                ))
+            response.attach_file('hunts.html', hunts='\n'.join(l))
 
         # ACTIONS
         elif request.address[0].split('.')[-1] == 'act':
