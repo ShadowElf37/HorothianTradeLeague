@@ -53,7 +53,7 @@ class Message:
 
 
 class Hunt:
-    def __init__(self, creator, title, description, deadline, max_contributors, reward):
+    def __init__(self, creator, title, description, deadline, max_contributors, reward, link):
         self.title = title
         self.desc = description
         self.due_date = deadline
@@ -66,6 +66,7 @@ class Hunt:
         self.complete = False
         self.participants = []
         self.completers = []
+        self.link = link
 
     def join(self, acnt):
         if len(self.participants) + len(self.completers) < self.max_contributors:
