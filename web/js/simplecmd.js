@@ -29,5 +29,6 @@ SimpleCmd.prototype.call = function(cmd, args) {
     if(func)
         func.call(this, args);
     else
+        // Send to server
         this.def(cmd, args);
 }

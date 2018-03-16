@@ -15,6 +15,11 @@
             cons = new IOConsole(sc, output, {contains: function(e) {return true;}});
         });
     </script>
+
+    <audio id="creepymusic" autoplay loop>
+        <source src="wt_console.mp3" type="audio/mp3">
+    </audio>
+    <script>document.getElementById("creepymusic").volume = 0.4</script>
 </head>
 <body>
     <div id="console">
