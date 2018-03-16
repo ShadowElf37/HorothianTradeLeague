@@ -757,7 +757,8 @@ def handle(self, conn, addr, request):
 # TURN DEBUG OFF FOR ALL REAL-WORLD TRIALS OR ANY ERROR WILL CAUSE A CRASH
 # USE SHUTDOWN URLs TO TURN OFF
 
-host = '192.168.1.177'
+#host = '192.168.1.177'
+host = '0.0.0.0'
 port = 8080
 s = Server(host=host, port=port, debug=True, include_debug_level=False)
 s.log.log('Accounts:', accounts, lvl=Log.INFO)
