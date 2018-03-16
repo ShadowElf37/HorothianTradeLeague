@@ -22,6 +22,9 @@ LESS IMPORTANT
     1. Scripting console.html
 
     3. Hunts actions - join / complete and get paid / end
+    Participant totals don't take into account completed
+    Should list completed in individual viewer
+    No trans history logged
     4. Edit hunt
 
 

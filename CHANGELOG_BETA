@@ -166,3 +166,7 @@ BETA v0.1.3.5
     - Added links at top of hunt.html to actions
     - Added low-quality page of account's hunts (no need to improve it)
     - Lots of minor changes related to hunts
+
+BETA v0.1.3.6
+    - Created most of the functionality of the "hunt button"
+    - Fixed some bugs

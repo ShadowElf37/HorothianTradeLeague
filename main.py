@@ -268,7 +268,7 @@ def handle(self, conn, addr, request):
                         '{}/{}'.format(len(h.participants), h.max_contributors) if not (len(h.participants) / h.max_contributors >= 1) else 'FULL',
                         h.due_date,
                         h.id,
-                        'red' if (time.strftime('%x') == time_add(h.due_date, -1)) else '',
+                        'red' if (time.strftime('%x') in [time_add(h.due_date, -1), time_add(h.due_date, 0)]) else '',
                     ))
             response.attach_file('hunts.html', hunts='\n'.join(l))
 
@@ -297,8 +297,22 @@ def handle(self, conn, addr, request):
                                  left=hunt.max_contributors - len(hunt.participants),
                                  claim_text='Claim Completion' if client in hunt.participants else 'Close Hunt' if client is hunt.creator else 'Claim Hunt',
                                  hunted='disabled' if client in hunt.completers else '',
-                                 link='<a href="{}">Document Link</a>'.format(hunt.link) if client in hunt.participants+hunt.completers+[hunt.creator] else ''
+                                 link='<a href="{}">Document Link</a>'.format(hunt.link) if client in hunt.participants+hunt.completers+[hunt.creator] else '',
+                                 hid=hunt.id,
                                  )
+        elif request.address[0][:3] == 'hp-':
+            n, hid, tid = request.address[0].split('-')
+            del n
+            hunt = next(h for h in hunts if h.id == hid)
+            acnt = hunt.participant_ids[tid]
+            tax = hunt.reward * (hunt.creator.coalition.tax if not hunt.creator.coalition == acnt.coalition else hunt.creator.coalition.internal_tax)
+            amt = hunt.reward - tax
+
+            record_transaction(self, hunt.creator.id, client.id, '22' + str(random.randint(1000000, 10000000)),
+                               amt, tax)
+            CB.pay(amt, acnt)
+            CB.pay(tax, get_account_by_id('0099'))
+            response.set_status_code(303, location='hunts.html')
 
 
         # ACTIONS
@@ -318,6 +332,30 @@ def handle(self, conn, addr, request):
             elif request.address[0] == 'shutdown_force.act':
                 lib.bootstrapper.running = False
                 exit()
+
+            elif request.address[0] == 'hunt_button.act':
+                try:
+                    hunt = next(h for h in hunts if h.id == request.address[1])
+                except StopIteration:
+                    error = self.throwError(2, 'b', request.get_last_page(), response=response)
+                    self.log.log(addr[0], '- Client requested non-existent hunt.', lvl=Log.ERROR)
+                    return
+
+                if client in hunt.participants:  # Complete
+                    hunt.finish(client)
+                    tid = {v:k for k in hunt.participant_ids.keys() for v in hunt.participant_ids.values()}[client]
+                    CB.send_message('Hunt: '+hunt.title,
+                                    'A participant in the hunt claims that they\'ve completed the objective. &#x7B;Click here&#x7C;/hp-'+hunt.id+'-'+tid+'&#x7D; to confirm that this is true and send them their reward.',
+                                    hunt.creator)
+                    response.set_status_code(303, location='/hunts.html')
+
+                elif client is hunt.creator:  # End
+                    hunt.end()
+                    response.set_status_code(303, location='/hunts.html')
+                else:  # Join
+                    hunt.join(client)
+                    response.set_status_code(303, location='/h-'+hunt.id)
+
             elif request.address[0] == 'del_msg.act':
                 try:
                     msg = next( m for m in client.messages if m.id == request.address[1] )

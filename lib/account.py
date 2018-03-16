@@ -67,10 +67,14 @@ class Hunt:
         self.participants = []
         self.completers = []
         self.link = link
+        self.participant_ids = dict()
 
     def join(self, acnt):
         if len(self.participants) + len(self.completers) < self.max_contributors:
             self.participants.append(acnt)
+            acnt.working_hunts.append(self)
+            get_account_by_id('1377').send_message('Hunt: ' + self.title, acnt.get_name()+' has joined your hunt!', self.creator)
+            self.participant_ids[str(random.randint(1000000, 10000000))] = acnt
             return 0
         return 1
 
@@ -82,8 +86,9 @@ class Hunt:
         if not self.complete:
             self.complete = True
             for p in self.completers:
-                ...
-            #pay creator leftovers
+                p.working_hunts.remove(self)
+                leftover = self.total_reward - (self.reward * len(self.completers))
+                get_account_by_id('1377').pay(leftover, self.creator)
 
 
 class Account:
@@ -141,8 +146,7 @@ class Account:
             account.balance = float('%.2f' % account.balance)
             self.balance = float('%.2f' % self.balance)
             return 0
-        else:
-            return 1
+        return 1
 
     @staticmethod
     def get_new_validator():
@@ -291,3 +295,5 @@ class Guild(Group):
             self.credit[account] = 0.0
         else:
             return 'E0'
+
+from lib.bootstrapper import get_account_by_id
