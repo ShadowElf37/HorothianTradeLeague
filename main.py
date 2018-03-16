@@ -18,7 +18,7 @@ from threading import Thread
 
 
 # Config
-require_validator = False
+require_validator = True
 log_request = True
 log_transactions = False
 log_signin = True
@@ -856,7 +856,7 @@ def handle(self, conn, addr, request):
 # USE SHUTDOWN URLs TO TURN OFF
 
 #host = '192.168.1.177'
-host = '0.0.0.0'
+host = 'localhost'
 port = 8080
 s = Server(host=host, port=port, debug=True, include_debug_level=False)
 s.log.log('Accounts:', accounts, lvl=Log.INFO)
