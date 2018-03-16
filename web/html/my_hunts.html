@@ -2,20 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Hunts | Project Mercury</title>
+    <title>My Hunts | Project Mercury</title>
     <link rel="stylesheet" type="text/css" href="general.css">
     <link rel="stylesheet" type="text/css" href="buttons.css">
-    <link rel="stylesheet" type="text/css" href="hunts.css">
+    <style>h3 {margin-bottom: 10px;} ul {list-style: none;}</style>
 </head>
 <body>
     <img src="white_background.png" class="background-img">
     [[navbar]]
     [[error]]
     <div id="big-center-text" class="center-text-div">
-        <div style="border-bottom: 1px solid #D7D7D7; margin-bottom: 20px; margin-top: -10px;">
-            <a href="my_hunts.html">My Hunts</a>
-        </div>
-        [[hunts]]
+    	<h3>My Hunts</h3>
+    	<ul>
+    		[[mhunts]]
+    	</ul>
+    	<br>
+    	<h3>Active Hunts</h3>
+    	<ul>
+    		[[phunts]]
+    	</ul>
     </div>
 </body>
 </html>

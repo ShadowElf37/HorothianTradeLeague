@@ -154,3 +154,19 @@ BETA v0.1.3.2
 
 BETA v0.1.3.3
     - Work on hunts.html and its css
+
+BETA v0.1.3.4
+    - Minor CSS changes
+    - Added hunt class
+    - Added console.py for external parsing
+    - Added hunt list rendering
+
+BETA v0.1.3.5
+    - Created individual hunt pages
+    - Added links at top of hunt.html to actions
+    - Added low-quality page of account's hunts (no need to improve it)
+    - Lots of minor changes related to hunts
+
+BETA v0.1.3.6
+    - Created most of the functionality of the "hunt button"
+    - Fixed some bugs
