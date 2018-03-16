@@ -345,9 +345,9 @@ def handle(self, conn, addr, request):
                     hunt.finish(client)
                     tid = {v:k for k in hunt.participant_ids.keys() for v in hunt.participant_ids.values()}[client]
                     CB.send_message('Hunt: '+hunt.title,
-                                    'A participant in the hunt claims that they\'ve completed the objective. &#x7B;Click here&#x7C;/hp-'+hunt.id+'-'+tid+'&#x7D; to confirm that this is true and send them their reward.',
+                                    '{} claims that they\'ve completed the objective of {}. &#x7B;Click here&#x7C;/hp-'.format(client.get_name(), hunt.title)+hunt.id+'-'+tid+'&#x7D; to confirm that this is true and send them their reward.',
                                     hunt.creator)
-                    response.set_status_code(303, location='/hunts.html')
+                    response.set_status_code(303, location='/h-'+hunt.id)
 
                 elif client is hunt.creator:  # End
                     hunt.end()
