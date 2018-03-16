@@ -4,17 +4,23 @@
     <meta charset="UTF-8">
     <title>Console | Project Mercury</title>
     <link rel="stylesheet" type="text/css" href="console.css">
-    <script src="console.js"></script>
+    <script type="text/javascript" src="simplecmd.js"></script>
+    <script type="text/javascript" src="console.js"></script>
+    <script type="text/javascript">
+        var cons;
+        var sc = new SimpleCmd();
+        window.addEventListener('load', function(e) {
+            var output = document.getElementById('console');
+            var body = document.getElementsByTagName('body');
+            cons = new IOConsole(sc, output, {contains: function(e) {return true;}});
+        });
+    </script>
 </head>
 <body>
     <div id="console">
         <span class="entry"><a href="home.html">Project Mercury</a></span><br>
-        <span class="entry">Running Mercury Console vers 0.2 ALPHA</span><br>
-        <span class="entry" style="margin: 0;">------------------------------</span><br>
-        <form id="input" onsubmit="return catchSubmit();">
-            <span class="entry">username: </span><input id="current" autofocus autocomplete="off" name="usr">
-            <button type="submit" style="border: 0; background: 0;"></button>
-        </form>
+        <hr /><br />
+        <!--span class="entry">username:</span-->
     </div>
 </body>
 </html>
