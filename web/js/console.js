@@ -20,19 +20,15 @@ function CHistory(max) {
     this.max = max;
 }
 CHistory.prototype.up = function(old) {
-    console.log(this.history, this.pos);
     if(this.pos == 0)
         return old;
     this.history[this.pos--] = old;
-    console.log(this.history, this.pos);
     return this.history[this.pos];
 }
 CHistory.prototype.down = function(old) {
-    console.log(this.history, this.pos);
     if(this.pos == this.history.length)
         return old;
     this.history[this.pos++] = old;
-    console.log(this.history, this.pos);
     return this.history[this.pos];
 }
 CHistory.prototype.commit = function(cmd) {
@@ -53,7 +49,6 @@ function IOConsole(caller, outnode, container) {
     this.caller = caller;
     this.outnode = outnode;
     this.container = container || this.outnode; 
-    console.log(this.container);
     
     this.input = document.createElement(IOCN_TYPE);
     this.input.contentEditable = "true";
@@ -69,7 +64,6 @@ function IOConsole(caller, outnode, container) {
     });
     window.addEventListener('click', function(ev) {
         if(self.container.contains(ev.target))
-            console.log(self.input);
             self.input.focus();
     });
     this.caller.console(this);

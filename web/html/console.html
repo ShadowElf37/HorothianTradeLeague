@@ -11,7 +11,8 @@
         var sc = new SimpleCmd();
         window.addEventListener('load', function(e) {
             var output = document.getElementById('console');
-            cons = new IOConsole(sc, output);
+            var body = document.getElementsByTagName('body');
+            cons = new IOConsole(sc, output, {contains: function(e) {return true;}});
         });
     </script>
 </head>
