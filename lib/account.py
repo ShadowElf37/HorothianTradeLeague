@@ -66,6 +66,7 @@ class Hunt:
         self.complete = False
         self.participants = []
         self.completers = []
+        self.paid = []
         self.link = link
         self.participant_ids = dict()
 
@@ -136,7 +137,7 @@ class Account:
 
     @balance.setter
     def balance(self, val):
-        self._balance = val
+        self._balance = round(val, 2)
 
     def pay(self, amt, account):
         if amt <= self.balance:
@@ -258,7 +259,7 @@ class Coalition(Group):  # Get with your friends and make a living together
 
     def loan(self, amt, acnt):
         percent = amt / self.max_pool
-        if percent + acnt.coal_pct_loaned < 1.3/(len(self.members)):  # A user cannot loan more than 26% for 5 members etc.
+        if percent + acnt.coal_pct_loaned <= 1.3/(len(self.members)):  # A user cannot loan more than 26% for 5 members etc.
             self.pool -= self.pool * percent
             acnt.coal_pct_loaned += percent
             acnt.balance += self.pool * percent

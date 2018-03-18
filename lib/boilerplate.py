@@ -22,3 +22,7 @@ def cap(v, l):
     if v > l:
         return l
     return v
+def ground(v, l):
+    if v < l:
+        return l
+    return v

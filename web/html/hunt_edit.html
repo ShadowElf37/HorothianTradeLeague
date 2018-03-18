@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Coalition | Project Mercury</title>
+    <link rel="stylesheet" type="text/css" href="general.css">
+    <link rel="stylesheet" type="text/css" href="buttons.css">
+	<style>
+        h5 {font-size: 28px}
+        input {width: 300px}
+        .ta {width: 400px; height: 100px}
+    </style>
+</head>
+<body>
+    <img src="white_background.png" class="background-img">
+    [[navbar]]
+    [[error]]
+    <div id="big-center-text" class="center-text-div">
+    	<h1>Edit Hunt</h1>
+    	<center>
+    		<form style="color: black;" method="post" action="/edit_hunt.act">
+	    		<h5>Edit Name</h5>
+	    		<input style="width: 225px" autocomplete="off" type="text" name="name" value="[[name]]" maxlength="28" required>
+	    		<br><br>
+	    		<h5>Edit Link</h5>
+	    		<input autocomplete="off" type="text" name="link" value="[[link]]">
+	    		<br><br>
+	    		<h5>Edit Description</h5>
+	    		<textarea name="desc" class="ta" required>[[desc]]</textarea>
+	    		<br><br>
+	    		<input style="margin: 0" class="form-button" type="submit" value="Save">
+	    		<br><br>
+                <input value="[[hid]]" name="hid" hidden>
+	    	</form>
+	    </center>
+    </div>
+</body>
+</html>

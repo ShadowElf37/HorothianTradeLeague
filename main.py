@@ -241,7 +241,7 @@ def handle(self, conn, addr, request):
 
         elif request.address[0] == 'clt_pooladd.html':
             c = client.coalition
-            response.attach_file('clt_pooladd.html', nb_page='account.html', cpool='%.2f' % c.pool)
+            response.attach_file('clt_pooladd.html', nb_page='account.html', cpool='%.2f' % c.pool, blc=('%.2f' % ground((client.balance - (client.coal_pct_loaned * c.max_pool)), 0)))
 
         elif request.address[0] == 'loan.html':
             c = client.coalition
@@ -265,12 +265,16 @@ def handle(self, conn, addr, request):
                 </div></a>""".format(
                         h.title,
                         h.creator.get_name(),
-                        '{}/{}'.format(len(h.participants), h.max_contributors) if not (len(h.participants) / h.max_contributors >= 1) else 'FULL',
+                        '{}/{}'.format(len(h.participants+h.completers), h.max_contributors) if not (len(h.participants+h.completers) / h.max_contributors >= 1) else 'FULL',
                         h.due_date,
                         h.id,
                         'red' if (time.strftime('%x') in [time_add(h.due_date, -1), time_add(h.due_date, 0)]) else '',
                     ))
-            response.attach_file('hunts.html', hunts='\n'.join(l))
+            if len(l) == 0:
+                t = '<span style="color:#D7D7D7; font-size: 36px">There aren\'t any hunts available!</span>'
+            else:
+                t = '\n'.join(l)
+            response.attach_file('hunts.html', hunts=t)
 
         elif request.address[0] == 'my_hunts.html':
             response.attach_file('my_hunts.html', nb_page='hunts.html',
@@ -278,7 +282,7 @@ def handle(self, conn, addr, request):
                                  mhunts='\n'.join(['<li><a href="h-{1}">{0}</a></li>'.format(h.title, h.id) for h in client.my_hunts if not h.complete]))
 
         # HUNTS
-        elif request.address[0][:2] == 'h-':
+        elif request.address[0][:2] == 'h-':  # View hunt
             num = request.address[0][2:]
             try:
                 hunt = next(h for h in hunts if h.id == num)
@@ -294,25 +298,68 @@ def handle(self, conn, addr, request):
                                  due_date=hunt.due_date,
                                  reward=hunt.reward,
                                  desc=hunt.desc,
-                                 left=hunt.max_contributors - len(hunt.participants),
+                                 left=hunt.max_contributors - len(hunt.participants+hunt.completers),
                                  claim_text='Claim Completion' if client in hunt.participants else 'Close Hunt' if client is hunt.creator else 'Claim Hunt',
                                  hunted='disabled' if client in hunt.completers else '',
                                  link='<a href="{}">Document Link</a>'.format(hunt.link) if client in hunt.participants+hunt.completers+[hunt.creator] else '',
                                  hid=hunt.id,
+                                 completers=len(hunt.completers),
+                                 edit='<a href="he-{}" style="margin-top: -10px;">Edit Hunt Information</a>'.format(hunt.id) if client is hunt.creator else ''
                                  )
-        elif request.address[0][:3] == 'hp-':
+        elif request.address[0][:3] == 'hd-':  # Deny hunt completion
             n, hid, tid = request.address[0].split('-')
             del n
-            hunt = next(h for h in hunts if h.id == hid)
-            acnt = hunt.participant_ids[tid]
-            tax = hunt.reward * (hunt.creator.coalition.tax if not hunt.creator.coalition == acnt.coalition else hunt.creator.coalition.internal_tax)
-            amt = hunt.reward - tax
+            try:
+                hunt = next(h for h in hunts if h.id == hid)
+            except StopIteration:
+                error = self.throwError(1, 'd', request.get_last_page(), response=response)
+                self.log.log(addr[0], '- Client requested non-existent hunt.', lvl=Log.ERROR)
+                return
 
-            record_transaction(self, hunt.creator.id, client.id, '22' + str(random.randint(1000000, 10000000)),
-                               amt, tax)
-            CB.pay(amt, acnt)
-            CB.pay(tax, get_account_by_id('0099'))
-            response.set_status_code(303, location='hunts.html')
+            acnt = hunt.participant_ids[tid]
+            hunt.completers.remove(acnt)
+            hunt.participants.append(acnt)
+        elif request.address[0][:3] == 'hp-':  # Accept hunt completion
+            n, hid, tid = request.address[0].split('-')
+            del n
+            try:
+                hunt = next(h for h in hunts if h.id == hid)
+            except StopIteration:
+                error = self.throwError(1, 'd', request.get_last_page(), response=response)
+                self.log.log(addr[0], '- Client requested non-existent hunt.', lvl=Log.ERROR)
+                return
+
+            acnt = hunt.participant_ids[tid]
+            if acnt not in hunt.paid:
+                hunt.paid.append(acnt)
+                tax = hunt.reward * (hunt.creator.coalition.tax if not hunt.creator.coalition == acnt.coalition else hunt.creator.coalition.internal_tax)
+                amt = hunt.reward - tax
+                tid = '22' + str(random.randint(1000000, 10000000))
+
+                record_transaction(self, hunt.creator.id, client.id, tid, amt, tax)
+                CB.pay(amt, acnt)
+                acnt.transaction_history.append(hunt.title+' - reward of &#8354;{0}|&#8354;{1}|{2}|{3}'.format(
+                    '%.2f' % amt, '%.2f' % tax if tax != 0 else 'EXEMPT', tid, time.strftime('%X - %x')
+                ))
+                client.transaction_history.append('(Hunt) &#8354;{0} rewarded to {1}|&#8354;{2}|3{3}|{4}'.format(
+                    '%.2f' % amt, acnt.get_name(), '%.2f' % tax if tax != 0 else 'EXEMPT', tid, time.strftime('%X - %x')
+                ))
+                CB.pay(tax, get_account_by_id('0099'))
+                response.set_status_code(303, location='h-{}'.format(hid))
+            else:
+                error = self.throwError(17, 'a', request.get_last_page(), response=response)
+                self.log.log(addr[0], '- Client tried to hunt-pay an account twice.', lvl=Log.ERROR)
+                return
+        elif request.address[0][:3] == 'he-':  # Edit hunt
+            hid = request.address[0].split('-')[1]
+            try:
+                hunt = next(h for h in hunts if h.id == hid)
+            except StopIteration:
+                error = self.throwError(1, 'e', request.get_last_page(), response=response)
+                self.log.log(addr[0], '- Client requested non-existent hunt.', lvl=Log.ERROR)
+                return
+
+            response.attach_file('hunt_edit.html', nb_page='hunts.html', hid=hid, name=hunt.title, link=hunt.link, desc=hunt.desc)
 
 
         # ACTIONS
@@ -345,7 +392,10 @@ def handle(self, conn, addr, request):
                     hunt.finish(client)
                     tid = {v:k for k in hunt.participant_ids.keys() for v in hunt.participant_ids.values()}[client]
                     CB.send_message('Hunt: '+hunt.title,
-                                    '{} claims that they\'ve completed the objective of {}. &#x7B;Click here&#x7C;/hp-'.format(client.get_name(), hunt.title)+hunt.id+'-'+tid+'&#x7D; to confirm that this is true and send them their reward.',
+                                    '{} claims that they\'ve completed the objective of {}. \
+                                    &#x7B;Click here&#x7C;/hp-'.format(client.get_name(), hunt.title)+hunt.id+'-'+tid+'&#x7D; \
+                                    to confirm that this is true and send them their reward. &#x7B;Click here&#x7C;/hd-'.format(client.get_name(), hunt.title)+hunt.id+'-'+tid+'&#x7D;\
+                                    to refuse them.',
                                     hunt.creator)
                     response.set_status_code(303, location='/h-'+hunt.id)
 
@@ -357,6 +407,7 @@ def handle(self, conn, addr, request):
                     response.set_status_code(303, location='/h-'+hunt.id)
 
             elif request.address[0] == 'del_msg.act':
+                client = get_account_by_id(request.address[2])
                 try:
                     msg = next( m for m in client.messages if m.id == request.address[1] )
                     client.messages.remove(msg)
@@ -400,13 +451,11 @@ def handle(self, conn, addr, request):
                     f.close()
 
                     get_account_by_id('1377').send_message('Join Coalition Request', 'Your request to join coalition {} is pending approval by the owner.'.format(coalition.cid), client)
-                    get_account_by_id('1377').send_message('Join Coalition Request', '{} ({}) requested to join your coalition!\nYou can accept it by going to {this link.|http://{}:{}/accept_request.act/{}}'.format(
-                        client.get_name(),
-                        client.id,
-                        host,
-                        port,
-                        rid
-                    ),coalition.owner)
+                    get_account_by_id('1377').send_message(
+                        'Join Coalition Request',
+                        client.get_name()+' ('+client.id+') requested to join your coalition!\nYou can accept it by going to &#x7B;this link&#x7C;http://'+host+':'+str(port)+'/accept_request.act/'+rid+'&#x7D;.',
+                        coalition.owner
+                    )
 
                     response.set_status_code(303, location="/coalitions.html")
             elif request.address[0] == 'accept_request.act':
@@ -418,10 +467,12 @@ def handle(self, conn, addr, request):
                     self.send('Well that didn\'t work!')
                     return
 
-                tuple(filter(lambda x: x.cid == r[1], groups))[0].add_member(get_account_by_id(r[0]))
-                get_account_by_id('1377').send_message('Join Coalition Request',
-                                                       'Your request to join the coalition was approved! You can access it with the COALITIONS button in your account.',
-                                                       get_account_by_id(r[0]))
+                a = get_account_by_id(r[0])
+                if a not in tuple(filter(lambda x: x.cid == r[1], groups))[0].members:
+                    tuple(filter(lambda x: x.cid == r[1], groups))[0].add_member(a)
+                    get_account_by_id('1377').send_message('Join Coalition Request',
+                                                           'Your request to join the coalition was approved! You can access it with the COALITIONS button in your account.',
+                                                           get_account_by_id(r[0]))
 
                 response.set_status_code(303, location="/coalitions.html")
             elif request.address[0] == 'leave_coalition.act':
@@ -807,11 +858,11 @@ def handle(self, conn, addr, request):
         elif request.address[0] == 'edit_clt.act':
             c = client.coalition
             if request.post_values.get('name'):
-                c.name = request.post_values['name']
+                c.name = request.post_values['name'].replace('+', ' ')
             if request.post_values.get('desc'):
-                c.description = request.post_values['desc']
+                c.description = request.post_values['desc'].replace('+', ' ')
             if request.post_values.get('img'):
-                c.img = request.post_values['img']
+                c.img = request.post_values['img'].replace('+', ' ')
             if request.post_values.get('kick-mem'):
                 msg = 'The owner of your coalition decided to kick you out. If you think this was done unfairly, please submit an appeal to the Project Mercury Court. Keep in mind that the coalition is their property, not yours, and not ours.'
                 km = request.post_values['kick-mem']
@@ -842,6 +893,24 @@ def handle(self, conn, addr, request):
             amt = float(request.post_values['amt'])
             c.loan(amt, client)
             response.set_status_code(303, location="coalitions.html")
+
+        elif request.address[0] == 'edit_hunt.act':
+            name = request.post_values['name']
+            link = request.post_values['link']
+            desc = request.post_values['desc']
+            hid = request.post_values['hid']
+            try:
+                hunt = next(h for h in hunts if h.id == hid)
+            except StopIteration:
+                error = self.throwError(1, 'f', request.get_last_page(), response=response)
+                self.log.log(addr[0], '- Client requested non-existent hunt.', lvl=Log.ERROR)
+                return
+
+            hunt.title = name.replace('+', ' ')
+            hunt.link = link.replace('+', ' ')
+            hunt.desc = desc.replace('+', ' ')
+
+            response.set_status_code(303, location='h-'+hid)
 
 
     # Adds an error, sets page cookie (that thing that lets you go back if error), and sends the response off

@@ -1,9 +1,4 @@
-Upon completion of all LESS IMPORTANT work, it'll have all its required features and the version can jump to v0.2.0.0
-In truth, the rest could be developed as people use the website (with a few exceptions like SSL and port forwarding being necessary)
-
-
-KNOWN BUGS
-    All done!
+Upon completion of all FINAL PRODUCT work, the project will be complete and ready for deployment. Then we'll celebrate the birth of a new bitcoin!
 
 URGENT
     All done!
@@ -11,6 +6,8 @@ URGENT
 IMPORTANT
 	All done!
 
+LESS IMPORTANT
+    All done!
 
 -----------------------------
 
@@ -18,15 +15,10 @@ IDEAL LAUNCH DATE: April 9th
 
 -----------------------------
 
-LESS IMPORTANT
-    1. Scripting console.html
 
-    3. Hunts actions - join / complete and get paid / end
-    Participant totals don't take into account completed
-    Should list completed in individual viewer
-    No trans history logged
-    4. Edit hunt
-
+KNOWN BUGS
+    1. Account balance gets corrupted after loaning from a Coalition and going to its ADD TO POOL page
+    2. Hunt taxes stopped working for some reason
 
 FINAL PRODUCT:
 
@@ -41,6 +33,7 @@ FINAL PRODUCT:
     2. Record more data
     3. Dynamic SID?
     4. Try to catch serious html-edit exploits
+    5. Test EVERYTHING together
 
     WRITING
     1. SSL
@@ -57,3 +50,7 @@ FINAL PRODUCT:
     3. Real news.html
     4. console.html commands
         console.js: history, autocomplete commands
+
+    BACKEND
+    1. Organize pages into folders
+    2. Convert the if-else chain of main.py into functions

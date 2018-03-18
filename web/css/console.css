@@ -2,6 +2,10 @@ body {
     background-color: #000;
 }
 
+*{
+    outline-width: 0;
+}
+
 #console {
     font-family: Monospace;
     text-align: left;
