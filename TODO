@@ -22,18 +22,18 @@ KNOWN BUGS
 
 FINAL PRODUCT:
 
+    FEATURES
+    1. Hunt submission
+    2. Market for online-hosted trade
+    3. Real news.html
+    4. console.html commands
+        console.js: history, autocomplete commands
+
     FUNCTIONALITY
     1. Tooltips, or at least links beside confusing inputs to FAQ and Treaty sections
     2. Pop-up "Are you sure?" messages
     3. Socket that opens up after shutdown_normal.act and tells clients that the server is down for maintenance
     4. Button disabling based on progress.cfg
-
-    USEABILITY
-    1. Improve page CSS and add "aesthetic features"
-    2. Record more data
-    3. Dynamic SID?
-    4. Try to catch serious html-edit exploits
-    5. Test EVERYTHING together
 
     WRITING
     1. SSL
@@ -44,12 +44,12 @@ FINAL PRODUCT:
     6. FAQ
     7. Have dummy file with everyone in school for potential unlocking of the whitelist
 
-    FEATURES
-    1. Hunt submission
-    2. Market for online-hosted trade
-    3. Real news.html
-    4. console.html commands
-        console.js: history, autocomplete commands
+    USEABILITY
+    1. Improve page CSS and add "aesthetic features"
+    2. Record more data
+    3. Dynamic SID?
+    4. Try to catch serious html-edit exploits
+    5. Test EVERYTHING together
 
     BACKEND
     1. Organize pages into folders

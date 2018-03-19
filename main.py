@@ -38,9 +38,9 @@ lib.bootstrapper.groups = groups
 error = ''
 CB = get_account_by_id('1377')
 
-test = Hunt(CB, 'HON English Essay Revision', 'I need someone to edit my essay for English please thanks.', '3/15/18', 5, 4, 'http://www.google.com/')
-hunts.append(test)
-CB.my_hunts.append(test)
+# test = Hunt(CB, 'HON English Essay Revision', 'I need someone to edit my essay for English please thanks.', '3/15/18', 5, 4, 'http://www.google.com/')
+# hunts.append(test)
+# CB.my_hunts.append(test)
 
 
 # ---------------------------------
