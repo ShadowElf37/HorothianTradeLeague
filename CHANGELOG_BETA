@@ -185,3 +185,6 @@ BETA v0.2.0.0
     - Fixed message deletion bug
     - Fixed a bunch of other small bugs
     - Account balance is now restricted in the setter to 2 decimal points
+
+BETA v0.2.0.1
+    - Hunt submission page and action

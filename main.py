@@ -360,6 +360,8 @@ def handle(self, conn, addr, request):
                 return
 
             response.attach_file('hunt_edit.html', nb_page='hunts.html', hid=hid, name=hunt.title, link=hunt.link, desc=hunt.desc)
+        elif request.address[0] == 'hunt_submit.html':
+            response.attach_file('hunt_submit.html', nb_page='account.html')
 
 
         # ACTIONS
@@ -896,7 +898,7 @@ def handle(self, conn, addr, request):
 
         elif request.address[0] == 'edit_hunt.act':
             name = request.post_values['name']
-            link = request.post_values['link']
+            link = post_to_html_escape(request.post_values['link'])
             desc = request.post_values['desc']
             hid = request.post_values['hid']
             try:
@@ -911,6 +913,23 @@ def handle(self, conn, addr, request):
             hunt.desc = desc.replace('+', ' ')
 
             response.set_status_code(303, location='h-'+hid)
+
+        elif request.address[0] == 'submit_hunt.act':
+            name = request.post_values['name'].replace('+', ' ')
+            link = post_to_html_escape(request.post_values['link'])
+            if link[:4] != 'http':
+                link = 'https://' + link
+            desc = request.post_values['desc'].replace('+', ' ')
+            due = request.post_values['due'].split('-')
+            due = due[1] + '/' + due[2] + '/' + due[0][2:]
+            print(due)
+            contributors = request.post_values['cntrb']
+            reward = request.post_values['reward']
+
+            h = Hunt(client, name, desc, due, int(contributors), float(reward), link)
+            client.my_hunts.append(h)
+            hunts.append(h)
+            response.set_status_code(303, location='h-'+h.id)
 
 
     # Adds an error, sets page cookie (that thing that lets you go back if error), and sends the response off

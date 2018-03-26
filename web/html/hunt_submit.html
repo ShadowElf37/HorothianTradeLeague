@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Coalition | Project Mercury</title>
+    <link rel="stylesheet" type="text/css" href="general.css">
+    <link rel="stylesheet" type="text/css" href="buttons.css">
+	<style>
+        h5 {font-size: 28px}
+        input {width: 300px}
+        .ta {width: 400px; height: 100px}
+        .b {display: inline-block; margin: 10px 20px 40px 20px}
+    </style>
+    <script>
+        function updateTotal() {
+            document.getElementById("amt").innerHTML = Math.round(document.getElementById("reward").value * document.getElementById("cntrb").value * 100) / 100
+        }
+    </script>
+</head>
+<body>
+    <img src="white_background.png" class="background-img">
+    [[navbar]]
+    [[error]]
+    <div id="big-center-text" class="center-text-div">
+    	<h1>Submit Hunt</h1>
+    	<center>
+    		<form style="color: black;" method="post" action="/submit_hunt.act">
+                <div class="b">
+                    <h5>Name</h5>
+                    <input style="width: 225px" autocomplete="off" type="text" name="name" value="" maxlength="28" required>
+                    <br><br>
+                    <h5>Document Link</h5>
+                    <input autocomplete="off" type="text" name="link" value="">
+                    <br><br>
+                    <h5>Due Date</h5>
+                    <input type="date" name="due" required>
+                </div>
+                <div class="b">
+                    <h5>Maximum Number of Contributors</h5>
+                    <input id="cntrb" oninput="updateTotal();" style="width:50px" type="number" min="1" name="cntrb" required>
+                    <br><br>
+                    <h5>Reward</h5>
+                    <input id="reward" oninput="updateTotal();" style="width:50px" type="number" min="0.00" step="0.01" max="[[bal]]" name="reward" required><br>
+                    Total deposit for all contributors: &#8354;<span id="amt">0.00</span>
+                    <br><br>
+                </div>
+	    		<h5 style="border-top: 1px solid #D7D7D7; padding-top: 20px; width: 400px">Description</h5>
+	    		<textarea name="desc" class="ta" required>Include as much information as possible about the hunt and what it will take to be completed.</textarea>
+	    		<br><br>
+	    		<input style="margin: 0" class="form-button" type="submit" value="Submit">
+	    		<br><br>
+	    	</form>
+	    </center>
+    </div>
+</body>
+</html>
