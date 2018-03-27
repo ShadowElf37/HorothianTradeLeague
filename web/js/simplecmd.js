@@ -8,7 +8,9 @@ function SimpleCmd() {
             this.output.println("kill - kill <arg>");
         },
         "kill": function(args) {
+            this.output.format('bic', '#ff0000');
             this.output.println("You just killed " + (args.join(' ') || 'yourself') + '!');
+            this.output.clrfmt();
         }
     }
 }
@@ -29,6 +31,5 @@ SimpleCmd.prototype.call = function(cmd, args) {
     if(func)
         func.call(this, args);
     else
-        // Send to server
         this.def(cmd, args);
 }
