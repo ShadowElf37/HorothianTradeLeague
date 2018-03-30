@@ -23,23 +23,22 @@ KNOWN BUGS
 FINAL PRODUCT:
 
     FEATURES
-    1. Market for online-hosted trade
-    2. Real news.html
-    3. console.html commands
-        console.js: history, autocomplete commands
+    1. Real news.html
 
     FUNCTIONALITY
     1. Tooltips, or at least links beside confusing inputs to FAQ and Treaty sections
     2. Pop-up "Are you sure?" messages
     3. Button disabling based on progress.cfg
+    4. console.js history and autocomplete
 
     WRITING
     1. SSL
     2. Port forward
     3. Treaty
     4. Real about.html, home.html
-    5. FAQ
-    6. Have dummy file with everyone in school for potential unlocking of the whitelist
+    5. Console commands
+    6. FAQ
+    7. Have dummy file with everyone in school for potential unlocking of the whitelist
 
     USEABILITY
     1. Improve page CSS and add "aesthetic features"

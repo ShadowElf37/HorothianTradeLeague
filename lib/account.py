@@ -35,6 +35,19 @@ class Infinity:
         return '∞'
 
 
+class Sale:
+    def __init__(self, seller, cost, name, img):
+        self.cost = cost
+        self.name = name
+        self.img = img
+        self.sold = False
+        self.seller = seller
+        self.buyer = ShellAccount()
+        self.id = str(random.randint(10**8, 10**9))
+        self.guild = ''
+        self.posted_date = time.strftime('%x')
+        
+
 class Message:
     def __init__(self, subject, msg, sender, recipient):
         self.msg = msg
@@ -121,6 +134,7 @@ class Account:
         self.requested_coalition = False
         self.coal_pct_loaned = 0.0
         self.signup_data = dict()
+        self.my_sales = []
 
     @property
     def password(self):
@@ -191,6 +205,8 @@ class ShellAccount:
         self.validator = None
         self.requested_coalition = False
         self.signup_data = dict()
+        self.my_sales = []
+        self.my_hunts = []
 
 
 class Group:
@@ -203,7 +219,7 @@ class Group:
         self.member_ids = []
         self.description = desc
         self.creation_date = time.strftime('%x')
-        self.cid = ('%10d' % random.randint(1, 2 ** 32)).strip()
+        self.cid = str(random.randint(10**5, 10**6-1))
         self.img = img
         self.default = False
         self.founder = founder
@@ -234,6 +250,9 @@ class Group:
             default_group.add_member(member)
         self.members = []
         self.exists = False
+
+    def get_name(self):
+        return self.name
 
 
 class Coalition(Group):  # Get with your friends and make a living together

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Post Sale | Project Mercury</title>
+    <link rel="stylesheet" type="text/css" href="general.css">
+    <link rel="stylesheet" type="text/css" href="buttons.css">
+    <link rel="stylesheet" type="text/css" href="clt_create.css">
+    <style>
+    	#a span{
+    		display: inline-block;
+    	}
+    	#a {
+    		margin-bottom: 20px;
+    	}
+    </style>
+</head>
+<body>
+    <img src="white_background.png" class="background-img">
+    [[navbar]]
+    [[error]]
+    <div id="big-center-text" class="center-text-div">
+    	<h1>Post Sale</h1>
+    	<form action="post_sale.act" method="POST" style="color: black;">
+    		<div id="a">
+    			<span>
+	    			<h5>Product</h5>
+		    		<input type="text" name="name" max="25">
+		    	</span>
+		    	<span>
+		    		<h5>Price</h5>
+		    		<input type="number" step="0.01" name="price">
+		    	</span>
+	    	</div>
+	    	<h5>For Guild</h5>
+	    	<!--<p style="font-size: 12px; padding: 0; margin: 5px; line-height: 0">Leave blank for direct payment<br></p>
+	    	<input type="text" min="5" max="5" name="id">-->
+            <input type="checkbox" name="guild" value="g" style="box-shadow: none;">
+    		<h5>Image</h5>
+    		<select class="img_upload" name="img">
+    			[[img_opts]]
+    		</select>
+    		<br><br>
+    		<input type="submit" value="Post" class="submit-button" style="width: 100px">
+    	</form>
+    </div>
+</body>
+</html>

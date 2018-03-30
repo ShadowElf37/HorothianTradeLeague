@@ -1,0 +1,131 @@
+@keyframes pulse {
+	0% {
+		text-shadow: #F00 0 0 2px;
+	}
+	50% {
+		text-shadow: #F22 0 0 8px;
+	}
+	100% {
+		text-shadow: #F00 0 0 2px;
+	}
+}
+
+@keyframes popin {
+	0% {
+		opacity: 0.0;
+		top: 0%;
+	}
+	33% {
+		opacity: 0.5;
+	}
+	66% {
+		opacity: 0.8;
+	}
+	100% {
+		opacity: 1.0;
+		top: 30%;
+	}
+}
+
+@keyframes darkness-popin {
+	0% {
+		opacity: 0.0;
+	}
+	100%{
+		opacity: 0.5;
+	}
+}
+
+.product{
+	position: absolute;
+	top: 0%;
+	padding: 10px 0px;
+	color: white;
+	font-size: 26px;
+	text-align: center;
+	width: 100%;
+}
+
+.price{
+	position: absolute;
+	bottom: 0%;
+	padding: 10px 0px;
+	color: #FFF;
+	animation: pulse 5s infinite ease-in-out;
+	font-size: 44px;
+	text-align: center;
+	width: 100%;
+}
+
+.dark-overlay{
+	width: 100%;
+	height: 100%;
+	background: #111;
+	opacity: 0.5;
+	position: absolute;
+	top: 0%;
+	transition-duration: inherit;
+}
+
+.sale{
+    width: 280px;
+    height: 280px;
+    text-align: left;
+    display: inline-block;
+    background-color: #DDD;
+    position: relative;
+    transition-duration: 0.25s;
+    overflow: hidden;
+    margin: 20px;
+}
+
+.sale img{
+	width: 100%;
+	height: 100%;
+	filter: blur(1px);
+}
+
+#list{
+	border-top: 1px solid #D7D7D7;
+	margin-top: 15px;
+	padding-top: 0px;
+}
+
+#list a{
+	text-decoration: none;
+}
+
+.popup {
+	color: black;
+	background: white;
+	border-radius: 5px;
+	width: 500px;
+	height: 200px;
+	position: absolute;
+	top: 30%;
+	box-shadow: 0 0 5px #E12;
+	padding: 10px;
+	text-align: center;
+	left: 30%; /*HOW DO YOU CENTER IT AGH*/
+	font-size: 18px;
+	animation: popin 0.8s 1 ease-in-out;
+}
+
+.popup *{
+	animation: popin 0.8s 1 ease-in-out;
+}
+
+.popup button{
+	width: 150px;
+	margin: 10px;
+	margin-top: 125px;
+	display: inline-block;
+}
+
+.darkness {
+	opacity: 0.5;
+	animation: darkness-popin 0.7s 1 ease-in-out;
+	background: black;
+	width: 100%;
+	height: 100vh;
+}

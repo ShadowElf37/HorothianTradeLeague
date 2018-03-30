@@ -188,3 +188,14 @@ BETA v0.2.0.0
 
 BETA v0.2.0.1
     - Hunt submission page and action
+
+#------------------# (3/30/18)
+
+BETA v0.2.1.0
+    - Account hunt counters work now
+    - Created market page
+    - Created class Sale
+    - Added function in Request to automatically replace + in post
+    - Created sale post action and page
+    - Created sale action and popup
+    - Fixed bugs with tax tracking

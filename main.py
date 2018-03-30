@@ -32,6 +32,7 @@ Thread(target=infinite_file).start()
 whitelist = open('conf/whitelist.cfg', 'r').read().split('\n')
 accounts, groups = load_users()
 hunts = [h for a in accounts for h in a.my_hunts]
+sales = [s for a in accounts for s in a.my_sales]
 pm_group = groups[0]
 lib.bootstrapper.accounts = accounts  # Not sure why this is necessary, but the funcs in there can't handle main's vars
 lib.bootstrapper.groups = groups
@@ -331,6 +332,7 @@ def handle(self, conn, addr, request):
 
             acnt = hunt.participant_ids[tid]
             if acnt not in hunt.paid:
+                acnt.total_hunts += 1
                 hunt.paid.append(acnt)
                 tax = hunt.reward * (hunt.creator.coalition.tax if not hunt.creator.coalition == acnt.coalition else hunt.creator.coalition.internal_tax)
                 amt = hunt.reward - tax
@@ -344,6 +346,7 @@ def handle(self, conn, addr, request):
                 client.transaction_history.append('(Hunt) &#8354;{0} rewarded to {1}|&#8354;{2}|3{3}|{4}'.format(
                     '%.2f' % amt, acnt.get_name(), '%.2f' % tax if tax != 0 else 'EXEMPT', tid, time.strftime('%X - %x')
                 ))
+                get_account_by_id('0099').transaction_history.append('Tax income of &#8354;{0} from {1} -> {2}|EXEMPT|7{3}|{4}'.format(round(taxed, 2), client.get_name(), acnt.get_name(), tid, time.strftime('%X - %x')))
                 CB.pay(tax, get_account_by_id('0099'))
                 response.set_status_code(303, location='h-{}'.format(hid))
             else:
@@ -358,10 +361,27 @@ def handle(self, conn, addr, request):
                 error = self.throwError(1, 'e', request.get_last_page(), response=response)
                 self.log.log(addr[0], '- Client requested non-existent hunt.', lvl=Log.ERROR)
                 return
-
             response.attach_file('hunt_edit.html', nb_page='hunts.html', hid=hid, name=hunt.title, link=hunt.link, desc=hunt.desc)
+        
         elif request.address[0] == 'hunt_submit.html':
             response.attach_file('hunt_submit.html', nb_page='account.html')
+
+        elif request.address[0] == 'market.html':
+            s = ["""<a href="javascript:purchase({0})"><div class="sale">
+                    <img src="{1}">
+                    <div class="dark-overlay"></div>
+                    <div class="product">{2}</div>
+                    <div class="price">&#8354;{3}</div>
+                </div></a>""".format(s.id, s.img, s.name, '%.2f' % s.cost) for s in sales if not s.sold]
+            response.attach_file('market.html', nb_page='account.html',
+                sales='\n'.join(s) if s else '<span class="empty-msg">It\'s an open market!</span>')
+        elif request.address[0] == 'post_sale.html':
+            img_opts = open('conf/clt_img.cfg').read().split('\n')
+            opts = ['<option value="{}">{}</option>'.format(*line.split('|')) for line in img_opts]
+            response.attach_file('post_sale.html', nb_page='account.html', img_opts='\n'.join(list(opts)))
+        elif request.address[0] == 'market.js':
+            data = ['"{}":["{}", "{}", "{}"]'.format(s.id, s.name, s.cost, s.seller.get_name()) for s in sales]
+            response.attach_file('market.js', data='{'+','.join(data)+'}', bal=int(client.balance))
 
 
         # ACTIONS
@@ -403,8 +423,11 @@ def handle(self, conn, addr, request):
 
                 elif client is hunt.creator:  # End
                     hunt.end()
+                    for acnt in hunt.participants+hunt.completers:
+                        acnt.active_hunts -= 1
                     response.set_status_code(303, location='/hunts.html')
                 else:  # Join
+                    client.active_hunts += 1
                     hunt.join(client)
                     response.set_status_code(303, location='/h-'+hunt.id)
 
@@ -483,6 +506,48 @@ def handle(self, conn, addr, request):
                     client.coalition.budget += client.coalition.credit[client]
                     client.coalition.credit[client] = 0
                 response.set_status_code(303, location='coalitions.html')
+
+            elif request.address[0][:4] == 'buy-':
+                id = request.address[0][4:].split('.')[0]
+                print('#', id)
+                for s in sales:
+                    print('@', s.id)
+                    print('!', s.sold)
+                    print('$', s.id == id)
+                sale = next(s for s in sales if s.id.strip() == id.strip() and not s.sold)
+                seller = sale.seller
+                buyer = client
+                guild = sale.guild
+                tax = sale.cost * seller.coalition.tax
+                
+                if buyer.balance < sale.cost:
+                    error = self.throwError(18, 'a', request.get_last_page(), response=response)
+                    self.log.log(addr[0], '- Client tried to buy something in the market without enough money.', lvl=Log.ERROR)
+                    return
+                elif sale.guild != '':
+                    sale.guild.budget += sale.cost - tax
+                    buyer.balance -= sale.cost
+                else:
+                    buyer.pay(sale.cost, seller)
+
+                tid = '4'+str(random.randint(10**10, 10**11-1))
+                CB.pay(tax, get_account_by_id('0099'))
+                get_account_by_id('0099').transaction_history.append('Tax income of &#8354;{0} from {1} -> {2}|EXEMPT|{3}|{4}'.format(round(taxed, 2), seller.get_name(), buyer.get_name(), tid, time.strftime('%X - %x')))
+                buyer.transaction_history.append(
+                    '&#8354;{0} payed to {1} for {5}|&#8354;{2}|3{3}|{4}'.format(round(sale.cost, 2), buyer.get_name(),
+                                                                        round(tax, 2) if tax != 0 else 'EXEMPT', tid,
+                                                                        time.strftime('%X - %x'), sale.name))
+                seller.transaction_history.append(
+                    '{1} payed you &#8354;{0} for {5}|&#8354;{2}|3{3}|{4}'.format(round(sale.cost, 2), seller.get_name(),
+                                                                        round(tax, 2) if tax != 0 else 'EXEMPT', tid,
+                                                                        time.strftime('%X - %x'), sale.name))
+
+                record_transaction(self, buyer.id, seller.id if not guild else guild.id, tid, sale.cost - tax, tax)
+                CB.send_message('Sale of '+sale.name, '{} has purchased your product {}! You may have to physically give them an item.'.format(buyer.get_name(), sale.name), seller)
+                CB.send_message('Sale of '+sale.name, 'Here\'s confirmation of your purchase of {} for Cr{}. You can report dishonesty in a Court Appeal if you do not receive your product in a timely manner.'.format(sale.name, sale.cost), buyer)
+                sale.sold = True
+
+                response.set_status_code(303, location="market.html")
             else:
                 # Proper error handling
                 error = self.throwError(2, 'a', request.get_last_page(), response=response)
@@ -930,6 +995,19 @@ def handle(self, conn, addr, request):
             client.my_hunts.append(h)
             hunts.append(h)
             response.set_status_code(303, location='h-'+h.id)
+
+        elif request.address[0] == 'post_sale.act':
+            name = request.get_post('name')
+            price = float(request.get_post('price'))
+            img = request.get_post('img')
+            guild = request.get_post('guild')
+
+            s = Sale(client, price, name, img)
+            s.guild = '' if not guild or not isinstance(client.coalition, Guild) else client.coalition
+            client.my_sales.append(s)
+            sales.append(s)
+            response.set_status_code(303, location='market.html')
+
 
 
     # Adds an error, sets page cookie (that thing that lets you go back if error), and sends the response off

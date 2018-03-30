@@ -212,6 +212,9 @@ class Request:
     def get_last_page(self):
         return self.flags.get('Referer', self.get_cookie('page'))
 
+    def get_post(self, key):
+        return self.post_values.get(key, '').replace('+', ' ')
+
     @staticmethod
     def parse(request):
         req = request.split('\r\n')

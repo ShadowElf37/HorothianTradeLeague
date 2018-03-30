@@ -1,0 +1,1 @@
+print(get_account_by_id('0099').balance)
