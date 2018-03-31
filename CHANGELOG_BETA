@@ -191,7 +191,7 @@ BETA v0.2.0.1
 
 #------------------# (3/30/18)
 
-BETA v0.2.1.0
+BETA v0.2.1.0 (3/30/18)
     - Account hunt counters work now
     - Created market page
     - Created class Sale
@@ -199,3 +199,6 @@ BETA v0.2.1.0
     - Created sale post action and page
     - Created sale action and popup
     - Fixed bugs with tax tracking
+
+BETA v0.2.1.1 (3/30/18)
+    - Console color coding and font styles

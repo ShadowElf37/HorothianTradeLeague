@@ -46,7 +46,7 @@ FINAL PRODUCT:
     3. Dynamic SID?
     4. Try to catch serious html-edit exploits
     5. Test EVERYTHING together
-    6. Escape the JS funny escapes - it does like %20 instead of &#x20;
+    6. Escape more of the JS funny escapes - it does like %20 instead of &#x20;
 
     BACKEND
     1. Organize pages into folders
