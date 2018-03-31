@@ -1,4 +1,15 @@
 var IOCN_TYPE = "span";
+var IOCN_STYLE = {
+    'b': {fontWeight: "bold"},
+    'i': {fontStyle: "italic"},
+    'u': {textDecoration: "underline"},
+    'c': {},
+    'C': {}
+};
+var IOCN_FMTS = {
+    'c': "color",
+    'C': "backgroundColor"
+};
 
 /***
   * IOConsole interface:
@@ -11,6 +22,9 @@ var IOCN_TYPE = "span";
     * .call(func, args): calls the function w/ args `args`
     * .prompt(): return the current prompt for the console
   * the console has output functions print() and println(), pass UTF-8 strings please
+  * console function .clrfmt() clears formatting
+  * .format(str, ...) emits formatting, where str has CSS as described in IOCN_STYLE, and any character in IOCN_FMTS has the corresponding property set to the next argument to fmt
+  * Example: .format('bC', '#aaaaaa') makes any following text bold and gray
 ***/
 
 function CHistory(max) {
@@ -47,14 +61,16 @@ function IOConsole(caller, outnode, container) {
     if(!outnode)
         throw "Invalid outnode!";
     this.caller = caller;
-    this.outnode = outnode;
-    this.container = container || this.outnode; 
+    this.container = container || outnode; 
     
     this.input = document.createElement(IOCN_TYPE);
     this.input.contentEditable = "true";
     this.input.autofocus = true;
     this.input.focus();
-    this.outnode.appendChild(this.input);
+    
+    this.outputter = new Outputter(outnode, this.input);
+    this.caller.console(this.outputter);
+    this.outputter.print(this.caller.prompt());
     
     this.history = new CHistory(1000);
     
@@ -66,8 +82,6 @@ function IOConsole(caller, outnode, container) {
         if(self.container.contains(ev.target))
             self.input.focus();
     });
-    this.caller.console(this);
-    this.print(this.caller.prompt());
 }
 IOConsole.prototype.onkey = function(ev) {
     if(!this.container.contains(ev.target))
@@ -78,11 +92,11 @@ IOConsole.prototype.onkey = function(ev) {
     
     switch(ev.key) {
     case "Enter":
-        this.println(text);
+        this.outputter.println(text);
         this.history.commit(text);
         if(cmd)
             this.caller.call(cmd, args);
-        this.print(this.caller.prompt());
+        this.outputter.print(this.caller.prompt());
         this.input.innerHTML = "";
         ev.preventDefault();
         break;
@@ -98,14 +112,20 @@ IOConsole.prototype.onkey = function(ev) {
     return false;
 }
 
-IOConsole.prototype._newline = function(c) {
+function Outputter(outn, input) {
+    this.outnode = outn;
+    this.input = input;
+    this._chfn();
+}
+
+Outputter.prototype._newline = function(c) {
     c.appendChild(document.createElement('br'));
 }
-IOConsole.prototype._print = function(c, str) {
+Outputter.prototype._print = function(c, str) {
     if(str)
         c.appendChild(document.createTextNode(str));
 }
-IOConsole.prototype.print = function(str) {
+Outputter.prototype.print = function(str) {
     if(!str)
         return;
     var child = document.createElement(IOCN_TYPE);
@@ -115,8 +135,39 @@ IOConsole.prototype.print = function(str) {
         this._newline(child);
         this._print(child, lines[i]);
     }
-    this.outnode.insertBefore(child, this.input);
+    this.fnode.insertBefore(child, this.input);
 }
-IOConsole.prototype.println = function(str) {
+Outputter.prototype.println = function(str) {
     this.print((str || "") + '\n');
+}
+Outputter.prototype._chfn = function(fn) {
+    this.fnode = document.createElement(IOCN_TYPE);
+    this.outnode.appendChild(this.fnode);
+    this.fnode.appendChild(this.input);
+}
+
+Outputter.prototype._objcp = function(dest, src) {
+    if(!src || !dest)
+        return;
+    for(var i in src)
+    {
+        console.log(i, src[i]);
+        dest[i] = src[i];
+        console.log(dest[i]);
+    }
+}
+Outputter.prototype.format = function() {
+    var args = Array.prototype.slice.call(arguments);
+    var str = args.shift() || "";
+    this._chfn();
+    for(var i=0;i<str.length;i++)
+    {
+        this._objcp(this.fnode.style, IOCN_STYLE[str[i]]); // deepcopy
+        var interp = IOCN_FMTS[str[i]];
+        if(interp)
+            this.fnode.style[interp] = args.shift();
+    }
+}
+Outputter.prototype.clrfmt = function() {
+    this.format("");
 }
