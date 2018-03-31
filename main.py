@@ -346,7 +346,7 @@ def handle(self, conn, addr, request):
                 client.transaction_history.append('(Hunt) &#8354;{0} rewarded to {1}|&#8354;{2}|3{3}|{4}'.format(
                     '%.2f' % amt, acnt.get_name(), '%.2f' % tax if tax != 0 else 'EXEMPT', tid, time.strftime('%X - %x')
                 ))
-                get_account_by_id('0099').transaction_history.append('Tax income of &#8354;{0} from {1} -> {2}|EXEMPT|7{3}|{4}'.format(round(taxed, 2), client.get_name(), acnt.get_name(), tid, time.strftime('%X - %x')))
+                get_account_by_id('0099').transaction_history.append('Tax income of &#8354;{0} from {1} -> {2}|EXEMPT|7{3}|{4}'.format(round(tax, 2), client.get_name(), acnt.get_name(), tid, time.strftime('%X - %x')))
                 CB.pay(tax, get_account_by_id('0099'))
                 response.set_status_code(303, location='h-{}'.format(hid))
             else:
@@ -509,11 +509,6 @@ def handle(self, conn, addr, request):
 
             elif request.address[0][:4] == 'buy-':
                 id = request.address[0][4:].split('.')[0]
-                print('#', id)
-                for s in sales:
-                    print('@', s.id)
-                    print('!', s.sold)
-                    print('$', s.id == id)
                 sale = next(s for s in sales if s.id.strip() == id.strip() and not s.sold)
                 seller = sale.seller
                 buyer = client
@@ -532,7 +527,7 @@ def handle(self, conn, addr, request):
 
                 tid = '4'+str(random.randint(10**10, 10**11-1))
                 CB.pay(tax, get_account_by_id('0099'))
-                get_account_by_id('0099').transaction_history.append('Tax income of &#8354;{0} from {1} -> {2}|EXEMPT|{3}|{4}'.format(round(taxed, 2), seller.get_name(), buyer.get_name(), tid, time.strftime('%X - %x')))
+                get_account_by_id('0099').transaction_history.append('Tax income of &#8354;{0} from {1} -> {2}|EXEMPT|{3}|{4}'.format(round(tax, 2), seller.get_name(), buyer.get_name(), tid, time.strftime('%X - %x')))
                 buyer.transaction_history.append(
                     '&#8354;{0} payed to {1} for {5}|&#8354;{2}|3{3}|{4}'.format(round(sale.cost, 2), buyer.get_name(),
                                                                         round(tax, 2) if tax != 0 else 'EXEMPT', tid,
