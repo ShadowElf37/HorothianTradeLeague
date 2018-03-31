@@ -99,7 +99,15 @@ def handle(self, conn, addr, request):
         elif request.address[0] == 'account.html':
             account = get_account_by_id(client_id)
             if not account.shell:
-                response.attach_file('account.html')
+                prog = open('conf/progress.cfg', 'r').read().replace(r'%m%', str(len(accounts)-3)).split('\n')
+                progress = []
+                for i in range(len(prog)):
+                    if (prog[i].strip()+' ')[0] not in ('#', ' '):
+                        progress.append('disabled' if not (eval(prog[i].split(':')[1].strip()) >= 1) else '')
+                response.attach_file('account.html',
+                    d1=progress[0], d2=progress[1],
+                    d3=progress[2], d4=progress[3],
+                    d5=progress[4])
             else:
                 response.set_status_code(307, location='/login.html')
 

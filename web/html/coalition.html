@@ -6,6 +6,7 @@
     <link rel="stylesheet" type="text/css" href="general.css">
     <link rel="stylesheet" type="text/css" href="buttons.css">
     <link rel="stylesheet" type="text/css" href="coalition_page.css">
+    <script src="confirmation.js"></script>
 </head>
 <body>
     <img src="white_background.png" class="background-img">
@@ -26,8 +27,8 @@
 	    		<a href="edit_coalition.html"><button class="theme-button" [[d2]]>Edit</button></a><br>
 	    		<a href="clt_pooladd.html"><button class="theme-button" [[d3]]>Add to Pool</button></a>
 	    		<a href="loan.html"><button class="theme-button" [[d4]]>Loan</button></a><br>
-                <a href="clt_transfer_ownership.html" [[d5]]><button class="red-button">Change Owner</button></a>
-	    		<a href="[[disleave]]"><button class="red-button" [[d6]]>[[disleavet]]</button></a>
+                <a href="javascript:confirmRedirect('clt_transfer_ownership.html')" [[d5]]><button class="red-button">Change Owner</button></a>
+	    		<a href="javascript:confirmRedirect('[[disleave]]')"><button class="red-button" [[d6]]>[[disleavet]]</button></a>
     		</div>
     		<br><br>
     		<a href="coalition_list.html">Full coalition list</a>
