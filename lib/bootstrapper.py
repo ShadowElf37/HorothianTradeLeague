@@ -51,8 +51,9 @@ def load_users():
                     central_bank,
                  ]
 
-        for a in users[:-1]:
+        for a in users:
             a.admin = True
+        for a in users[:-1]:
             groups[0].add_member(a)
 
     return users, groups

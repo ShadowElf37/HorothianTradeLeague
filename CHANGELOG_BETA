@@ -207,3 +207,8 @@ BETA v0.2.1.1 (3/30/18)
 BETA v0.2.1.2 (3/31/18)
     - Added confirmation messages to the important buttons of coalition.html and guild.html
     - Account.html buttons are now disabled by progress.cfg status
+
+BETA v0.2.1.3 (3/31/18)
+    - Fixed up home.html
+    - Fixed up about.html
+    - Added faq_content.cfg and some questions

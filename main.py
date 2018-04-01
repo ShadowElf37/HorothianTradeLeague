@@ -91,6 +91,25 @@ def handle(self, conn, addr, request):
         elif request.address[0] == 'news.html':
             response.attach_file('news.html', nb_page='home.html')
 
+        elif request.address[0] == 'faq.html':
+            faq = open("conf/faq_content.cfg", 'r').read().split('\n')
+            questions = {}
+            q = ''
+            for line in faq:
+                if line != '':
+                    if line[0] == '-':
+                        l = line[1:].split('/')
+                        q = '<h6 id="'+l[1].strip()+'">'+l[0].strip()+"</h6>"
+                        questions[q] = ''
+                    else:
+                        questions[q] += '<p>'+line+'</p>'
+
+            faqs = []
+            for q in questions:
+                faqs.append(q+questions[q])
+
+            response.attach_file('faq.html', nb_page='news.html', questions='<br>'.join(faqs))
+
         elif request.address[0] == 'treaty.html':
             response.set_body(client_error_msg('For those of you here in the closed beta: YOU CAN\'T TELL ANYONE ABOUT THIS.\
             <br>Don\'t even mention money or trades with other people around. This isn\'t the time for public advertisement.'))
@@ -103,7 +122,7 @@ def handle(self, conn, addr, request):
                 progress = []
                 for i in range(len(prog)):
                     if (prog[i].strip()+' ')[0] not in ('#', ' '):
-                        progress.append('disabled' if not (eval(prog[i].split(':')[1].strip()) >= 1) else '')
+                        progress.append('disabled' if (not (eval(prog[i].split(':')[1].strip()) >= 1)) and (not client.admin) else '')
                 response.attach_file('account.html',
                     d1=progress[0], d2=progress[1],
                     d3=progress[2], d4=progress[3],

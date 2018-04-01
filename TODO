@@ -25,20 +25,16 @@ FINAL PRODUCT:
     FEATURES
     1. Real news.html
 
-    FUNCTIONALITY
-    1. console.js history and autocomplete
-
     WRITING
     1. Treaty
-    2. Real about.html, home.html
-    3. FAQ
+    2. FAQ
 
-    4. Console commands
-    5. Have dummy file with everyone in school for potential unlocking of the whitelist
-    6. Tooltips, or at least links beside confusing inputs to FAQ and Treaty sections
+    3. Console commands
+    4. Have dummy file with everyone in school for potential unlocking f the whitelist
+    5. Tooltips, or at least links beside confusing inputs to FAQ and Treaty sections
 
-    7. SSL
-    8. Port forward
+    6. SSL
+    7. Port forward
 
     USEABILITY
     1. Improve page CSS and add "aesthetic features"
