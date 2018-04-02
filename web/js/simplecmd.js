@@ -34,11 +34,10 @@ SimpleCmd.prototype.call = function(cmd, args) {
     else
         fetch("http://[[host]]:[[port]]/cmd/" + cmd + '/' + args.join('-')).then(function(response) {
             response.text().then(function(text) {
-                console.log(text);
-                style = text.split('|')[0];
-                color = text.split('|')[1];
-                text = text.split('|')[2];
-                console.log(text);
+                t = text.split('|')
+                style = t[0];
+                color = t[1];
+                text = t[2];
                 self.output.format(style, color);
                 self.output.println(text);
                 self.output.clrfmt();

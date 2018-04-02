@@ -47,3 +47,4 @@ FINAL PRODUCT:
     REFACTOR
     1. Organize pages into folders
     2. Convert the if-else chain of main.py into functions
+    3. Prevent too many requests from one IP to stop brute force
