@@ -12,8 +12,8 @@ body {
     padding: 3px 10px;
     color: #FFF;
     display: inline-block;
-    max-width: 30%;
-    width: 30%;
+    max-width: 60%;
+    width: 60%;
     word-wrap: break-word;
 }
 [contenteditable=true]:empty:before {

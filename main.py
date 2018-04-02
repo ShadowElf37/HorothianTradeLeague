@@ -12,6 +12,7 @@ from lib.account import *
 from lib.boilerplate import *
 from lib.bootstrapper import *
 import lib.bootstrapper
+import console
 import random
 import datetime
 from threading import Thread
@@ -37,6 +38,7 @@ pm_group = groups[0]
 lib.bootstrapper.accounts = accounts  # Not sure why this is necessary, but the funcs in there can't handle main's vars
 lib.bootstrapper.groups = groups
 error = ''
+console = console.Console()
 CB = get_account_by_id('1377')
 
 # test = Hunt(CB, 'HON English Essay Revision', 'I need someone to edit my essay for English please thanks.', '3/15/18', 5, 4, 'http://www.google.com/')
@@ -108,7 +110,7 @@ def handle(self, conn, addr, request):
             for q in questions:
                 faqs.append(q+questions[q])
 
-            response.attach_file('faq.html', nb_page='news.html', questions='<br>'.join(faqs))
+            response.attach_file('faq.html', nb_page='account.html', questions='<br>'.join(faqs))
 
         elif request.address[0] == 'treaty.html':
             response.set_body(client_error_msg('For those of you here in the closed beta: YOU CAN\'T TELL ANYONE ABOUT THIS.\
@@ -689,6 +691,11 @@ def handle(self, conn, addr, request):
             except FileNotFoundError:
                 response.body = "|ERR|"
                 self.log.log(addr[0], '- Client requested non-existent message file.', lvl=Log.ERROR)
+
+        elif request.address[0] == 'cmd':
+            command = request.address[1]
+            args = request.address[2].split('-')
+            response.set_body(console.call(command, args))
 
         # --THIS HANDLES EXTRANEOUS REQUESTS--
         # --PLEASE AVOID BY SPECIFYING MANUAL HANDLE CONDITIONS--
