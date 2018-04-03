@@ -212,3 +212,9 @@ BETA v0.2.1.3 (3/31/18)
     - Fixed up home.html
     - Fixed up about.html
     - Added faq_content.cfg and some questions
+
+BETA v0.2.1.4 (4/3/18)
+    - Created class Console, Format, File in console.py
+    - Created many Console commands and progression
+    - Created folder console_files
+    - Console requests are now sent to server

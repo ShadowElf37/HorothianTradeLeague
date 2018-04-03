@@ -23,7 +23,7 @@ Alwinfy
 HERMES
 ==============
 Alwinfy,
- I know rot isn't the strongest cipher, but for our purposes it should be fine, right?
+ U wzai daf uez'f ftq efdazsqef oubtqd, ngf rad agd bgdbaeqe uf etagxp nq ruzq, dustf
 Yovel
 
 3/30/18
@@ -37,12 +37,12 @@ Alwinfy
 HERMES
 ==============
 Alwinfy,
- Alright cryptoboi, does this work for you?
+ 29041a010f001c480b1a11181c070a070144480c070d1b481c00011b481f071a03480e071a4811071d574821481f09061c481c07480a0d48090a040d481c07481b0d0d481d1b0d1a0609050d444818091b1b1f071a0c44480a090409060b0d44480b070904011c010706444809060c480509110a0d4805071a0d481c00091c4f1b4806071c480106483a2d2f213b3c3a3146
 Yovel
 
 3/31/18
 HERMES
 ==============
 Yovel,
- Xor is fine, I guess. It's pretty reversible though. Whatever, no one will guess that we used it. The command 'hermes' should allow you to view everyone's account information in the console.
+ Xor is fine, I guess. It's pretty reversible though. Whatever, no one will guess that we used it. The command 'hermes' should allow you to view everyone's account information in the console. Passwords are encrypted.
 Alwinfy

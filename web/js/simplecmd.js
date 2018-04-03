@@ -32,7 +32,7 @@ SimpleCmd.prototype.call = function(cmd, args) {
                 t = text.split('|')
                 style = t[0];
                 color = t[1];
-                text = t[2].split('\n');
+                text = t.slice(2).join('|').split('\n');
                 self.output.format(style, color);
                 for (i=0; i<text.length; i++){
                     self.output.println(text[i]);
