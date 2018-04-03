@@ -38,7 +38,7 @@ pm_group = groups[0]
 lib.bootstrapper.accounts = accounts  # Not sure why this is necessary, but the funcs in there can't handle main's vars
 lib.bootstrapper.groups = groups
 error = ''
-console = console.Console()
+consoles = dict()
 CB = get_account_by_id('1377')
 
 # test = Hunt(CB, 'HON English Essay Revision', 'I need someone to edit my essay for English please thanks.', '3/15/18', 5, 4, 'http://www.google.com/')
@@ -692,10 +692,18 @@ def handle(self, conn, addr, request):
                 response.body = "|ERR|"
                 self.log.log(addr[0], '- Client requested non-existent message file.', lvl=Log.ERROR)
 
+        # CONSOLE COMMANDS
         elif request.address[0] == 'cmd':
+            cons = consoles[addr[0]]
             command = request.address[1]
             args = request.address[2].split('-')
-            response.set_body(console.call(command, args))
+
+            response.set_body(cons.call(command, args))
+
+        elif request.address[0] == 'console.html':
+            consoles[addr[0]] = console.Console(accounts)
+            response.attach_file('console.html')
+
 
         # --THIS HANDLES EXTRANEOUS REQUESTS--
         # --PLEASE AVOID BY SPECIFYING MANUAL HANDLE CONDITIONS--

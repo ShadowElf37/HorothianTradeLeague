@@ -2,11 +2,6 @@ function SimpleCmd() {
     this.output = null;
     this.helpstr = "Type help for help.";
     this.functions = {
-        "help": function(args) {
-            this.output.println("Commands:");
-            this.output.println("help - this");
-            this.output.println("kill - kill <arg>");
-        },
         "kill": function(args) {
             this.output.format('bic', '#ff0000');
             this.output.println("You just killed " + (args.join(' ') || 'yourself') + '!');
@@ -37,9 +32,11 @@ SimpleCmd.prototype.call = function(cmd, args) {
                 t = text.split('|')
                 style = t[0];
                 color = t[1];
-                text = t[2];
+                text = t[2].split('\n');
                 self.output.format(style, color);
-                self.output.println(text);
+                for (i=0; i<text.length; i++){
+                    self.output.println(text[i]);
+                }
                 self.output.clrfmt();
             });
         });

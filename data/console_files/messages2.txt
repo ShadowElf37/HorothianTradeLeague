@@ -1,0 +1,48 @@
+3/29/18
+HERMES
+==============
+Yovel,
+ Hey so I have an idea about where to store the passwords and stuff - like since we can't just have them accessible in the normal file system. In fact the rest of our messages should be behind the unlock-wall from now on, since were going to discuss SENSITIVE matters. The passwords, I mean. They should be encrypted and unlisted. We can't be able to access them either, so the encryption should be one-way.
+Alwinfy
+
+3/30/18
+HERMES
+==============
+Alwinfy,
+ We could encrypt all communication from now on too. We could also use the same encryption for the passwords once we find one we like. You should be able to break the cipher and see future messages on your own. We like a little challenge, right? :)
+Yovel
+
+3/30/18
+HERMES
+==============
+Yovel,
+ Pick your encryption then.
+Alwinfy
+
+3/30/18
+HERMES
+==============
+Alwinfy,
+ I know rot isn't the strongest cipher, but for our purposes it should be fine, right?
+Yovel
+
+3/30/18
+HERMES
+==============
+Yovel,
+ Oh ABSOLUTELY not. That is so embarassing.
+Alwinfy
+
+3/30/18
+HERMES
+==============
+Alwinfy,
+ Alright cryptoboi, does this work for you?
+Yovel
+
+3/31/18
+HERMES
+==============
+Yovel,
+ Xor is fine, I guess. It's pretty reversible though. Whatever, no one will guess that we used it. The command 'hermes' should allow you to view everyone's account information in the console.
+Alwinfy

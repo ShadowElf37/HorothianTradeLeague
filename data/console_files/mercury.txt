@@ -1,0 +1,87 @@
+78           0 SETUP_EXCEPT            99 (to 102)
+
+ 79           3 LOAD_FAST                0 (self)
+              6 LOAD_ATTR                0 (state)
+              9 LOAD_CONST               1 ('logged_in_special')
+             12 BINARY_SUBSCR
+             13 POP_JUMP_IF_FALSE       25
+             16 LOAD_FAST                0 (self)
+             19 LOAD_ATTR                1 (functions_special)
+             22 JUMP_FORWARD            28 (to 53)
+        >>   25 LOAD_FAST                0 (self)
+             28 LOAD_ATTR                0 (state)
+             31 LOAD_CONST               2 ('logged_in_admin')
+             34 BINARY_SUBSCR
+             35 POP_JUMP_IF_FALSE       47
+             38 LOAD_FAST                0 (self)
+             41 LOAD_ATTR                2 (functions_admin)
+             44 JUMP_FORWARD             6 (to 53)
+        >>   47 LOAD_FAST                0 (self)
+             50 LOAD_ATTR                3 (functions_normal)
+        >>   53 LOAD_FAST                1 (name)
+             56 BINARY_SUBSCR
+             57 LOAD_FAST                2 (args)
+             60 CALL_FUNCTION_VAR        0 (0 positional, 0 keyword pair)
+             63 STORE_FAST               3 (output)
+
+ 80          66 LOAD_FAST                0 (self)
+             69 LOAD_ATTR                4 (format)
+             72 LOAD_ATTR                5 (cpl)
+             75 CALL_FUNCTION            0 (0 positional, 0 keyword pair)
+             78 STORE_FAST               4 (fmt)
+
+ 81          81 LOAD_GLOBAL              6 (WHITE)
+             84 LOAD_FAST                0 (self)
+             87 STORE_ATTR               4 (format)
+
+ 82          90 LOAD_FAST                4 (fmt)
+             93 LOAD_FAST                3 (output)
+             96 BINARY_ADD
+             97 RETURN_VALUE
+             98 POP_BLOCK
+             99 JUMP_FORWARD            79 (to 181)
+
+ 83     >>  102 DUP_TOP
+            103 LOAD_GLOBAL              7 (KeyError)
+            106 COMPARE_OP              10 (exception match)
+            109 POP_JUMP_IF_FALSE      141
+            112 POP_TOP
+            113 POP_TOP
+            114 POP_TOP
+
+ 84         115 LOAD_GLOBAL              8 (RED)
+            118 LOAD_ATTR                5 (cpl)
+            121 CALL_FUNCTION            0 (0 positional, 0 keyword pair)
+            124 LOAD_CONST               3 ("Unknown command '")
+            127 BINARY_ADD
+            128 LOAD_FAST                1 (name)
+            131 BINARY_ADD
+            132 LOAD_CONST               4 ("'. Type 'help' for a list of available commands.")
+            135 BINARY_ADD
+            136 RETURN_VALUE
+            137 POP_EXCEPT
+            138 JUMP_FORWARD            40 (to 181)
+
+ 85     >>  141 DUP_TOP
+            142 LOAD_GLOBAL              9 (IndexError)
+            145 COMPARE_OP              10 (exception match)
+            148 POP_JUMP_IF_FALSE      180
+            151 POP_TOP
+            152 POP_TOP
+            153 POP_TOP
+
+ 86         154 LOAD_GLOBAL              8 (RED)
+            157 LOAD_ATTR                5 (cpl)
+            160 CALL_FUNCTION            0 (0 positional, 0 keyword pair)
+            163 LOAD_CONST               5 ("Invalid parameters for command '")
+            166 BINARY_ADD
+            167 LOAD_FAST                1 (name)
+            170 BINARY_ADD
+            171 LOAD_CONST               6 ("'.")
+            174 BINARY_ADD
+            175 RETURN_VALUE
+            176 POP_EXCEPT
+            177 JUMP_FORWARD             1 (to 181)
+        >>  180 END_FINALLY
+        >>  181 LOAD_CONST               0 (None)
+            184 RETURN_VALUE
