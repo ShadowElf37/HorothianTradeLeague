@@ -264,10 +264,10 @@ class Console:
         id1, id2, amt = args
         a1 = [a for a in self.accounts if a.id == id1][0]
         a2 = [a for a in self.accounts if a.id == id2][0]
-        amt = int(amt)
+        amt = float(amt)
         a1.balance -= amt
         a2.balance += amt
-        return 'Forced transaction. %s: %.2f > %.2f, %s: %.2f > %.2f' % (id1, a1.balance+amt, a1.balance, id2, id2.balance-amt, id2.balance)
+        return 'Forced transaction. %s: %s > %s, %s: %s > %s' % (id1, str(a1.balance+amt), str(a1.balance), id2, str(a2.balance-amt), str(a2.balance))
 
     def shutdown(self, *args):
         return 'Not yet.'
