@@ -86,7 +86,11 @@ function IOConsole(caller, outnode, container) {
 }
 IOConsole.prototype.onkey = function(ev) {
     if(!this.container.contains(ev.target) || this.awaiting)
+    {
+        if(this.awaiting)
+            ev.preventDefault();
         return false;
+    }
     var text = this.input.innerText;
     var args = text.replace(/^\s+|\s+$/g, "").split(/\s+/);
     var cmd = args.shift();
@@ -97,8 +101,8 @@ IOConsole.prototype.onkey = function(ev) {
         this.history.commit(text);
         if(cmd)
         {
-            this.input.innerHTML = "";
             this.awaiting = true;
+            this.input.innerHTML = "&#8203";
             this.caller.call(cmd, args);
         }
         ev.preventDefault();
@@ -116,6 +120,7 @@ IOConsole.prototype.onkey = function(ev) {
 }
 IOConsole.prototype.finish = function() {
     this.awaiting = false;
+    this.input.innerHTML = "";
     this.outputter.print(this.caller.prompt());
     this.input.focus();
 }
