@@ -91,7 +91,18 @@ def handle(self, conn, addr, request):
                 response.set_status_code(307, location='/news.html')
 
         elif request.address[0] == 'news.html':
-            response.attach_file('news.html', nb_page='home.html')
+            news = []
+            lines = open('conf/news.cfg').read().split('\n')
+            for l in lines:
+                if l[0] == '-':
+                    print(*l[1:].split('/'))
+                    n = """<div class="story">
+                    <img src="{1}" alt="img">
+                    <div class="dark-overlay"></div>
+                    <span class="title">{0}</span>
+                    </div>""".format(*l[1:].split('/'))
+                    news.append(n)
+            response.attach_file('news.html', nb_page='home.html', stories='<br>'.join(news))
 
         elif request.address[0] == 'faq.html':
             faq = open("conf/faq_content.cfg", 'r').read().split('\n')
