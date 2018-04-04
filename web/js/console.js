@@ -61,11 +61,12 @@ function IOConsole(caller, outnode, container) {
     if(!outnode)
         throw "Invalid outnode!";
     this.caller = caller;
-    this.container = container || outnode; 
+    this.container = container || outnode;
     
     this.input = document.createElement(IOCN_TYPE);
     this.input.contentEditable = "true";
     this.input.autofocus = true;
+    this.input.innerHTML = "&#8203;";
     this.input.focus();
     
     this.outputter = new Outputter(outnode, this.input);
@@ -86,7 +87,7 @@ function IOConsole(caller, outnode, container) {
 IOConsole.prototype.onkey = function(ev) {
     if(!this.container.contains(ev.target))
         return false;
-    var text = this.input.innerText;
+    var text = this.input.innerText.replace(String.fromCharCode(8203), '');
     var args = text.replace(/^\s+|\s+$/g, "").split(/\s+/);
     var cmd = args.shift();
     
@@ -94,10 +95,14 @@ IOConsole.prototype.onkey = function(ev) {
     case "Enter":
         this.outputter.println(text);
         this.history.commit(text);
-        if(cmd)
-            this.caller.call(cmd, args);
-        this.outputter.print(this.caller.prompt());
-        this.input.innerHTML = "";
+        if(cmd){
+            this.caller.call(cmd, args, this.input);
+        }
+        else {
+            this.outputter.print(this.caller.prompt());
+            this.input.innerHTML = "&#8203;";
+            this.input.focus();
+        }
         ev.preventDefault();
         break;
     case "ArrowDown":

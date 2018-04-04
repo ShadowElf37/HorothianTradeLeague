@@ -21,12 +21,16 @@ SimpleCmd.prototype.console = function(o) {
 SimpleCmd.prototype.def = function(cmd, args) {
     this.output.println("Unknown command " + cmd + ". " + this.helpstr);
 }
-SimpleCmd.prototype.call = function(cmd, args) {
+SimpleCmd.prototype.call = function(cmd, args, input) {
+    this.waiting = true;
     var func = this.functions[cmd];
     var self = this;
-    if(func)
+    this.input = input;
+    if(func) {
         func.call(this, args);
-    else
+        }
+    else {
+        this.input.contentEditable = "false";
         fetch("http://[[host]]:[[port]]/cmd/" + cmd + '/' + args.join('-')).then(function(response) {
             response.text().then(function(text) {
                 t = text.split('|')
@@ -38,7 +42,13 @@ SimpleCmd.prototype.call = function(cmd, args) {
                     self.output.println(text[i]);
                 }
                 self.output.clrfmt();
+                self.output.print(self.prompt());
+                self.input.contentEditable = "true";
+                self.input.innerHTML = "&#8203;";
+                self.input.focus();
             });
         });
+
+    }
         //this.def(cmd, args);
 }

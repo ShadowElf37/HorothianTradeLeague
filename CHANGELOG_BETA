@@ -221,3 +221,6 @@ BETA v0.2.1.4 (4/3/18)
 
 BETA v0.2.1.5 (4/3/18)
     - Created several new Console commands, most of which are for admin
+
+BETA v0.2.1.6 (4/4/18)
+    - Fixed an issue where the console prompt would appear before command output
