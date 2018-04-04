@@ -27,7 +27,12 @@ SimpleCmd.prototype.call = function(cmd, args, input) {
     var self = this;
     this.input = input;
     if(func) {
+        self.output.println(cmd + ' ' + args.join(' '));
         func.call(this, args);
+        self.output.print(self.prompt());
+        self.input.contentEditable = "true";
+        self.input.innerHTML = "&#8203;";
+        self.input.focus();
         }
     else {
         this.input.contentEditable = "false";
@@ -37,6 +42,7 @@ SimpleCmd.prototype.call = function(cmd, args, input) {
                 style = t[0];
                 color = t[1];
                 text = t.slice(2).join('|').split('\n');
+                self.output.println(cmd + ' ' + args.join(' '));
                 self.output.format(style, color);
                 for (i=0; i<text.length; i++){
                     self.output.println(text[i]);

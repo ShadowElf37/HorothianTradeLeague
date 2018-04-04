@@ -26,8 +26,7 @@ FINAL PRODUCT:
     1. Real news.html
 
     WRITING
-    1. Console commands; fix prompt
-    2. Tooltips, or at least links beside confusing inputs to FAQ and Treaty sections
+    1. Tooltips, or at least links beside confusing inputs to FAQ and Treaty sections
 
     USEABILITY
     1. Improve page CSS and add "aesthetic features"
@@ -45,5 +44,6 @@ FINAL PRODUCT:
 LAUNCH:
     1. Treaty
     2. FAQ
-    3. SSL
-    4. Port forward
+    3. Console commands
+    4. SSL
+    5. Port forward

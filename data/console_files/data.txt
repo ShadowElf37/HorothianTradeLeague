@@ -1,4 +1,4 @@
-Yovel Key-Cohen{admin}
-Miles Goldstein{user,group=4,contact=}
-Max Rothfeder  {user,group=1,contact=}
+Yovel Key-Cohen {admin}
+Miles Goldstein {t4-498-f-001-43-b0,cnc}
+Max Rothfeder {t1-498-f-002-b1,cnc}
 Alwi

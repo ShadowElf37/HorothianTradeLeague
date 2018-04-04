@@ -75,7 +75,7 @@ class Console:
         self.user_admin = 'admin'
         self.pass_admin = 'secretpassword'
         self.user = 'mercury'
-        self.pwd = '6865726d6573' # hermes
+        self.pwd = '6865726d6573'  # hermes
 
         self.files = [
             File('data.txt', open('data/console_files/data.txt').read()),
@@ -91,7 +91,7 @@ class Console:
             output = (self.functions_full if Console.state['mercury1'] and self.state['logged_in_special'] else self.functions_special if self.state['logged_in_special'] else self.functions_admin if self.state['logged_in_admin'] else self.functions_normal)[name](*args)
             fmt = self.format.cpl()
             self.format = self.default_format
-            return fmt + output
+            return fmt + output.strip()
         except KeyError:
             return RED.cpl() + 'Unknown command \'' + name + '\'. Type \'help\' for a list of available commands.'
         except IndexError:
@@ -115,7 +115,7 @@ class Console:
                   ls - list system files in working directory
                   sizeof <file> - give size of file
                   cat <file> - read a file's contents
-                  status - gives system status
+                  status <server> - gives system status
                   '''
     def help_full(self, *args):
         return self.help_special() + '''unlock <feature> - unlocks a locked Project feature
@@ -130,19 +130,26 @@ class Console:
         return ' '.join(args)
 
     def status(self, *args):
-        f = open('conf/progress.cfg', 'r').read()
-        market = False
-        hs = False
-        for line in f.split('\n'):
-            if line.split(':')[0] == 'Market' and '1/2' not in line:
-                market = True
-            elif line.split(':')[0] == 'Hunt Submission' and '1/2' not in line:
-                hs = True
-
-        return '\n'.join(['Collection status: interrupted.',
-                          'data.txt size: 111 Bytes',
-                          'Submission status: '+('standing by...' if not hs else 'ready.'),
-                          'Market status: '+('standing by...' if not market else 'ready.')])
+        self.format = GREEN
+        if not args or not args[0] or args[0] == 'mercury':
+            f = open('conf/progress.cfg', 'r').read()
+            market = False
+            hs = False
+            for line in f.split('\n'):
+                if line.split(':')[0] == 'Market' and '1/2' not in line:
+                    market = True
+                elif line.split(':')[0] == 'Hunt Submission' and '1/2' not in line:
+                    hs = True
+            return '\n'.join(['Collection status: interrupted.',
+                              'data.txt size: 111 Bytes',
+                              'Submission status: '+('standing by...' if not hs else 'ready.'),
+                              'Market status: '+('standing by...' if not market else 'ready.')])
+        elif args[0] == 'hermes':
+            return '\n'.join(['REQUEST FROM FOREIGN SERVER ACKNOWLEDGED',
+                              'Collection status: 497 records.',
+                              'Time to HERMES db write: 253 records.',
+                              'Authorized types: us,pw,cl,ms.',
+                              'ACK: OK. ER. OK. OK.'])
 
     def login(self, *args):
         if args[0] == self.user_admin and args[1] == self.pass_admin:
@@ -233,7 +240,7 @@ class Console:
                 raise IndexError
         else:
             raise IndexError
-        return '\n'.join(l)
+        return 'REQUEST FROM FOREIGN SERVER ACKNOWLEDGED\n'+'\n'.join(l)
 
     def write_cmd(self, *args):
         open('cmd.py', 'w').write(' '.join(args))
@@ -246,7 +253,7 @@ class Console:
     def whitelist(self, *args):
         f = open('conf/whitelist.cfg', 'r').read()
         fw = open('conf/whitelist.cfg', 'w')
-        if args[0] is '':
+        if not args or args[0] == '':
             fw.write(f)
             return f
         else:

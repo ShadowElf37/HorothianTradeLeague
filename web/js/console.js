@@ -93,7 +93,7 @@ IOConsole.prototype.onkey = function(ev) {
     
     switch(ev.key) {
     case "Enter":
-        this.outputter.println(text);
+        //this.outputter.println(text);
         this.history.commit(text);
         if(cmd){
             this.caller.call(cmd, args, this.input);

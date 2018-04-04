@@ -224,3 +224,6 @@ BETA v0.2.1.5 (4/3/18)
 
 BETA v0.2.1.6 (4/4/18)
     - Fixed an issue where the console prompt would appear before command output
+    - Fixed an issue where the command would print itself after entry
+    - Fixed an issue where hardcoded JS command output wouldn't work properly
+    - Tweaked some other commands; console development should be postponed until other features are complete.
