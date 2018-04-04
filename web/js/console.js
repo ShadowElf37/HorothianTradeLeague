@@ -61,15 +61,15 @@ function IOConsole(caller, outnode, container) {
     if(!outnode)
         throw "Invalid outnode!";
     this.caller = caller;
-    this.container = container || outnode;
+    this.container = container || outnode; 
+    this.awaiting = false;
     
     this.input = document.createElement(IOCN_TYPE);
     this.input.contentEditable = "true";
     this.input.autofocus = true;
-    this.input.innerHTML = "&#8203;";
     this.input.focus();
     
-    this.outputter = new Outputter(outnode, this.input);
+    this.outputter = new Outputter(outnode, this.input, this);
     this.caller.console(this.outputter);
     this.outputter.print(this.caller.prompt());
     
@@ -85,23 +85,21 @@ function IOConsole(caller, outnode, container) {
     });
 }
 IOConsole.prototype.onkey = function(ev) {
-    if(!this.container.contains(ev.target))
+    if(!this.container.contains(ev.target) || this.awaiting)
         return false;
-    var text = this.input.innerText.replace(String.fromCharCode(8203), '');
+    var text = this.input.innerText;
     var args = text.replace(/^\s+|\s+$/g, "").split(/\s+/);
     var cmd = args.shift();
     
     switch(ev.key) {
     case "Enter":
-        //this.outputter.println(text);
+        this.outputter.println(text);
         this.history.commit(text);
-        if(cmd){
-            this.caller.call(cmd, args, this.input);
-        }
-        else {
-            this.outputter.print(this.caller.prompt());
-            this.input.innerHTML = "&#8203;";
-            this.input.focus();
+        if(cmd)
+        {
+            this.input.innerHTML = "";
+            this.awaiting = true;
+            this.caller.call(cmd, args);
         }
         ev.preventDefault();
         break;
@@ -116,10 +114,16 @@ IOConsole.prototype.onkey = function(ev) {
     }
     return false;
 }
+IOConsole.prototype.finish = function() {
+    this.awaiting = false;
+    this.outputter.print(this.caller.prompt());
+    this.input.focus();
+}
 
-function Outputter(outn, input) {
+function Outputter(outn, input, p) {
     this.outnode = outn;
     this.input = input;
+    this.parent = p;
     this._chfn();
 }
 
@@ -175,4 +179,7 @@ Outputter.prototype.format = function() {
 }
 Outputter.prototype.clrfmt = function() {
     this.format("");
+}
+Outputter.prototype.finish = function() {
+    this.parent.finish();
 }
