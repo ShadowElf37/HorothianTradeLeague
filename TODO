@@ -26,15 +26,8 @@ FINAL PRODUCT:
     1. Real news.html
 
     WRITING
-    1. Treaty
-    2. FAQ
-
-    3. Console commands
-    4. Have dummy file with everyone in school for potential unlocking f the whitelist
-    5. Tooltips, or at least links beside confusing inputs to FAQ and Treaty sections
-
-    6. SSL
-    7. Port forward
+    1. Console commands; fix prompt
+    2. Tooltips, or at least links beside confusing inputs to FAQ and Treaty sections
 
     USEABILITY
     1. Improve page CSS and add "aesthetic features"
@@ -46,5 +39,11 @@ FINAL PRODUCT:
 
     REFACTOR
     1. Organize pages into folders
-    2. Convert the if-else chain of main.py into functions
-    3. Prevent too many requests from one IP to stop brute force
+    2. Prevent too many requests from one IP to stop brute force
+    3. Threading
+
+LAUNCH:
+    1. Treaty
+    2. FAQ
+    3. SSL
+    4. Port forward

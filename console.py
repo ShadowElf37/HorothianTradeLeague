@@ -64,7 +64,9 @@ class Console:
             'help':self.help_admin,
             'hermes':self.hermes,
             'cmdwrite':self.write_cmd,
-            'cmdclear':self.clear_cmd
+            'cmdclear':self.clear_cmd,
+            'whitelist':self.whitelist,
+            'force':self.forcepay
         }
         self.state = {'logged_in_admin':False, 'logged_in_special':False}
         self.default_format = TEAL
@@ -100,10 +102,12 @@ class Console:
     def help_admin(self, *args):
         return '''
                 help - list available commands
-                hermes <attr> - get any attribute of an account
                 shutdown - shuts the server down
+                whitelist <fname> <lname> - lists names or adds to the whitelist
+                hermes <attr> - get any attribute of an account
                 cmdwrite <python> - writes a line of code to cmd.py for execution
                 cmdclear - writes blank string to cmd.py
+                force <id> <id> <amount> - forces an amount of money from one account to the other regardless of balance
         '''
     def help_special(self, *args):
         return '''help - list available commands
@@ -119,7 +123,7 @@ class Console:
     def help_normal(self, *args):
         return	''' help - list available commands
                     echo <args> - print a message
-                    login <user> <pass> - grants access to server MERCURY
+                    login <user> <pass> - grants access to MERCURY
                 '''
 
     def echo(self, *args):
@@ -238,6 +242,25 @@ class Console:
     def clear_cmd(self, *args):
         open('cmd.py', 'w').write('')
         return 'Write successful.'
+
+    def whitelist(self, *args):
+        f = open('conf/whitelist.cfg', 'r').read()
+        fw = open('conf/whitelist.cfg', 'w')
+        if args[0] is '':
+            fw.write(f)
+            return f
+        else:
+            fw.write(f+'\n'+' '.join(args[:2]))
+        return 'Write successful.'
+
+    def forcepay(self, *args):
+        id1, id2, amt = args
+        a1 = [a for a in self.accounts if a.id == id1][0]
+        a2 = [a for a in self.accounts if a.id == id2][0]
+        amt = int(amt)
+        a1.balance -= amt
+        a2.balance += amt
+        return 'Forced transaction. %s: %.2f > %.2f, %s: %.2f > %.2f' % (id1, a1.balance+amt, a1.balance, id2, id2.balance-amt, id2.balance)
 
     def shutdown(self, *args):
         return 'Not yet.'

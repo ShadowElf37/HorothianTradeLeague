@@ -218,3 +218,6 @@ BETA v0.2.1.4 (4/3/18)
     - Created many Console commands and progression
     - Created folder console_files
     - Console requests are now sent to server
+
+BETA v0.2.1.5 (4/3/18)
+    - Created several new Console commands, most of which are for admin
