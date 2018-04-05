@@ -239,3 +239,8 @@ BETA v0.2.1.8 (4/5/18)
     - Fixed a bug where handle() couldn't be caught
     - Added news.html links and stories
     - Fixed news.html images
+
+
+BETA v0.2.2.0 (4/5/18)
+    - Replacing POST escapes (! -> %21 -> !) is now done in Request()
+    -

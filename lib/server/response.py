@@ -158,7 +158,8 @@ class Response:
         try:
             f = open(faddr, 'rb')
             if rendr and (rendrtypes == () or faddr.split('.')[-1] in rendrtypes):
-                fl = render(f.read(), **renderopts, **self.default_renderopts)
+                renderopts.update(self.default_renderopts)
+                fl = render(f.read(), **renderopts)
             else:
                 fl = f.read()
             self.set_body(fl)
