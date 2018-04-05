@@ -50,6 +50,9 @@ CB = get_account_by_id('1377')
 
 def handle(self, conn, addr, request):
     global error
+    while self.paused.get(addr[0], False): pass
+    self.pause(addr[0])
+    Thread(target=self.unpause, args=(addr[0],)).start()
 
     # Log request
     if log_request or request.file_type in ('html', 'htm', 'act'):
@@ -74,7 +77,7 @@ def handle(self, conn, addr, request):
         response.add_cookie('client-id', 'none')
         response.add_cookie('validator', 'none')
         response.logged_in = False
-        error = self.throwError(5, 'a', '/login.html', response=response)
+        error = self.throwError(5, 'a', '/login.html', conn, response=response)
         self.log.log(addr[0], '- Client\'s cookies don\'t match.', lvl=Log.ERROR)
         return
     elif response.logged_in:
@@ -97,14 +100,30 @@ def handle(self, conn, addr, request):
             for l in lines:
                 if l[0] == '-':
                     c += 1
-                    print(*l[1:].split('/'))
-                    n = """<div class="story{2}">
-                    <img src="{1}" alt="img">
+                    title, img = l[1:].split('/')
+                    n = """<a href="n-{3}"><div class="story{2}">
                     <div class="dark-overlay"></div>
                     <span class="title">{0}</span>
-                    </div>""".format(*l[1:].split('/'), '-1' if c is 1 else '')
+                    </div></a>""".format(title, img, '-1' if c is 1 else '', title.replace(' ', '-'))
                     news.append(n)
             response.attach_file('news.html', nb_page='home.html', stories='\n'.join(news))
+
+        elif request.address[0][:2] == 'n-':
+            name = request.address[0][2:].replace('-', ' ').lower()
+            lines = open('conf/news.cfg').read().split('\n')
+            here = False
+            title = ''
+            text = []
+            for l in lines:
+                if l[0] == '-':
+                    t = l[1:].split('/')[0].lower()
+                    here = t == name
+                    if here:
+                        title = t.title()
+                elif here:
+                    text.append(l)
+            text = '\n'.join(list(map(lambda x: '<p>'+x+'</p>', text)))
+            response.attach_file('story.html', tl=title, tx=text, nb_page='home.html')
 
         elif request.address[0] == 'faq.html':
             faq = open("conf/faq_content.cfg", 'r').read().split('\n')
@@ -330,7 +349,7 @@ def handle(self, conn, addr, request):
             try:
                 hunt = next(h for h in hunts if h.id == num)
             except StopIteration:
-                error = self.throwError(1, 'c', request.get_last_page(), response=response)
+                error = self.throwError(1, 'c', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client requested non-existent hunt.', lvl=Log.ERROR)
                 return
 
@@ -355,7 +374,7 @@ def handle(self, conn, addr, request):
             try:
                 hunt = next(h for h in hunts if h.id == hid)
             except StopIteration:
-                error = self.throwError(1, 'd', request.get_last_page(), response=response)
+                error = self.throwError(1, 'd', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client requested non-existent hunt.', lvl=Log.ERROR)
                 return
 
@@ -368,7 +387,7 @@ def handle(self, conn, addr, request):
             try:
                 hunt = next(h for h in hunts if h.id == hid)
             except StopIteration:
-                error = self.throwError(1, 'd', request.get_last_page(), response=response)
+                error = self.throwError(1, 'd', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client requested non-existent hunt.', lvl=Log.ERROR)
                 return
 
@@ -392,7 +411,7 @@ def handle(self, conn, addr, request):
                 CB.pay(tax, get_account_by_id('0099'))
                 response.set_status_code(303, location='h-{}'.format(hid))
             else:
-                error = self.throwError(17, 'a', request.get_last_page(), response=response)
+                error = self.throwError(17, 'a', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client tried to hunt-pay an account twice.', lvl=Log.ERROR)
                 return
         elif request.address[0][:3] == 'he-':  # Edit hunt
@@ -400,7 +419,7 @@ def handle(self, conn, addr, request):
             try:
                 hunt = next(h for h in hunts if h.id == hid)
             except StopIteration:
-                error = self.throwError(1, 'e', request.get_last_page(), response=response)
+                error = self.throwError(1, 'e', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client requested non-existent hunt.', lvl=Log.ERROR)
                 return
             response.attach_file('hunt_edit.html', nb_page='hunts.html', hid=hid, name=hunt.title, link=hunt.link, desc=hunt.desc)
@@ -448,7 +467,7 @@ def handle(self, conn, addr, request):
                 try:
                     hunt = next(h for h in hunts if h.id == request.address[1])
                 except StopIteration:
-                    error = self.throwError(2, 'b', request.get_last_page(), response=response)
+                    error = self.throwError(2, 'b', request.get_last_page(), conn, response=response)
                     self.log.log(addr[0], '- Client requested non-existent hunt.', lvl=Log.ERROR)
                     return
 
@@ -558,7 +577,7 @@ def handle(self, conn, addr, request):
                 tax = sale.cost * seller.coalition.tax
                 
                 if buyer.balance < sale.cost:
-                    error = self.throwError(18, 'a', request.get_last_page(), response=response)
+                    error = self.throwError(18, 'a', request.get_last_page(), conn, response=response)
                     self.log.log(addr[0], '- Client tried to buy something in the market without enough money.', lvl=Log.ERROR)
                     return
                 elif sale.guild != '':
@@ -587,7 +606,7 @@ def handle(self, conn, addr, request):
                 response.set_status_code(303, location="market.html")
             else:
                 # Proper error handling
-                error = self.throwError(2, 'a', request.get_last_page(), response=response)
+                error = self.throwError(2, 'a', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client requested non-existent action.', lvl=Log.ERROR)
                 return
 
@@ -603,7 +622,7 @@ def handle(self, conn, addr, request):
                 try:
                     coalition = next(i for i in groups if i.cid == id and i.exists)
                 except StopIteration:
-                    error = self.throwError(1, 'a', '/' + request.get_last_page(), response=response)
+                    error = self.throwError(1, 'a', '/' + request.get_last_page(), conn, response=response)
                     self.log.log(addr[0], '- Client requested non-existent coalition', lvl=Log.ERROR)
                     return
 
@@ -636,7 +655,7 @@ def handle(self, conn, addr, request):
                 try:
                     coalition = next(i for i in groups if i.cid == id and i.exists)
                 except StopIteration:
-                    error = self.throwError(1, 'b', '/' + request.get_last_page(), response=response)
+                    error = self.throwError(1, 'b', '/' + request.get_last_page(), conn, response=response)
                     self.log.log(addr[0], '- Client requested non-existent coalition', lvl=Log.ERROR)
                     return
 
@@ -671,7 +690,7 @@ def handle(self, conn, addr, request):
                                          d7=disabled(not member),
                                          nb_page='account.html')
             elif othertype or type == 'std':
-                error = self.throwError(15, 'a', request.get_last_page(), response=response)
+                error = self.throwError(15, 'a', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client requested a non-coalition coalition page (like Group() instance)', lvl=Log.ERROR)
                 return
             else:
@@ -726,7 +745,7 @@ def handle(self, conn, addr, request):
 
     elif request.method == "POST":
         if not request.post_values:
-            error = self.throwError(0, 'b', request.get_last_page(), response=response)
+            error = self.throwError(0, 'b', request.get_last_page(), conn, response=response)
             self.log.log(addr[0], '- That thing happened again... sigh.', lvl=Log.ERROR)
             return
 
@@ -736,11 +755,11 @@ def handle(self, conn, addr, request):
             u = get_account_by_username(usr)
 
             if not all(request.post_values.values()):
-                error = self.throwError(13, 'a', request.get_last_page(), response=response)
+                error = self.throwError(13, 'a', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
                 return
             elif u.blacklisted or addr[0] in open('data/banned_ip.dat').readlines():
-                error = self.throwError(14, 'a', request.get_last_page(), response=response)
+                error = self.throwError(14, 'a', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client tried to log in to banned account.', lvl=Log.ERROR)
                 return
 
@@ -753,7 +772,7 @@ def handle(self, conn, addr, request):
                 response.set_status_code(303, location='account.html')
                 if log_signin: self.log.log('Log in:', u.id)
             except IndexError:
-                error = self.throwError(4, 'a', request.get_last_page(), response=response)
+                error = self.throwError(4, 'a', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client entered incorrect login information.', lvl=Log.ERROR)
                 return
 
@@ -766,32 +785,32 @@ def handle(self, conn, addr, request):
             cpwd = request.post_values['cpass']  # confirm password
 
             if not all(request.post_values.values()):
-                error = self.throwError(13, 'b', request.get_last_page(), response=response)
+                error = self.throwError(13, 'b', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
                 return
 
             elif not get_account_by_name(first, last).shell:
-                error = self.throwError(8, 'a', request.get_last_page(), response=response)
+                error = self.throwError(8, 'a', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client tried to sign up with already-used name.', lvl=Log.ERROR)
                 return
 
             elif not get_account_by_username(usr).shell:
-                error = self.throwError(9, 'a', request.get_last_page(), response=response)
+                error = self.throwError(9, 'a', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client tried to sign up with already-used username.', lvl=Log.ERROR)
                 return
 
             elif not first+' '+last in whitelist:
-                error = self.throwError(10, 'a', request.get_last_page(), response=response)
+                error = self.throwError(10, 'a', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Forbidden signup attempt.', lvl=Log.ERROR)
                 return
 
             elif not get_account_by_email(mail):
-                error = self.throwError(12, 'a', request.get_last_page(), response=response)
+                error = self.throwError(12, 'a', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client tried to sign up with already-used email.', lvl=Log.ERROR)
                 return
 
             elif cpwd != pwd:
-                error = self.throwError(7, 'a', request.get_last_page(), response=response)
+                error = self.throwError(7, 'a', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client pwd does not equal confirm pwd.', lvl=Log.ERROR)
                 return
 
@@ -812,11 +831,11 @@ def handle(self, conn, addr, request):
 
         elif request.address[0] == 'pay.act':
             if not all(request.post_values.values()):
-                error = self.throwError(13, 'c', request.get_last_page(), response=response)
+                error = self.throwError(13, 'c', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
                 return
             elif get_account_by_id(request.post_values['recp']).blacklisted:
-                error = self.throwError(14, 'b', request.get_last_page(), response=response)
+                error = self.throwError(14, 'b', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client tried to pay banned account.', lvl=Log.ERROR)
                 return
 
@@ -827,7 +846,7 @@ def handle(self, conn, addr, request):
                 amount = float(request.post_values['amt'])
             recipient_acnt = get_account_by_id(recipient_id)
             if recipient_acnt.shell:
-                error = self.throwError(6, 'a', request.get_last_page(), response=response)
+                error = self.throwError(6, 'a', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client gave an invalid account id.', lvl=Log.ERROR)
                 return
             a = client
@@ -858,24 +877,24 @@ def handle(self, conn, addr, request):
                 ar.pay(float(taxed), get_account_by_id('0099'))
                 get_account_by_id('0099').transaction_history.append('Tax income of &#8354;{0} from {1} -> {2}|EXEMPT|7{3}|{4}'.format('%.2f' % taxed, a.get_name(), ar.get_name(), tid, time.strftime('%X - %x')))
             else:
-                error = self.throwError(3, 'a', request.get_last_page(), response=response)
+                error = self.throwError(3, 'a', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client tried to overdraft.', lvl=Log.ERROR)
                 return
 
         elif request.address[0] == 'message.act':
             if not all(request.post_values.values()):
-                error = self.throwError(13, 'd', request.get_last_page(), response=response)
+                error = self.throwError(13, 'd', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
                 return
 
             elif get_account_by_id(request.post_values['recp']).blacklisted:
-                error = self.throwError(14, 'c', request.get_last_page(), response=response)
+                error = self.throwError(14, 'c', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client tried to message banned account.', lvl=Log.ERROR)
                 return
 
             recipient = get_account_by_id(request.post_values['recp'])
             if recipient.shell:
-                error = self.throwError(6, 'b', request.get_last_page(), response=response)
+                error = self.throwError(6, 'b', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client tried to message non-existent account.', lvl=Log.ERROR)
                 return
 
@@ -893,19 +912,19 @@ def handle(self, conn, addr, request):
 
             # This nall() thing is neat - like XOR but for a list
             if not nall(old_pwd, new_pwd, cnew_pwd) or not nall(new_usr,):
-                error = self.throwError(13, 'e', request.get_last_page(), response=response)
+                error = self.throwError(13, 'e', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client failed to complete a settings form-group.', lvl=Log.ERROR)
                 return
 
             if old_pwd:
                 if new_pwd != cnew_pwd:
-                    error = self.throwError(7, 'b', request.get_last_page(), response=response)
+                    error = self.throwError(7, 'b', request.get_last_page(), conn, response=response)
                     self.log.log(addr[0], '- Client pwd does not equal confirm pwd (settings).', lvl=Log.ERROR)
                     return
                 if old_pwd == client.password:
                     client.password = new_pwd
                 else:
-                    error = self.throwError(4, 'b', request.get_last_page(), response=response)
+                    error = self.throwError(4, 'b', request.get_last_page(), conn, response=response)
                     self.log.log(addr[0], '- Client pwd incorrect (settings).', lvl=Log.ERROR)
                     return
 
@@ -921,7 +940,7 @@ def handle(self, conn, addr, request):
             desc = post_to_html_escape(request.post_values['desc'].replace('+', ' '))
 
             if not all(request.post_values.values()):
-                error = self.throwError(13, 'f', request.get_last_page(), response=response)
+                error = self.throwError(13, 'f', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
                 return
 
@@ -938,20 +957,20 @@ def handle(self, conn, addr, request):
 
         elif request.address[0] == 'transfer_ownership.act':
             if not all(request.post_values.values()):
-                error = self.throwError(13, 'g', request.get_last_page(), response=response)
+                error = self.throwError(13, 'g', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
                 return
 
             target = get_account_by_id(request.post_values.get('id'))
             if target == 'none':
-                error = self.throwError(6, 'c', request.get_last_page(), response=response)
+                error = self.throwError(6, 'c', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client POSTed bad account ID.', lvl=Log.ERROR)
                 return
 
             if target.coalition is client.coalition or target.coalition is pm_group:
                 client.coalition.change_owner(target)
             else:
-                error = self.throwError(16, 'a', request.get_last_page(), response=response)
+                error = self.throwError(16, 'a', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client tried to make a coalition owner the owner of a coalition.', lvl=Log.ERROR)
                 return
 
@@ -959,13 +978,13 @@ def handle(self, conn, addr, request):
 
         elif request.address[0] == 'pay_member.act':
             if not all(request.post_values.values()):
-                error = self.throwError(13, 'g', request.get_last_page(), response=response)
+                error = self.throwError(13, 'g', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
                 return
 
             target = get_account_by_id(request.post_values.get('id'))
             if target == 'none':
-                error = self.throwError(6, 'c', request.get_last_page(), response=response)
+                error = self.throwError(6, 'c', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client POSTed bad account ID.', lvl=Log.ERROR)
                 return
 
@@ -1019,7 +1038,7 @@ def handle(self, conn, addr, request):
             try:
                 hunt = next(h for h in hunts if h.id == hid)
             except StopIteration:
-                error = self.throwError(1, 'f', request.get_last_page(), response=response)
+                error = self.throwError(1, 'f', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client requested non-existent hunt.', lvl=Log.ERROR)
                 return
 
@@ -1064,7 +1083,7 @@ def handle(self, conn, addr, request):
     error = ''
     if request.address[-1].split('.')[-1] in ('html', 'htm'):
         response.add_cookie('page', '/'.join(request.address))
-    self.send(response)
+    self.send(response, conn)
     conn.close()
 
 

@@ -1,17 +1,23 @@
 .story, .story-1{
     width: 36%;
     height: 125px;
+    max-width: 36%;
+    max-height: 125px;
     position: relative;
     transition-duration: 0.3s;
-    margin: 30px 44px;
-    padding: 15px;
+    margin: 30px 4%;
     text-align: left;
     display: inline-block;
+    background-image: url("red_background.png");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
 }
 
 .story-1{
     width: 80%;
+    max-width: 80%;
     display: block;
+    overflow: hidden;
 }
 
 .dark-overlay{
@@ -31,13 +37,11 @@
 .title{
     color: #FFF;
     font-size: 50px;
-    position: relative;
-    margin-left: 20px;
+    position: absolute;
+    padding: 15px;
+    margin-left: 5px;
 }
 
-.story img, .story-1 img{
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    margin-top: -15px;
+a{
+    text-decoration: none;
 }

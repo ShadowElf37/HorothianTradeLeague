@@ -7,6 +7,7 @@ Yovel Key-Cohen
 import socket
 from lib.server.log import *
 from lib.server.response import *
+import threading
 
 def get_error(num, let=''):
     codes = open('conf/errors.cfg', 'r').readlines()
@@ -30,6 +31,7 @@ class Server:
         self.connection = None
         self.c_address = ['', 0]
         self.handled_counter = 0
+        self.paused = {}
 
         # On-board data management if needed
         self.state = {}
@@ -49,20 +51,21 @@ class Server:
             print('Process exit.')
 
     # Sends a message; recommended to use Response class as a wrapper
-    def send(self, msg):
+    def send(self, msg, connection=''):
+        connection = self.connection if not connection else connection
         try:
             # You passed a string
             if type(msg) not in (type(bytes()), type(int())) and not isinstance(msg, Response):
-                self.connection.send(Response(msg).compile())
+                connection.send(Response(msg).compile())
             # You passed a Response
             elif isinstance(msg, Response):
-                self.connection.send(msg.compile())
+                connection.send(msg.compile())
             # You passed a status code
             elif type(msg) == type(int()):
-                self.connection.send(Response.code(msg))
+                connection.send(Response.code(msg))
             # You passed an already-encoded string
             else:
-                self.connection.send(msg)
+                connection.send(msg)
             #self.log.log("A response was sent to the client.")
         except AttributeError:
             self.log.log("Tried to send with no client connected.", lvl=Log.ERROR)
@@ -70,14 +73,14 @@ class Server:
         return 0
 
     # --(DEPRECATED)-- Easy way to send a file
-    def send_file(self, faddr, custom_response=None):
+    def send_file(self, faddr, custom_response=None, connection=''):
         r = Response()
         if custom_response:
             r = custom_response
         r.attach_file(faddr)
         if '404' in r.header:
             self.log.log("Client requested non-existent file, returned 404.", lvl=Log.WARNING)
-        self.send(r.compile())
+        self.send(r.compile(), connection)
 
     # Listens for a message, returns it decoded
     def recv(self):
@@ -90,9 +93,15 @@ class Server:
             self.log.log("Client forcibly closed existing connection.", lvl=Log.ERROR)
             return 1
 
+    def unpause(self, addr):
+        time.sleep(0.01)  # BRUTE FORCE PROTECTION
+        self.paused[addr] = False
+    def pause(self, addr):
+        self.paused[addr] = True
+
     # Opens the server to requests
     def open(self):
-        self.socket.listen(1)
+        self.socket.listen(100)
         self.log.log("Server open, listening...", lvl=Log.STATUS)
         while self.running:
             try:
@@ -106,7 +115,7 @@ class Server:
             else:
                 # Requests come in a list format, starting with 'GET' etc. and followed by the page address
                 try:
-                    self.handle_request(self, self.connection, self.c_address, request)
+                    threading.Thread(target=self.do_handle, args=(request,)).start()
                 except (KeyboardInterrupt, SystemExit):
                     self.close()
                 except Exception as e:
@@ -118,15 +127,26 @@ class Server:
             self.connection = None
 
     # Sends a user-friendly error message
-    def throwError(self, code, id, page, response=None):
+    def throwError(self, code, id, page, c='', response=None):
         err = get_error(code, id)
         if response is None:
             r = Response()
         else:
             r = response
         r.set_status_code(303, location=page)
-        self.send(r)
+        self.send(r, c)
         return err
+
+    def do_handle(self, request):
+        try:
+            self.handle_request(self, self.connection, self.c_address, request)
+        except (KeyboardInterrupt, SystemExit):
+            self.close()
+        except Exception as e:
+            if self.debug:
+                raise e
+            self.throwError(0, 'u', 'home.html')
+            self.log.log('A fatal error occurred in handle():', e, lvl=Log.ERROR)
 
     # Wrapper for request_handler() setting
     def set_request_handler(self, func):

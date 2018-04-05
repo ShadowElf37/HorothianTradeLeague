@@ -232,3 +232,10 @@ BETA v0.2.1.7 (4/4/18)
     - Fixed up news.html
     - Added news.css, .cfg
     - Redid some of the console's prompt-handling code
+
+BETA v0.2.1.8 (4/5/18)
+    - Painlessly threaded handle(); it's actually a lot faster now
+    - Implemented a 10ms mandatory delay between handling requests from the same IP to help protect against brute force (as if I had enough bandwidth to handle them any faster)
+    - Fixed a bug where handle() couldn't be caught
+    - Added news.html links and stories
+    - Fixed news.html images

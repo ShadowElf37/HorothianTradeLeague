@@ -22,28 +22,27 @@ KNOWN BUGS
 
 FINAL PRODUCT:
 
-    FEATURES
-    1. News story links
-
     WRITING
-    1. Tooltips, or at least links beside confusing inputs to FAQ and Treaty sections
+    1. Tooltips/FAQ for:
+        Sign Up - Username, explain it's for login
+        Sign Up - Email or Phone, explain why we collect
+        Create Coalition - Coalition/Guild option
+        Post Sale - For Guild option
 
-    USEABILITY
-    1. Improve page CSS and add "aesthetic features"
-    2. Record more data
-    3. Try to catch serious html-edit exploits
-    4. Test EVERYTHING together
-    5. Escape more of the JS funny escapes - it does like %20 instead of &#x20;
-    6. Comments
+    BACKEND
+    1. Record more data
+    2. Try to catch serious html-edit exploits
+    3. Test EVERYTHING together
+    4. Escape more of the JS funny escapes - it does like %20 instead of &#x20;
+    5. Comments
 
     REFACTOR
     1. Organize pages into folders
-    2. Prevent too many requests from one IP to stop brute force
-    3. Threading
 
 LAUNCH:
     1. Treaty
     2. FAQ
     3. Console commands
-    4. SSL
-    5. Port forward
+    4. Better aesthetics
+    5. SSL
+    6. Port forward
