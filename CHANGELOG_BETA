@@ -227,3 +227,8 @@ BETA v0.2.1.6 (4/4/18)
     - Fixed an issue where the command would print itself after entry
     - Fixed an issue where hardcoded JS command output wouldn't work properly
     - Tweaked some other commands; console development should be postponed until other features are complete.
+
+BETA v0.2.1.7 (4/4/18)
+    - Fixed up news.html
+    - Added news.css, .cfg
+    - Redid some of the console's prompt-handling code

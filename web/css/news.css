@@ -1,12 +1,17 @@
-.story{
-    width: 80%;
+.story, .story-1{
+    width: 36%;
     height: 125px;
     position: relative;
     transition-duration: 0.3s;
-    margin: 60px;
+    margin: 30px 44px;
     padding: 15px;
-    overflow: hidden !important;
     text-align: left;
+    display: inline-block;
+}
+
+.story-1{
+    width: 80%;
+    display: block;
 }
 
 .dark-overlay{
@@ -19,7 +24,7 @@
 	transition-duration: inherit;
 }
 
-.story:hover .dark-overlay{
+.story:hover .dark-overlay, .story-1:hover .dark-overlay{
     opacity: 0.75;
 }
 
@@ -27,11 +32,12 @@
     color: #FFF;
     font-size: 50px;
     position: relative;
-    text-align: center;
+    margin-left: 20px;
 }
 
-.story img{
+.story img, .story-1 img{
     width: 100%;
     height: 100%;
-    position: fixed;
+    position: absolute;
+    margin-top: -15px;
 }

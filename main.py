@@ -93,16 +93,18 @@ def handle(self, conn, addr, request):
         elif request.address[0] == 'news.html':
             news = []
             lines = open('conf/news.cfg').read().split('\n')
+            c = 0
             for l in lines:
                 if l[0] == '-':
+                    c += 1
                     print(*l[1:].split('/'))
-                    n = """<div class="story">
+                    n = """<div class="story{2}">
                     <img src="{1}" alt="img">
                     <div class="dark-overlay"></div>
                     <span class="title">{0}</span>
-                    </div>""".format(*l[1:].split('/'))
+                    </div>""".format(*l[1:].split('/'), '-1' if c is 1 else '')
                     news.append(n)
-            response.attach_file('news.html', nb_page='home.html', stories='<br>'.join(news))
+            response.attach_file('news.html', nb_page='home.html', stories='\n'.join(news))
 
         elif request.address[0] == 'faq.html':
             faq = open("conf/faq_content.cfg", 'r').read().split('\n')
