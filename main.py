@@ -750,8 +750,8 @@ def handle(self, conn, addr, request):
             return
 
         if request.address[0] == 'login.act':
-            usr = request.post_values['user']
-            pwd = request.post_values['pass']
+            usr = request.get_post('user')
+            pwd = request.get_post('pass')
             u = get_account_by_username(usr)
 
             if not all(request.post_values.values()):
@@ -777,12 +777,12 @@ def handle(self, conn, addr, request):
                 return
 
         elif request.address[0] == 'signup.act':
-            first = request.post_values['first']
-            last = request.post_values['last']
-            mail = request.post_values['mail']
-            usr = request.post_values['user']
-            pwd = request.post_values['pass']
-            cpwd = request.post_values['cpass']  # confirm password
+            first = request.get_post('first')
+            last = request.get_post('last')
+            mail = request.get_post('mail')
+            usr = request.get_post('user')
+            pwd = request.get_post('pass')
+            cpwd = request.get_post('cpass')  # confirm password
 
             if not all(request.post_values.values()):
                 error = self.throwError(13, 'b', request.get_last_page(), conn, response=response)
@@ -834,16 +834,16 @@ def handle(self, conn, addr, request):
                 error = self.throwError(13, 'c', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
                 return
-            elif get_account_by_id(request.post_values['recp']).blacklisted:
+            elif get_account_by_id(request.get_post('recp')).blacklisted:
                 error = self.throwError(14, 'b', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client tried to pay banned account.', lvl=Log.ERROR)
                 return
 
-            recipient_id = request.post_values['recp']
+            recipient_id = request.get_post('recp')
             try:
-                amount = int(request.post_values['amt'])
+                amount = int(request.get_post('amt'))
             except ValueError:
-                amount = float(request.post_values['amt'])
+                amount = float(request.get_post('amt'))
             recipient_acnt = get_account_by_id(recipient_id)
             if recipient_acnt.shell:
                 error = self.throwError(6, 'a', request.get_last_page(), conn, response=response)
@@ -887,28 +887,28 @@ def handle(self, conn, addr, request):
                 self.log.log(addr[0], '- Client POSTed empty values.', lvl=Log.ERROR)
                 return
 
-            elif get_account_by_id(request.post_values['recp']).blacklisted:
+            elif get_account_by_id(request.get_post('recp')).blacklisted:
                 error = self.throwError(14, 'c', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client tried to message banned account.', lvl=Log.ERROR)
                 return
 
-            recipient = get_account_by_id(request.post_values['recp'])
+            recipient = get_account_by_id(request.get_post('recp'))
             if recipient.shell:
                 error = self.throwError(6, 'b', request.get_last_page(), conn, response=response)
                 self.log.log(addr[0], '- Client tried to message non-existent account.', lvl=Log.ERROR)
                 return
 
-            msg = request.post_values['msg']
-            subject = request.post_values['subject']
+            msg = request.get_post('msg')
+            subject = request.get_post('subject')
             client.send_message(subject, msg, recipient)
 
             response.set_status_code(303, location="messages.html")
 
         elif request.address[0] == 'save_settings.act':
-            old_pwd = request.post_values['old-pwd']
-            new_pwd = request.post_values['new-pwd']
-            cnew_pwd = request.post_values['cnew-pwd']
-            new_usr = request.post_values['new-usr']
+            old_pwd = request.get_post('old-pwd')
+            new_pwd = request.get_post('new-pwd')
+            cnew_pwd = request.get_post('cnew-pwd')
+            new_usr = request.get_post('new-usr')
 
             # This nall() thing is neat - like XOR but for a list
             if not nall(old_pwd, new_pwd, cnew_pwd) or not nall(new_usr,):
@@ -934,10 +934,10 @@ def handle(self, conn, addr, request):
             response.set_status_code(303, location='account.html')
 
         elif request.address[0] == 'create_coalition.act':
-            name = post_to_html_escape(request.post_values['name'].replace('+', ' '))
-            type = request.post_values['type']
-            img = request.post_values['img']
-            desc = post_to_html_escape(request.post_values['desc'].replace('+', ' '))
+            name = request.get_post('name')
+            type = request.get_post('type')
+            img = request.get_post('img')
+            desc = request.get_post('desc')
 
             if not all(request.post_values.values()):
                 error = self.throwError(13, 'f', request.get_last_page(), conn, response=response)
@@ -994,14 +994,14 @@ def handle(self, conn, addr, request):
         elif request.address[0] == 'edit_clt.act':
             c = client.coalition
             if request.post_values.get('name'):
-                c.name = request.post_values['name'].replace('+', ' ')
+                c.name = request.get_post('name')
             if request.post_values.get('desc'):
-                c.description = request.post_values['desc'].replace('+', ' ')
+                c.description = request.get_post('desc')
             if request.post_values.get('img'):
-                c.img = request.post_values['img'].replace('+', ' ')
+                c.img = request.get_post('img')
             if request.post_values.get('kick-mem'):
                 msg = 'The owner of your coalition decided to kick you out. If you think this was done unfairly, please submit an appeal to the Project Mercury Court. Keep in mind that the coalition is their property, not yours, and not ours.'
-                km = request.post_values['kick-mem']
+                km = request.get_post('kick-mem')
                 self.log.log('Member kicked from a coalition by {}'.format(client.id))
                 if isinstance(km, list):
                     for mem in km:
@@ -1016,7 +1016,7 @@ def handle(self, conn, addr, request):
 
         elif request.address[0] == 'padd.act':
             c = client.coalition
-            amt = float(request.post_values['amt'])
+            amt = float(request.get_post('amt'))
             client.transaction_history.append('')
             c.add_to_pool(amt, client)
             tid = random.randint(10**5, 10**6)
@@ -1026,15 +1026,15 @@ def handle(self, conn, addr, request):
 
         elif request.address[0] == 'loan.act':
             c = client.coalition
-            amt = float(request.post_values['amt'])
+            amt = float(request.get_post('amt'))
             c.loan(amt, client)
             response.set_status_code(303, location="coalitions.html")
 
         elif request.address[0] == 'edit_hunt.act':
-            name = request.post_values['name']
-            link = post_to_html_escape(request.post_values['link'])
-            desc = request.post_values['desc']
-            hid = request.post_values['hid']
+            name = request.get_post('name')
+            link = request.get_post('link')
+            desc = request.get_post('desc')
+            hid = request.get_post('hid')
             try:
                 hunt = next(h for h in hunts if h.id == hid)
             except StopIteration:
@@ -1049,16 +1049,16 @@ def handle(self, conn, addr, request):
             response.set_status_code(303, location='h-'+hid)
 
         elif request.address[0] == 'submit_hunt.act':
-            name = request.post_values['name'].replace('+', ' ')
-            link = post_to_html_escape(request.post_values['link'])
+            name = request.get_post('name')
+            link = request.get_post('link')
             if link[:4] != 'http':
                 link = 'https://' + link
-            desc = request.post_values['desc'].replace('+', ' ')
-            due = request.post_values['due'].split('-')
+            desc = request.get_post('desc')
+            due = request.get_post('due').split('-')
             due = due[1] + '/' + due[2] + '/' + due[0][2:]
             print(due)
-            contributors = request.post_values['cntrb']
-            reward = request.post_values['reward']
+            contributors = request.get_post('cntrb')
+            reward = request.get_post('reward')
 
             h = Hunt(client, name, desc, due, int(contributors), float(reward), link)
             client.my_hunts.append(h)

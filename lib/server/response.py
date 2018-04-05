@@ -9,7 +9,6 @@ ENCODING = 'UTF-8'
 from os.path import dirname, realpath
 from re import split
 
-
 def create_navbar(active, logged_in):
     """kwargs should be 'Home="home.html"'; active should be "home.html" """
     navbar = []
@@ -40,6 +39,17 @@ def create_navbar(active, logged_in):
           + '\n\t\t\t<li class="page-title">Project Mercury</li>\n\t\t</ul>\n\t</div>\n</center>'
 
     return bar
+
+def js_escape(d):
+    d = d.replace('+', ' ')
+    i = d.find('%')
+    while True:
+        i = d.find('%')
+        code = d[i + 1:i + 3]
+        if i == -1:
+            break
+        d = d.replace('%' + code, '&#x{};'.format(code))
+    return d
 
 def render(text, **resources):
     if type(text) == type(bytes()):
@@ -213,7 +223,7 @@ class Request:
         return self.flags.get('Referer', self.get_cookie('page'))
 
     def get_post(self, key):
-        return self.post_values.get(key, '').replace('+', ' ')
+        return js_escape(self.post_values.get(key, ''))
 
     @staticmethod
     def parse(request):

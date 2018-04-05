@@ -9,6 +9,7 @@ def td_wrap(s):
 
 # Replaces all %21 to ! etc.
 def post_to_html_escape(d):
+    d = d.replace('+', ' ')
     i = d.find('%')
     while True:
         i = d.find('%')
