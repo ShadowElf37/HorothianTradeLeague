@@ -25,7 +25,10 @@ SimpleCmd.prototype.call = function(cmd, args) {
     var func = this.functions[cmd];
     var self = this;
     if(func)
+    {
         func.call(this, args);
+	self.output.finish();
+    }
     else
         fetch("http://[[host]]:[[port]]/cmd/" + cmd + '/' + args.join('-')).then(function(response) {
             response.text().then(function(text) {
