@@ -39,14 +39,6 @@ class DefaultHandler(RequestHandler):
                              nb_page=self.request.address[0])
 
 
-class Partial:
-    def __init__(self, string):
-        self.__s = string
-    def __eq__(self, other):
-        return other[:len(self.__s)] == self.__s
-
-
-
 # Handlers
 class HandlerBlank(RequestHandler):
     @RequestHandler.handler
