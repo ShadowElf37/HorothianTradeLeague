@@ -81,6 +81,7 @@ class Response:
     REDIRECTS = [301, 302, 303, 307, 308]
     codes = {}
     ext = {}
+    folders = {}
 
     @staticmethod
     def code(hcode, **kwargs):
@@ -106,6 +107,11 @@ class Response:
                     splitted = line.split()
                     for e in splitted[1:]:
                         Response.ext[e] = splitted[0]
+            with open('conf/folders.cfg', 'r') as exts:
+                for line in exts:
+                    splitted = line.split()
+                    for e in splitted[1:]:
+                        Response.folders[e] = splitted[0]
         self.header = []
         self.header.append('HTTP/1.1 {} {}'.format(code, Response.codes.get(code, '[undefined]')))
         #print(self.header)
@@ -151,9 +157,10 @@ class Response:
         renderopts['navbar'] = create_navbar(nb_page, self.logged_in if logged_in is None else logged_in)
         if type(rendrtypes) != type(tuple()):
             raise TypeError("rendrtypes requires tuple")
-        suffix = self.ext.get(faddr.split('.')[-1], '')
+        suffixa = self.ext.get(faddr.split('.')[-1], '')
+        suffixb = self.folders.get(faddr, '')
 
-        faddr = suffix + faddr
+        faddr = suffixa + suffixb + faddr
         # Actual body set
         try:
             f = open(faddr, 'rb')
