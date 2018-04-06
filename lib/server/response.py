@@ -119,6 +119,7 @@ class Response:
         self.body = body
         self.logged_in = False
         self.default_renderopts = dict()
+        self.smooth_error = None
 
         if type(self.body) == type(int()):
             self.set_status_code(self.body, **kwargs)

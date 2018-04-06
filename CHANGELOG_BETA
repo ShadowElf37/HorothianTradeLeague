@@ -240,7 +240,9 @@ BETA v0.2.1.8 (4/5/18)
     - Added news.html links and stories
     - Fixed news.html images
 
+#-------------@@--- -$- - BETA 3 - -$- ---@@-------------# (4/6/18)
 
-BETA v0.2.2.0 (4/5/18)
+BETA v0.3.0.0 (4/5/18)
     - Replacing POST escapes (! -> %21 -> !) is now done in Request()
-    -
+    - Restructured HTML and CSS folders
+    - Restructured main.py into RequestHandlers in hander.py

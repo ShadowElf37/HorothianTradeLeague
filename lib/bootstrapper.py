@@ -6,6 +6,16 @@ import pickle
 running = True
 accounts = []
 groups = []
+hunts = []
+sales = []
+consoles = {}
+pm_group = None
+log_transactions = False
+log_signin = False
+log_signup = False
+whitelist = []
+host = ''
+port = 0
 
 # Watches cmd.py for changes, exec()
 cmd_file = open('cmd.py', 'r').read()

@@ -34,19 +34,19 @@ whitelist = open('conf/whitelist.cfg', 'r').read().split('\n')
 accounts, groups = load_users()
 hunts = [h for a in accounts for h in a.my_hunts]
 sales = [s for a in accounts for s in a.my_sales]
-pm_group = groups[0]
 lib.bootstrapper.accounts = accounts  # Not sure why this is necessary, but the funcs in there can't handle main's vars
 lib.bootstrapper.groups = groups
+lib.bootstrapper.hunts = hunts
+lib.bootstrapper.sales = sales
+lib.bootstrapper.pm_group = groups[0]
+pm_group = groups[0]
 error = ''
 consoles = dict()
 CB = get_account_by_id('1377')
 
-# test = Hunt(CB, 'HON English Essay Revision', 'I need someone to edit my essay for English please thanks.', '3/15/18', 5, 4, 'http://www.google.com/')
-# hunts.append(test)
-# CB.my_hunts.append(test)
-
 
 # ---------------------------------
+
 
 def handle(self, conn, addr, request):
     global error
@@ -60,18 +60,18 @@ def handle(self, conn, addr, request):
 
     # Finds the client by cookie, creates a response to modify later
     response = Response()
-    client_id = request.get_cookie('client-id')
-    client = get_account_by_id(client_id)
+    client = get_account_by_id(request.get_cookie('client-id'))
+    request.client = client
     client.ip_addresses.add(addr[0])
     response.logged_in = not client.shell
 
     # Default render values - these are input automatically to renders
     global host, port
-    render_defaults = {'error':error, 'number_of_messages':len(list(filter(lambda x: not x.read, client.messages))), 'host':host, 'port':port, 'username':client.username, 'id':client_id, 'hunt_total':client.total_hunts, 'hunt_count':client.active_hunts, 'balance':client.balance}
+    render_defaults = {'error':error, 'number_of_messages':len(list(filter(lambda x: not x.read, client.messages))), 'host':host, 'port':port, 'username':client.username, 'id':client.id, 'hunt_total':client.total_hunts, 'hunt_count':client.active_hunts, 'balance':client.balance}
     response.default_renderopts = render_defaults
 
     # Make sure client has a cookie and that it's valid - activity time is recorded
-    if client_id is None:
+    if client.id is None:
         response.add_cookie('client-id', 'none')
     elif request.get_cookie('validator') != client.validator and response.logged_in and require_validator:
         response.add_cookie('client-id', 'none')
@@ -88,7 +88,7 @@ def handle(self, conn, addr, request):
         if request.address[0] == '':
             response.set_status_code(307, location='/home.html')
         elif request.address[0] == 'home.html':
-            if client_id == 'none':
+            if client.id == 'none':
                 response.attach_file('home.html')
             else:
                 response.set_status_code(307, location='/news.html')
@@ -150,7 +150,7 @@ def handle(self, conn, addr, request):
             # response.set_status_code(307, location='https://drive.google.com/open?id=1vylaFRMUhj0fCGqDVhn0RC7xXmOegabodKs9YK-8zbs')
 
         elif request.address[0] == 'account.html':
-            account = get_account_by_id(client_id)
+            account = get_account_by_id(client.id)
             if not account.shell:
                 prog = open('conf/progress.cfg', 'r').read().replace(r'%m%', str(len(accounts)-3)).split('\n')
                 progress = []
@@ -174,7 +174,7 @@ def handle(self, conn, addr, request):
             response.attach_file('signup.html', nb_page='account.html')
 
         elif request.address[0] == 'transaction_history.html':
-            cid = client_id
+            cid = client.id
             acnt = get_account_by_id(cid)
             hist = []
             for item in acnt.transaction_history:
@@ -510,7 +510,7 @@ def handle(self, conn, addr, request):
                 c = c - taxed
                 client.transaction_history.append('Guild salary of &#8354;{0}|&#8354;{1}|9{2}|{3}'.format('%.2f' % c, '%.2f' % taxed, tid, time.strftime('%X - %x')))
                 f = open('logs/transactions.log', 'at')
-                gl = '{0} -> {1}; Cr{2} [-{3}] ({4}) -- {5}\n'.format(client.coalition.cid, client_id, '%.2f' % c, '%.2f' % taxed, tid, time.strftime('%X - %x'))
+                gl = '{0} -> {1}; Cr{2} [-{3}] ({4}) -- {5}\n'.format(client.coalition.cid, client.id, '%.2f' % c, '%.2f' % taxed, tid, time.strftime('%X - %x'))
                 f.write(gl)
                 if log_transactions:
                     self.log.log(addr[0], '- Client collected guild salary of', c)
