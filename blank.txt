@@ -1,4 +1,0 @@
-class Handler(RequestHandler):
-    @RequestHandler.handler
-    def call(self):
-        ...

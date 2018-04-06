@@ -13,6 +13,7 @@
     	#a {
     		margin-bottom: 20px;
     	}
+    	.tooltip center{margin-top:-10px;}
     </style>
 </head>
 <body>
@@ -33,9 +34,13 @@
 		    	</span>
 	    	</div>
 	    	<h5>For Guild</h5>
-	    	<!--<p style="font-size: 12px; padding: 0; margin: 5px; line-height: 0">Leave blank for direct payment<br></p>
-	    	<input type="text" min="5" max="5" name="id">-->
             <input type="checkbox" name="guild" value="g" style="box-shadow: none;">
+			<div class="tooltip">
+				<center>
+					?
+					<div class="tooltip-exp">Selecting this will send profits directly to your guild, if you have one.</div>
+				</center>
+			</div>
     		<h5>Image</h5>
     		<select class="img_upload" name="img">
     			[[img_opts]]

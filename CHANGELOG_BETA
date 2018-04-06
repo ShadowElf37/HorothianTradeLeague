@@ -245,4 +245,5 @@ BETA v0.2.1.8 (4/5/18)
 BETA v0.3.0.0 (4/5/18)
     - Replacing POST escapes (! -> %21 -> !) is now done in Request()
     - Restructured HTML and CSS folders
-    - Restructured main.py into RequestHandlers in hander.py
+    - COMPLETELY restructured main.py into RequestHandlers in handler.py
+    - Fixed a bug that prevented errors from being passed down correctly in Handlers

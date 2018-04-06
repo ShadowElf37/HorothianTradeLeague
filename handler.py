@@ -1,14 +1,11 @@
 from lib.bootstrapper import *
 from lib.boilerplate import *
-from lib.server.server import *
 from lib.server.log import *
-from lib.server.response import *
 from lib.account import *
 import lib.bootstrapper
 import console
 import random
 import datetime
-from threading import Thread
 CB = get_account_by_id('1377')
 
 # Base class
@@ -22,23 +19,33 @@ class RequestHandler:
 
     def throwError(self, code, letter):
         self.response.error = self.server.throwError(code, letter, self.request.get_last_page(), self.conn, response=self.response)
-        self.server.log.log(self.addr[0], '- Client requested a non-coalition coalition page (like Group() instance)',
+        self.server.log.log(self.addr[0], 'threw error '+str(code)+letter,
                             lvl=Log.ERROR)
-
+        return 1
 
     @staticmethod
     def handler(f):
         def wrapper(*args):
-            f(*args)
+            if f(*args) is not None:
+                return None
             return args[0].response
         return wrapper
 
-"""
-def Part(string):
-    return lambda s: s[:len(string)] == string
-def Full(string):
-    return lambda s: s == string
-"""
+
+class DefaultHandler(RequestHandler):
+    @RequestHandler.handler
+    def call(self):
+        self.response.attach_file(self.request.address[0], rendr=True, rendrtypes=('html', 'htm', 'js', 'css'),
+                             nb_page=self.request.address[0])
+
+
+class Partial:
+    def __init__(self, string):
+        self.__s = string
+    def __eq__(self, other):
+        return other[:len(self.__s)] == self.__s
+
+
 
 # Handlers
 class HandlerBlank(RequestHandler):
@@ -50,7 +57,7 @@ class HandlerBlank(RequestHandler):
 class HandlerHome(RequestHandler):
     @RequestHandler.handler
     def call(self):
-        if self.request.client.id == 'none':
+        if self.request.client.shell:
             self.response.attach_file('home.html')
         else:
             self.response.set_status_code(307, location='/news.html')
@@ -294,7 +301,7 @@ class HandlerPayCoalitionMember(RequestHandler):
         self.response.attach_file('pay_member.html', nb_page='account.html', clt_balance=self.request.client.coalition.budget,
                              members='\n'.join(mems))
 
-class Handler(RequestHandler):
+class HandlerEditCoalition(RequestHandler):
     @RequestHandler.handler
     def call(self):
         mems = ['<li><input name="kick-mem" value="{}" type="checkbox" style="box-shadow: initial;">{}</li>'.format(m.id, m.get_name()) for m in self.request.client.coalition.members if m is not self.request.client.coalition.owner]
@@ -355,6 +362,45 @@ class HandlerHuntList(RequestHandler):
             t = '\n'.join(l)
         self.response.attach_file('hunts.html', hunts=t)
 
+class HandlerMyHuntList(RequestHandler):
+    @RequestHandler.handler
+    def call(self):
+        self.response.attach_file('my_hunts.html', nb_page='hunts.html',
+             phunts='\n'.join(
+                 ['<li><a href="h-{1}">{0}</a></li>'.format(h.title, h.id) for h in self.request.client.working_hunts if
+                  not h.complete]),
+             mhunts='\n'.join(
+                 ['<li><a href="h-{1}">{0}</a></li>'.format(h.title, h.id) for h in self.request.client.my_hunts if
+                  not h.complete]))
+
+class HandlerHuntViewer(RequestHandler):
+    @RequestHandler.handler
+    def call(self):
+        num = self.request.address[0][2:]
+        try:
+            hunt = next(h for h in hunts if h.id == num)
+        except StopIteration:
+            return self.throwError(1, 'c')
+
+        client = self.request.client
+        self.response.attach_file('hunt.html', nb_page='hunts.html',
+                             hunt_name=hunt.title,
+                             creator=hunt.creator.get_name(),
+                             posted_date=hunt.posted_date,
+                             due_date=hunt.due_date,
+                             reward=hunt.reward,
+                             desc=hunt.desc,
+                             left=hunt.max_contributors - len(hunt.participants + hunt.completers),
+                             claim_text='Claim Completion' if client in hunt.participants else 'Close Hunt' if client is hunt.creator else 'Claim Hunt',
+                             hunted='disabled' if client in hunt.completers else '',
+                             link='<a href="{}">Document Link</a>'.format(
+                                 hunt.link) if client in hunt.participants + hunt.completers + [hunt.creator] else '',
+                             hid=hunt.id,
+                             completers=len(hunt.completers),
+                             edit='<a href="he-{}" style="margin-top: -10px;">Edit Hunt Information</a>'.format(
+                                 hunt.id) if client is hunt.creator else ''
+                             )
+
 class HandlerHuntCompleteDenied(RequestHandler):
     @RequestHandler.handler
     def call(self):
@@ -363,8 +409,7 @@ class HandlerHuntCompleteDenied(RequestHandler):
         try:
             hunt = next(h for h in hunts if h.id == hid)
         except StopIteration:
-            self.throwError(1, 'd')
-            return
+            return self.throwError(1, 'd')
 
         acnt = hunt.participant_ids[tid]
         hunt.completers.remove(acnt)
@@ -379,8 +424,7 @@ class HandlerHuntCompleteAccepted(RequestHandler):
         try:
             hunt = next(h for h in hunts if h.id == hid)
         except StopIteration:
-            self.throwError(1, 'e')
-            return
+            return self.throwError(1, 'e')
 
         acnt = hunt.participant_ids[tid]
         if acnt not in hunt.paid:
@@ -406,8 +450,7 @@ class HandlerHuntCompleteAccepted(RequestHandler):
             CB.pay(tax, get_account_by_id('0099'))
             self.response.set_status_code(303, location='h-{}'.format(hid))
         else:
-            self.throwError(17, 'a')
-            return
+            return self.throwError(17, 'a')
 
 class HandlerEditHunt(RequestHandler):
     @RequestHandler.handler
@@ -416,8 +459,7 @@ class HandlerEditHunt(RequestHandler):
         try:
             hunt = next(h for h in hunts if h.id == hid)
         except StopIteration:
-            self.throwError(1, 'e')
-            return
+            return self.throwError(1, 'e')
         self.response.attach_file('hunt_edit.html', nb_page='hunts.html', hid=hid, name=hunt.title, link=hunt.link,
                              desc=hunt.desc)
 
@@ -455,7 +497,7 @@ class HandlerConsolePage(RequestHandler):
     @RequestHandler.handler
     def call(self):
         consoles[self.addr[0]] = console.Console(accounts)
-        self.response.attach_file('console.html')
+        self.response.attach_file('console.html')        
 
 
 class HandlerLogoutGA(RequestHandler):
@@ -488,8 +530,7 @@ class HandlerHuntButtonGA(RequestHandler):
         try:
             hunt = next(h for h in hunts if h.id == self.request.address[1])
         except StopIteration:
-            self.throwError(2, 'b')
-            return
+            return self.throwError(2, 'b')
         if self.request.client in hunt.participants:  # Complete
             hunt.finish(self.request.client)
             tid = {v: k for k in hunt.participant_ids.keys() for v in hunt.participant_ids.values()}[self.request.client]
@@ -509,7 +550,7 @@ class HandlerHuntButtonGA(RequestHandler):
         else:  # Join
             self.request.client.active_hunts += 1
             hunt.join(self.request.client)
-            self.response.set_status_code(303, location='/h-' + hunt.id)
+            self.response.set_status_code(303, location='/h-' + hunt.id)      
 
 class HandlerMessageDeleteGA(RequestHandler):
     @RequestHandler.handler
@@ -521,12 +562,14 @@ class HandlerMessageDeleteGA(RequestHandler):
         except StopIteration:
             self.server.log.log(self.addr[0], '- Client tried to delete non-existant message.')
         self.response.body = "Success"
+        
 
 class HandlerCoalitionDisbandGA(RequestHandler):
     @RequestHandler.handler
     def call(self):
         self.request.client.coalition.dismantle(pm_group)
         self.response.set_status_code(303, location='coalitions.html')
+    
 
 class HandlerCollectSalaryGA(RequestHandler):
     @RequestHandler.handler
@@ -545,6 +588,7 @@ class HandlerCollectSalaryGA(RequestHandler):
         if log_transactions:
             self.server.log.log(self.addr[0], '- Client collected guild salary of', c)
         self.request.client.coalition.get_credit(self.request.client)
+        
 
 class HandlerRequestGroupJoinGA(RequestHandler):
     @RequestHandler.handler
@@ -597,6 +641,7 @@ class HandlerAcceptGroupJoinGA(RequestHandler):
                                                    'Your request to join the coalition was approved! You can access it with the COALITIONS button in your account.',
                                                    get_account_by_id(r[0]))
 
+
 class HandlerLeaveCoalitionGA(RequestHandler):
     @RequestHandler.handler
     def call(self):
@@ -606,6 +651,7 @@ class HandlerLeaveCoalitionGA(RequestHandler):
             client.coalition.budget += client.coalition.credit[client]
             client.coalition.credit[client] = 0
         self.response.set_status_code(303, location='coalitions.html')
+
 
 class HandlerMarketPurchase(RequestHandler):
     @RequestHandler.handler
@@ -618,8 +664,7 @@ class HandlerMarketPurchase(RequestHandler):
         tax = sale.cost * seller.coalition.tax
 
         if buyer.balance < sale.cost:
-            self.throwError(18, 'a')
-            return
+            return self.throwError(18, 'a')
         elif sale.guild != '':
             sale.guild.budget += sale.cost - tax
             buyer.balance -= sale.cost
@@ -668,8 +713,7 @@ class HandlerGroupViewer(RequestHandler):
             try:
                 coalition = next(i for i in groups if i.cid == id and i.exists)
             except StopIteration:
-                self.throwError(1, 'a')
-                return
+                return self.throwError(1, 'a')
 
             owner = coalition.owner is client
             member = client.coalition is coalition
@@ -702,8 +746,7 @@ class HandlerGroupViewer(RequestHandler):
             try:
                 coalition = next(i for i in groups if i.cid == id and i.exists)
             except StopIteration:
-                self.throwError(1, 'b')
-                return
+                return self.throwError(1, 'b')
 
             owner = coalition.owner is client
             member = client.coalition is coalition
@@ -736,10 +779,10 @@ class HandlerGroupViewer(RequestHandler):
                                      d7=disabled(not member),
                                      nb_page='account.html')
         elif othertype or type == 'std':
-            self.throwError(15, 'a')
-            return
+            return self.throwError(15, 'a')
         else:
             self.response.set_status_code(303, location='/' + '/'.join(self.request.address[1:]))
+
 
 class HandlerMessageFetch(RequestHandler):
     @RequestHandler.handler
@@ -788,11 +831,9 @@ class HandlerLoginPA(RequestHandler):
         u = get_account_by_username(usr)
 
         if not all(self.request.post_values.values()):
-            self.throwError(13, 'a')
-            return
+            return self.throwError(13, 'a')
         elif u.blacklisted or self.addr[0] in open('data/banned_ip.dat').readlines():
-            self.throwError(14, 'a')
-            return
+            return self.throwError(14, 'a')
 
         try:
             acnt = list(filter(lambda u: u.username == usr and u.password == pwd, accounts))[0]
@@ -803,8 +844,7 @@ class HandlerLoginPA(RequestHandler):
             self.response.set_status_code(303, location='account.html')
             if log_signin: self.server.log.log('Log in:', u.id)
         except IndexError:
-            self.throwError(4, 'a')
-            return
+            return self.throwError(4, 'a')
 
 class HandlerSignupPA(RequestHandler):
     @RequestHandler.handler
@@ -817,28 +857,22 @@ class HandlerSignupPA(RequestHandler):
         cpwd = self.request.get_post('cpass')  # confirm password
 
         if not all(self.request.post_values.values()):
-            self.throwError(13, 'b')
-            return
+            return self.throwError(13, 'b')
 
         elif not get_account_by_name(first, last).shell:
-            self.throwError(8, 'a')
-            return
+            return self.throwError(8, 'a')
 
         elif not get_account_by_username(usr).shell:
-            self.throwError(9, 'a')
-            return
+            return self.throwError(9, 'a')
 
         elif not first + ' ' + last in whitelist:
-            self.throwError(10, 'a')
-            return
+            return self.throwError(10, 'a')
 
         elif not get_account_by_email(mail):
-            self.throwError(12, 'a')
-            return
+            return self.throwError(12, 'a')
 
         elif cpwd != pwd:
-            self.throwError(7, 'a')
-            return
+            return self.throwError(7, 'a')
 
         id = '0000'
         while id in ('1377',) or id[:2] == '00' or not get_account_by_id(id).shell:  # Saving first 100 accounts for admin purposes
@@ -859,11 +893,9 @@ class HandlerTransactionPA(RequestHandler):
     @RequestHandler.handler
     def call(self):
         if not all(self.request.post_values.values()):
-            self.throwError(13, 'c')
-            return
+            return self.throwError(13, 'c')
         elif get_account_by_id(self.request.get_post('recp')).blacklisted:
-            self.throwError(14, 'b')
-            return
+            return self.throwError(14, 'b')
 
         recipient_id = self.request.get_post('recp')
         try:
@@ -872,8 +904,7 @@ class HandlerTransactionPA(RequestHandler):
             amount = float(self.request.get_post('amt'))
         recipient_acnt = get_account_by_id(recipient_id)
         if recipient_acnt.shell:
-            self.throwError(6, 'a')
-            return
+            return self.throwError(6, 'a')
         a = self.request.client
         ar = recipient_acnt
         tax = a.coalition.internal_tax if a.coalition == ar.coalition else a.coalition.tax
@@ -905,24 +936,20 @@ class HandlerTransactionPA(RequestHandler):
                                                                                   ar.get_name(), tid,
                                                                                   time.strftime('%X - %x')))
         else:
-            self.throwError(3, 'a')
-            return
+            return self.throwError(3, 'a')
 
 class HandlerMessagePA(RequestHandler):
     @RequestHandler.handler
     def call(self):
         if not all(self.request.post_values.values()):
-            self.throwError(13, 'd')
-            return
+            return self.throwError(13, 'd')
 
         elif get_account_by_id(self.request.get_post('recp')).blacklisted:
-            self.throwError(14, 'c')
-            return
+            return self.throwError(14, 'c')
 
         recipient = get_account_by_id(self.request.get_post('recp'))
         if recipient.shell:
-            self.throwError(6, 'b')
-            return
+            return self.throwError(6, 'b')
 
         msg = self.request.get_post('msg')
         subject = self.request.get_post('subject')
@@ -940,18 +967,15 @@ class HandlerSaveSettingsPA(RequestHandler):
 
         # This nall() thing is neat - like XOR but for a list
         if not nall(old_pwd, new_pwd, cnew_pwd) or not nall(new_usr, ):
-            self.throwError(13, 'e')
-            return
+            return self.throwError(13, 'e')
 
         if old_pwd:
             if new_pwd != cnew_pwd:
-                self.throwError(7, 'b')
-                return
+                return self.throwError(7, 'b')
             if old_pwd == self.request.client.password:
                 self.request.client.password = new_pwd
             else:
-                self.throwError(4, 'b')
-                return
+                return self.throwError(4, 'b')
 
         if new_usr:
             self.request.client.username = new_usr
@@ -967,8 +991,7 @@ class HandlerCreateCoalitionPA(RequestHandler):
         desc = self.request.get_post('desc')
 
         if not all(self.request.post_values.values()):
-            self.throwError(13, 'f')
-            return
+            return self.throwError(13, 'f')
 
         client = self.request.client
         client.coalition.remove_member(client, pm_group)
@@ -986,19 +1009,16 @@ class HandlerTransferOwnershipPA(RequestHandler):
     @RequestHandler.handler
     def call(self):
         if not all(self.request.post_values.values()):
-            self.throwError(13, 'g')
-            return
+            return self.throwError(13, 'g')
 
         target = get_account_by_id(self.request.post_values.get('id'))
         if target == 'none':
-            self.throwError(6, 'c')
-            return
+            return self.throwError(6, 'c')
 
         if target.coalition is self.request.client.coalition or target.coalition is pm_group:
             self.request.client.coalition.change_owner(target)
         else:
-            self.throwError(16, 'a')
-            return
+            return self.throwError(16, 'a')
 
         self.response.set_status_code(303, location='coalitions.html')
 
@@ -1006,13 +1026,11 @@ class HandlerPayCoalitionMemberPA(RequestHandler):
     @RequestHandler.handler
     def call(self):
         if not all(self.request.post_values.values()):
-            self.throwError(13, 'h')
-            return
+            return self.throwError(13, 'h')
 
         target = get_account_by_id(self.request.post_values.get('id'))
         if target == 'none':
-            self.throwError(6, 'c')
-            return
+            return self.throwError(6, 'c')
 
         self.request.client.coalition.pay_member(float(self.request.post_values.get('amt')), target)
         self.response.set_status_code(303, location='coalitions.html')
@@ -1048,7 +1066,7 @@ class HandlerCoalitionPoolPA(RequestHandler):
     def call(self):
         client = self.request.client
         c = client.coalition
-        amt = float(request.get_post('amt'))
+        amt = float(self.request.get_post('amt'))
         client.transaction_history.append('')
         c.add_to_pool(amt, client)
         tid = random.randint(10 ** 5, 10 ** 6)
@@ -1076,8 +1094,7 @@ class HandlerEditHuntPA(RequestHandler):
         try:
             hunt = next(h for h in hunts if h.id == hid)
         except StopIteration:
-            self.throwError(1, 'f')
-            return
+            return self.throwError(1, 'f')
 
         hunt.title = name.replace('+', ' ')
         hunt.link = link.replace('+', ' ')
@@ -1121,11 +1138,78 @@ class HandlerPostSalePA(RequestHandler):
         self.response.set_status_code(303, location='market.html')
 
 
+# Access by addr[0].split('-')[0]
 GET = {
     '': HandlerBlank,
     'home.html': HandlerHome,
+    'news.html': HandlerNews,
+    'n': HandlerNewsItem,
+    'faq.html': HandlerFAQ,
+    'treaty.html': HandlerTreaty,
+    'account.html': HandlerAccount,
+    'login.html': HandlerLogin,
+    'pay.html': HandlerPay,
+    'progress.html': HandlerProgress,
+    'signup.html': HandlerSignup,
+    'transaction_history.html': HandlerTransactionHistory,
+    'registry.html': HandlerRegistry,
+    'messages.html': HandlerMessages,
+    'settings.html': HandlerSettings,
+    'coalitions.html': HandlerCoalitionRedirect,
+    'coalition_list.html': HandlerCoalitionList,
+    'coalition.html': HandlerCoalition,
+    'create_coalition.html': HandlerCreateCoalition,
+    'clt_transfer_ownership.html': HandlerTransferCoalition,
+    'pay_member.html': HandlerPayCoalitionMember,
+    'edit_coalition.html': HandlerEditCoalition,
+    'clt_pooladd.html': HandlerCoalitionPool,
+    'loan.html': HandlerCoalitionLoan,
+    'loan_view.js': HandlerCoalitionLoanJS,
+    'hunts.html': HandlerHuntList,
+    'my_hunts.html': HandlerMyHuntList,
+    'h': HandlerHuntViewer,
+    'hd': HandlerHuntCompleteDenied,
+    'hp': HandlerHuntCompleteAccepted,
+    'he': HandlerEditHunt,
+    'hunt_submit.html': HandlerHuntSubmit,
+    'market.html': HandlerMarket,
+    'post_sale.html': HandlerPostSale,
+    'market.js': HandlerMarketJS,
+    'console.html': HandlerConsolePage,
+
+    'logout.act': HandlerLogoutGA,
+    'shutdown_normal.act': HandlerShutdownGA,
+    'shutdown_force.act': HandlerShutdownForceGA,
+    'hunt_button.act': HandlerHuntButtonGA,
+    'del_msg.act': HandlerMessageDeleteGA,
+    'disband_coalition.act': HandlerCoalitionDisbandGA,
+    'collect_guild_salary.act': HandlerCollectSalaryGA,
+    'request_join.act': HandlerRequestGroupJoinGA,
+    'accept_request.act': HandlerAcceptGroupJoinGA,
+    'leave_coalition.act': HandlerLeaveCoalitionGA,
+
+    'c': HandlerGroupViewer,
+    'm': HandlerMessageFetch,
+    'cmd':HandlerConsoleCommand,
 }
 
 POST = {
-
+    'login.act': HandlerLoginPA,
+    'signup.act': HandlerSignupPA,
+    'pay.act': HandlerTransactionPA,
+    'message.act': HandlerMessagePA,
+    'save_settings.act': HandlerSaveSettingsPA,
+    'create_coalition.act': HandlerCreateCoalitionPA,
+    'transfer_ownership.act': HandlerTransferOwnershipPA,
+    'pay_member.act': HandlerPayCoalitionMemberPA,
+    'edit_clt.act': HandlerEditCoalitionPA,
+    'padd.act': HandlerCoalitionPoolPA,
+    'loan.act': HandlerCoalitionLoanPA,
+    'edit_hunt.act': HandlerEditHuntPA,
+    'submit_hunt.act': HandlerSubmitHuntPA,
+    'post_sale.act': HandlerPostSalePA,
 }
+
+INDEX = {}
+INDEX.update(GET)
+INDEX.update(POST)

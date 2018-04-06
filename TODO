@@ -22,22 +22,9 @@ KNOWN BUGS
 
 FINAL PRODUCT:
 
-    WRITING
-    1. Tooltips/FAQ for:
-        Sign Up - Username, explain it's for login
-        Sign Up - Email or Phone, explain why we collect
-        Create Coalition - Coalition/Guild option
-        Post Sale - For Guild option
-
     BACKEND
-    1. Record more data
-    2. Try to catch serious html-edit exploits
-    3. Test EVERYTHING together
-    4. Escape more of the JS funny escapes - it does like %20 instead of &#x20;
-    5. Comments
-
-    REFACTOR
-    1. Organize pages into folders
+    1. Test EVERYTHING together
+    2. Comments
 
 LAUNCH:
     1. Treaty

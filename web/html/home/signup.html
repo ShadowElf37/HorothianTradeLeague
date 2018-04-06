@@ -45,7 +45,14 @@
                 <form action="/signup.act" method="post" style="margin-top: 50px; line-height: 20px; position: relative;">
                     <input autocomplete="off" type="text" name="first" required><br>
                     <input autocomplete="off" type="text" name="last" required><br>
-                    <input autocomplete="off" type="text" name="mail" required><br>
+                    <input autocomplete="off" type="text" name="mail" required>
+                    <div class="tooltip">
+                        ?
+                        <center>
+                            <div class="tooltip-exp">Despite the fact that I have all your Emery emails, you may feel uncomfortable putting it here, to which I say: alright, I don't <i>really care</i>.</div>
+                        </center>
+                    </div>
+                    <br>
                     <select name="gender">
                         <option>Male</option>
                         <option>Female</option>
@@ -53,7 +60,13 @@
                         <option>Attack Helicopter</option>
                     </select><br>
                     <br>
-                    <input autocomplete="off" type="text" name="user" maxlength="25" required><br>
+                    <input autocomplete="off" type="text" name="user" maxlength="25" required>
+                    <div class="tooltip">
+                        ?
+                        <center>
+                            <div class="tooltip-exp">This is what you will use to log in. Other users will not be able to see this by default.</div>
+                        </center>
+                    </div><br>
                     <input autocomplete="off" type="password" name="pass" required><br>
                     <input autocomplete="off" type="password" name="cpass" required><br><br>
                     <input style="box-shadow: initial;" required autocomplete="off" type="checkbox" name="treaty"> I vow to abide by the laws in the <a target="blank" href="treaty.html">Project Mercury Founding Treaty</a><br>
