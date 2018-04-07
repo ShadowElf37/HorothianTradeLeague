@@ -119,7 +119,7 @@ class Response:
         self.body = body
         self.logged_in = False
         self.default_renderopts = dict()
-        self.smooth_error = None
+        self.error = ''
 
         if type(self.body) == type(int()):
             self.set_status_code(self.body, **kwargs)
@@ -152,28 +152,45 @@ class Response:
         rendr specifies whether the page should be rendered or not (so it doesn't try to render an image)
         rendrtypes adds extra control when you don't know if you'll be passed an image or a webpage and want to only render one; should be a tuple of files exts
         renderopts is what should be replaced with what; if you have [[value]], you will put value='12345' """
-
         if nb_page == 'none':
             nb_page = faddr
         renderopts['navbar'] = create_navbar(nb_page, self.logged_in if logged_in is None else logged_in)
         if type(rendrtypes) != type(tuple()):
             raise TypeError("rendrtypes requires tuple")
-        suffixa = self.ext.get(faddr.split('.')[-1], '')
-        suffixb = self.folders.get(faddr, '')
+        prefixa = 'web/'
+        prefixb = self.ext.get(faddr.split('.')[-1], '')
+        prefixc = ''#self.folders.get(faddr, '')
 
-        faddr = suffixa + suffixb + faddr
+
+        fo = faddr.split('/')[-1]
+        faddr = prefixa + prefixc + faddr
+        found = False
+        last = False
         # Actual body set
-        try:
-            f = open(faddr, 'rb')
-            if rendr and (rendrtypes == () or faddr.split('.')[-1] in rendrtypes):
-                renderopts.update(self.default_renderopts)
-                fl = render(f.read(), **renderopts)
-            else:
-                fl = f.read()
-            self.set_body(fl)
-            f.close()
+        while True:
+            try:
+                if not faddr or faddr == fo:
+                    last = True
+                    faddr = prefixb + fo
+                    continue
+                f = open(faddr, 'rb')
+                if rendr and (rendrtypes == () or faddr.split('.')[-1] in rendrtypes):
+                    renderopts.update(self.default_renderopts)
+                    fl = render(f.read(), **renderopts)
+                else:
+                    fl = f.read()
+                self.set_body(fl)
+                f.close()
+                found = True
+                break
 
-        except FileNotFoundError:
+            except (FileNotFoundError, PermissionError):
+                if last:
+                    break
+                faddr = '/'.join(faddr.split('/')[:-2] + [fo,])
+                continue
+
+        if not found:
             self.set_status_code(404)
 
     # Throws together the header, cookies, and body, encoding them and adding whitespace

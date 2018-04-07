@@ -93,7 +93,7 @@ def handle(self, conn, addr, request):
         client.last_activity = time.strftime('%X (%x)')
 
     # Pull simpler address from request
-    address = request.address[0].split('-')[0]
+    address = '/'.join(request.address).split('-')[0]
 
     # If the post values are magically empty, that's a problem... happens more than you'd think
     if request.method == "POST" and not request.post_values:

@@ -21,7 +21,7 @@ IDEAL LAUNCH DATE: April 9th
 Please put all known bugs here. Do not remove them once they are solved. Once solved, put 'Fixed issue #n' in CHANGELOG.
 ISSUE TRACKER
     [] 1. Account balance is randomly reduced after loaning from a Coalition and going to its ADD TO POOL page
-    [] 2. Hunt taxes may be not working
+    [SOLVED] 2. Hunt taxes may be not working
     [] 3. Crash when document link of hunt is initialized as 'localhost:8080'
     [] 4. Guild pages and coalition listings are not destroyed when disbanded via joining other group
     [] 5. Unicode is not properly supported
