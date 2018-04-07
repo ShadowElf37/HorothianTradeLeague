@@ -427,7 +427,7 @@ class HandlerHuntCompleteAccepted(RequestHandler):
             amt = hunt.reward - tax
             tid = '22' + str(random.randint(1000000, 10000000))
 
-            record_transaction(self, hunt.creator.id, self.request.client.id, tid, amt, tax)
+            record_transaction(self.server, hunt.creator.id, self.request.client.id, tid, amt, tax)
             CB.pay(amt, acnt)
             acnt.transaction_history.append(hunt.title + ' - reward of &#8354;{0}|&#8354;{1}|{2}|{3}'.format(
                 '%.2f' % amt, '%.2f' % tax if tax != 0 else 'EXEMPT', tid, time.strftime('%X - %x')
@@ -678,7 +678,7 @@ class HandlerMarketPurchase(RequestHandler):
                                                                           round(tax, 2) if tax != 0 else 'EXEMPT', tid,
                                                                           time.strftime('%X - %x'), sale.name))
 
-        record_transaction(self, buyer.id, seller.id if not guild else guild.id, tid, sale.cost - tax, tax)
+        record_transaction(self.server, buyer.id, seller.id if not guild else guild.id, tid, sale.cost - tax, tax)
         CB.send_message('Sale of ' + sale.name,
                         '{} has purchased your product {}! You may have to physically give them an item.'.format(
                             buyer.get_name(), sale.name), seller)
@@ -906,7 +906,7 @@ class HandlerTransactionPA(RequestHandler):
         if not a.pay(amount, recipient_acnt):
             self.response.set_status_code(303, location='account.html')
             tid = '%19d' % random.randint(1, 2 ** 64)
-            record_transaction(self, a, ar, tid, amount, taxed, log_transactions)
+            record_transaction(self.server, a, ar, tid, amount, taxed, log_transactions)
             a.transaction_history.append(
                 '&#8354;{0} sent to {1}|&#8354;{2}|3{3}|{4}'.format('%.2f' % amount, ar.get_name(),
                                                                     '%.2f' % taxed if taxed != 0 else 'EXEMPT', tid,
@@ -1065,7 +1065,7 @@ class HandlerCoalitionPoolPA(RequestHandler):
         client.transaction_history.append(
             '&#8354;{0} donated to {1}|&#8354;{2}|3{3}|{4}'.format('%.2f' % amt, c.name, 'EXEMPT', tid,
                                                                    time.strftime('%X - %x')))
-        record_transaction(self, client.id, c.cid, tid, amt, 0, log_transactions)
+        record_transaction(self.server, client.id, c.cid, tid, amt, 0, log_transactions)
         self.response.set_status_code(303, location='coalitions.html')
 
 class HandlerCoalitionLoanPA(RequestHandler):

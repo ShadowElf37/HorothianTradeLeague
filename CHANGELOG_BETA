@@ -247,3 +247,5 @@ BETA v0.3.0.0 (4/5/18)
     - Restructured HTML and CSS folders
     - COMPLETELY restructured main.py into RequestHandlers in handler.py
     - Fixed a bug that prevented errors from being passed down correctly in Handlers
+    - Reorganized to-do, added better bug listing
+    - Fixed issue #6
