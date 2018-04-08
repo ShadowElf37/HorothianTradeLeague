@@ -20,7 +20,7 @@ from threading import Thread
 
 
 # Config
-require_validator = False
+require_validator = True
 log_request = True
 log_transactions = False
 log_signin = True
@@ -82,11 +82,11 @@ def handle(self, conn, addr, request):
 
     # Make sure client has a cookie
     if client.id is None:
-        response.add_cookie('client-id', 'none')
+        response.add_cookie('client-id', 'none', 'path=/')
     # Make sure SID is valid
     elif request.get_cookie('validator') != client.validator and response.logged_in and require_validator:
-        response.add_cookie('client-id', 'none')
-        response.add_cookie('validator', 'none')
+        response.add_cookie('client-id', 'none', 'path=/')
+        response.add_cookie('validator', 'none', 'path=/')
         response.logged_in = False
         error = self.throwError(5, 'a', '/home/login.html', conn, response=response)
         self.log.log(addr[0], '- Client\'s cookies don\'t match.', lvl=Log.ERROR)
