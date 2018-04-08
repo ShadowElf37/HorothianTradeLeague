@@ -460,7 +460,7 @@ class HandlerEditHunt(RequestHandler):
             hunt = next(h for h in hunts if h.id == hid)
         except StopIteration:
             return self.throwError(1, 'e')
-        self.response.attach_file('hunt_edit.html', nb_page='hunt/list/index.html', hid=hid, name=hunt.title, link=hunt.link,
+        self.response.attach_file('hunt/edit.html', nb_page='hunt/list/index.html', hid=hid, name=hunt.title, link=hunt.link,
                              desc=hunt.desc)
 
 class HandlerHuntSubmit(RequestHandler):
@@ -588,6 +588,8 @@ class HandlerCollectSalaryGA(RequestHandler):
         if log_transactions:
             self.server.log.log(self.addr[0], '- Client collected guild salary of', c)
         self.request.client.coalition.get_credit(self.request.client)
+
+        self.response.set_status_code(303, location="/group/viewer/index.html")
         
 
 class HandlerRequestGroupJoinGA(RequestHandler):
@@ -706,6 +708,15 @@ class HandlerMarketPurchase(RequestHandler):
 
         self.response.set_status_code(303, location="/market/list/index.html")
 
+class HandlerGuildBudget(RequestHandler):
+    @RequestHandler.handler
+    def call(self):
+        coalition = self.request.client.coalition
+        self.response.attach_file('group/guild/budget/index.html', nb_page='account/dashboard/index.html',
+                                  name=coalition.name,
+                                  budget=coalition.budget,
+                                  credit=coalition.credit[self.request.client]
+                                  )
 
 class HandlerGroupViewer(RequestHandler):
     @RequestHandler.handler
@@ -763,30 +774,23 @@ class HandlerGroupViewer(RequestHandler):
             member = client.coalition is coalition
             disabled = lambda condition: 'disabled' if condition else ''
 
-            if '/'.join(self.request.address) == 'group/guild/budget/index.html':
-                self.response.attach_file('group/guild/budget/index.html', nb_page='account/dashboard/index.html',
-                                     name=coalition.name,
-                                     budget=coalition.budget,
-                                     credit=coalition.credit[client]
-                                     )
-            else:
-                self.response.attach_file('group/viewer/guild/index.html',
-                                     coalition_name=coalition.name,
-                                     members='\n'.join(tuple(map(lambda x: li(x.get_name()), coalition.members))),
-                                     c_id=coalition.cid,
-                                     c_desc=coalition.description,
-                                     c_owner=coalition.owner.get_name(),
+            self.response.attach_file('group/viewer/guild/index.html',
+                                 coalition_name=coalition.name,
+                                 members='\n'.join(tuple(map(lambda x: li(x.get_name()), coalition.members))),
+                                 c_id=coalition.cid,
+                                 c_desc=coalition.description,
+                                 c_owner=coalition.owner.get_name(),
 
-                                     disleave='disband_coalition.act' if owner else 'leave_coalition.act',
-                                     disleavet='Disband' if owner else 'Leave',
-                                     d1=disabled(member),
-                                     d2=disabled(not owner),
-                                     d3=disabled(not member),
-                                     d4=disabled(not member),
-                                     d5=disabled(not owner),
-                                     d6=disabled(not owner),
-                                     d7=disabled(not member),
-                                     nb_page='account/dashboard/index.html')
+                                 disleave='disband_coalition.act' if owner else 'leave_coalition.act',
+                                 disleavet='Disband' if owner else 'Leave',
+                                 d1=disabled(member),
+                                 d2=disabled(not owner),
+                                 d3=disabled(not member),
+                                 d4=disabled(not member),
+                                 d5=disabled(not owner),
+                                 d6=disabled(not owner),
+                                 d7=disabled(not member),
+                                 nb_page='account/dashboard/index.html')
         elif othertype or type == 'std':
             return self.throwError(15, 'a')
         else:
@@ -1179,6 +1183,7 @@ GET = {
     'group/create/index.html': HandlerCreateCoalition,
     'group/transfer.html': HandlerTransferCoalition,
     'group/guild/pay.html': HandlerPayCoalitionMember,
+    'group/guild/budget/index.html': HandlerGuildBudget,
     'group/edit.html': HandlerEditCoalition,
     'group/coalition/deposit.html': HandlerCoalitionPool,
     'group/coalition/loan.html': HandlerCoalitionLoan,
