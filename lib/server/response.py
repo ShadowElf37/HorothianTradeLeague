@@ -167,7 +167,7 @@ class Response:
         found = False
         last = False
         # Actual body set
-        while True:
+        for i in range(10):  # Don't even try this more than ten times
             try:
                 if not faddr or faddr == fo:
                     last = True
@@ -246,7 +246,10 @@ class Request:
         return self.cookies.get(cname, None)
 
     def get_last_page(self):
-        return self.flags.get('Referer', self.get_cookie('page'))
+        p = self.flags.get('Referer', self.get_cookie('page'))
+        if 'http://' in p:
+            p = '/'.join(p.split('/')[3:])
+        return p
 
     def get_post(self, key):
         return js_escape(self.post_values.get(key, ''))

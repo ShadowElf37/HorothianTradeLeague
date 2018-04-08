@@ -1,3 +1,6 @@
+# ADMIN LOGIN: admin/secretpassword
+# USER LOGIN: mercury/6865726d6573
+
 class Format:
     bold = 'b'
     underline = 'u'

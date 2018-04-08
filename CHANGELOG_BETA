@@ -240,12 +240,14 @@ BETA v0.2.1.8 (4/5/18)
     - Added news.html links and stories
     - Fixed news.html images
 
-#-------------@@--- -$- - BETA 3 - -$- ---@@-------------# (4/6/18)
+#-------------@@--- -$- - BETA 3 - -$- ---@@-------------# (4/7/18)
 
-BETA v0.3.0.0 (4/5/18)
+BETA v0.3.0.0 (4/7/18)
     - Replacing POST escapes (! -> %21 -> !) is now done in Request()
-    - Restructured HTML and CSS folders
+    - COMPLETELY restructured web folder; CSS, HTML, and JS are served side-by-side
+    - Overhauled the way addresses are treated to allow for this - URIs are now mostly accurate to the server's filesystem
     - COMPLETELY restructured main.py into RequestHandlers in handler.py
     - Fixed a bug that prevented errors from being passed down correctly in Handlers
     - Reorganized to-do, added better bug listing
+    - Moved hunt style into the HTML file because server was unable to find the CSS; the cause of this is unknown
     - Fixed issue #6

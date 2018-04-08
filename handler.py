@@ -36,28 +36,28 @@ class DefaultHandler(RequestHandler):
     @RequestHandler.handler
     def call(self):
         self.response.attach_file('/'.join(self.request.address), rendr=True, rendrtypes=('html', 'htm', 'js', 'css'),
-                             nb_page=self.request.address[0])
+                             nb_page='/'.join(self.request.address))
 
 
 # Handlers
 class HandlerBlank(RequestHandler):
     @RequestHandler.handler
     def call(self):
-        self.response.set_status_code(307, location='/home')
+        self.response.set_status_code(307, location='/home/index.html')
 
 
 class HandlerHome(RequestHandler):
     @RequestHandler.handler
     def call(self):
         if self.request.client.shell:
-            self.response.attach_file('home/index.html', nb_page='home')
+            self.response.attach_file('home/index.html', nb_page='home/index.html')
         else:
-            self.response.set_status_code(307, location='/home/news/list/')
+            self.response.set_status_code(307, location='/home/news/list/index.html')
 
 class HandlerAbout(RequestHandler):
     @RequestHandler.handler
     def call(self):
-        self.response.attach_file('home/about.html', nb_page='home/about')
+        self.response.attach_file('home/about.html', nb_page='home/about.html')
 
 class HandlerNews(RequestHandler):
     @RequestHandler.handler
@@ -69,12 +69,12 @@ class HandlerNews(RequestHandler):
             if l[0] == '-':
                 c += 1
                 title, img = l[1:].split('/')
-                n = """<a href="n-{3}"><div class="story{2}">
+                n = """<a href="/n-{3}"><div class="story{2}">
                             <div class="dark-overlay"></div>
                             <span class="title">{0}</span>
                             </div></a>""".format(title, img, '-1' if c is 1 else '', title.replace(' ', '-'))
                 news.append(n)
-        self.response.attach_file('home/news/list/index.html', nb_page='home', stories='\n'.join(news))
+        self.response.attach_file('home/news/list/index.html', nb_page='home/index.html', stories='\n'.join(news))
 
 class HandlerNewsItem(RequestHandler):
     @RequestHandler.handler
@@ -93,7 +93,7 @@ class HandlerNewsItem(RequestHandler):
             elif here:
                 text.append(l)
         text = '\n'.join(list(map(lambda x: '<p>' + x + '</p>', text)))
-        self.response.attach_file('story.html', tl=title, tx=text, nb_page='home')
+        self.response.attach_file('home/news/story.html', tl=title, tx=text, nb_page='home/index.html')
 
 class HandlerFAQ(RequestHandler):
     @RequestHandler.handler
@@ -114,7 +114,7 @@ class HandlerFAQ(RequestHandler):
         for q in questions:
             faqs.append(q + questions[q])
 
-        self.response.attach_file('faq.html', nb_page='account/dashboard', questions='<br>'.join(faqs))
+        self.response.attach_file('home/faq.html', nb_page='account/dashboard/index.html', questions='<br>'.join(faqs))
 
 class HandlerTreaty(RequestHandler):
     @RequestHandler.handler
@@ -132,27 +132,27 @@ class HandlerAccount(RequestHandler):
                 if (prog[i].strip() + ' ')[0] not in ('#', ' '):
                     progress.append(
                         'disabled' if (not (eval(prog[i].split(':')[1].strip()) >= 1)) and (not self.request.client.admin) else '')
-            self.response.attach_file('account.html',
+            self.response.attach_file('account/dashboard/index.html',
                                  d1=progress[0], d2=progress[1],
                                  d3=progress[2], d4=progress[3],
                                  d5=progress[4])
         else:
-            self.response.set_status_code(307, location='/login.html')
+            self.response.set_status_code(307, location='/home/login.html', nb_page='account/dashboard/index.html')
 
 class HandlerLogin(RequestHandler):
     @RequestHandler.handler
     def call(self):
-        self.response.attach_file('home/login.html', nb_page='account/dashboard')
+        self.response.attach_file('home/login.html', nb_page='account/dashboard/index.html')
 
 class HandlerSignup(RequestHandler):
     @RequestHandler.handler
     def call(self):
-        self.response.attach_file('signup.html', nb_page='account/dashboard')
+        self.response.attach_file('home/signup.html', nb_page='account/dashboard/index.html')
 
 class HandlerPay(RequestHandler):
     @RequestHandler.handler
     def call(self):
-        self.response.attach_file('pay.html', nb_page='account/dashboard')
+        self.response.attach_file('account/pay.html', nb_page='account/dashboard/index.html')
 
 class HandlerTransactionHistory(RequestHandler):
     @RequestHandler.handler
@@ -164,7 +164,7 @@ class HandlerTransactionHistory(RequestHandler):
             item = item.split('|')
             #.format(amount, taxed, tid, time.strftime('%X - %x')))
             hist.append('<tr>'+''.join(tuple(map(td_wrap, item)))+'\n</tr>')
-        self.response.attach_file('transaction_history.html', nb_page='account/dashboard', history='\n'.join(hist))
+        self.response.attach_file('account/transaction_history.html', nb_page='account/dashboard/index.html', history='\n'.join(hist))
 
 class HandlerRegistry(RequestHandler):
     @RequestHandler.handler
@@ -174,7 +174,7 @@ class HandlerRegistry(RequestHandler):
             acnts.append(
                 '<tr>' + td_wrap(a.firstname + ' ' + a.lastname) + td_wrap(a.id) + td_wrap(a.coalition.name) + td_wrap(
                     a.last_activity) + td_wrap(a.date_of_creation) + '\n</tr>')
-        self.response.attach_file('registry.html', nb_page='account/dashboard', accounts='\n'.join(acnts))
+        self.response.attach_file('home/registry.html', nb_page='account/dashboard/index.html', accounts='\n'.join(acnts))
 
 class HandlerMessages(RequestHandler):
     @RequestHandler.handler
@@ -190,7 +190,7 @@ class HandlerMessages(RequestHandler):
             messages.append(m)
         if not messages:
             messages.append('<span class="no-message">Inbox empty...</span>')
-        self.response.attach_file('messages.html', nb_page='account/dashboard', messages='\n'.join(messages))
+        self.response.attach_file('account/messages/index.html', nb_page='account/dashboard/index.html', messages='\n'.join(messages))
 
 class HandlerProgress(RequestHandler):
     @RequestHandler.handler
@@ -213,7 +213,7 @@ class HandlerProgress(RequestHandler):
                 lines.index(line) + 100
                 ))
 
-        self.response.attach_file('progress.html', bars='\n'.join(compose))
+        self.response.attach_file('home/progress/index.html', bars='\n'.join(compose))
 
 class HandlerSettings(RequestHandler):
     @RequestHandler.handler
@@ -230,15 +230,15 @@ class HandlerSettings(RequestHandler):
             elif line[:4] == '<br>':
                 fields.append('<br>' * int(line[4:]))
 
-        self.response.attach_file('settings.html', settings='<br>\n'.join(fields), nb_page='account/dashboard')
+        self.response.attach_file('account/settings/index.html', settings='<br>\n'.join(fields), nb_page='account/dashboard/index.html')
 
 class HandlerCoalitionRedirect(RequestHandler):
     @RequestHandler.handler
     def call(self):
         if not self.request.client.coalition.default:
-            self.response.set_status_code(303, location='coalition.html')
+            self.response.set_status_code(303, location='group/viewer/index.html')
         else:
-            self.response.set_status_code(303, location='coalition_list.html')
+            self.response.set_status_code(303, location='group/list/index.html')
 
 class HandlerCoalitionList(RequestHandler):
     @RequestHandler.handler
@@ -247,7 +247,7 @@ class HandlerCoalitionList(RequestHandler):
         for group in groups:
             if not group.exists:
                 continue
-            coalitions.append("""<a href="/c/{0}.{7}">
+            coalitions.append("""<a href="/group/viewer/c-{0}.{7}">
                             <div class="c-listing">
                                 <img src="{1}">
                                 <div class="white-back"></div>
@@ -270,32 +270,31 @@ class HandlerCoalitionList(RequestHandler):
                 group.founder.get_name(),
                 'gld' if isinstance(group, Guild) else 'clt' if isinstance(group, Coalition) else 'std'
             ))
-        self.response.attach_file('coalition_list.html', groups='\n'.join(coalitions), nb_page='account/dashboard')
+        self.response.attach_file('group/list/index.html', groups='\n'.join(coalitions), nb_page='account/dashboard/index.html')
 
 class HandlerCoalition(RequestHandler):
     @RequestHandler.handler
     def call(self):
         c = 'clt' if isinstance(self.request.client.coalition, Coalition) else 'gld' if isinstance(self.request.client.coalition, Guild) else 'std'
-        self.response.set_status_code(303, location='/c/' + self.request.client.coalition.cid + '.' + c)
+        self.response.set_status_code(303, location='/group/viewer/c-' + self.request.client.coalition.cid + '.' + c)
 
 class HandlerCreateCoalition(RequestHandler):
     @RequestHandler.handler
     def call(self):
         img_opts = open('conf/clt_img.cfg').read().split('\n')
         opts = ['<option value="{}">{}</option>'.format(*line.split('|')) for line in img_opts]
-        self.response.attach_file('create.html', nb_page='account/dashboard', img_opts='\n'.join(list(opts)))
-
+        self.response.attach_file('group/create/index.html', nb_page='account/dashboard/index.html', img_opts='\n'.join(list(opts)))
 
 class HandlerTransferCoalition(RequestHandler):
     @RequestHandler.handler
     def call(self):
-        self.response.attach_file('transfer.html', nb_page='account/dashboard')
+        self.response.attach_file('group/transfer.html', nb_page='account/dashboard/index.html')
 
 class HandlerPayCoalitionMember(RequestHandler):
     @RequestHandler.handler
     def call(self):
         mems = ['<option value="{}">{}</option>'.format(m.id, m.get_name()) for m in self.request.client.coalition.members]
-        self.response.attach_file('pay_member.html', nb_page='account/dashboard', clt_balance=self.request.client.coalition.budget,
+        self.response.attach_file('group/guild/pay.html', nb_page='account/dashboard/index.html', clt_balance=self.request.client.coalition.budget,
                              members='\n'.join(mems))
 
 class HandlerEditCoalition(RequestHandler):
@@ -304,7 +303,7 @@ class HandlerEditCoalition(RequestHandler):
         mems = ['<li><input name="kick-mem" value="{}" type="checkbox" style="box-shadow: initial;">{}</li>'.format(m.id, m.get_name()) for m in self.request.client.coalition.members if m is not self.request.client.coalition.owner]
         img_opts = open('conf/clt_img.cfg').read().split('\n')
         opts = ['<option value="{}">{}</option>'.format(*line.split('|')) for line in img_opts]
-        self.response.attach_file('edit.html', nb_page='account/dashboard',
+        self.response.attach_file('group/edit.html', nb_page='account/dashboard/index.html',
                              i_members='\n'.join(mems),
                              c_name=self.request.client.coalition.name,
                              c_desc=self.request.client.coalition.description,
@@ -314,19 +313,19 @@ class HandlerCoalitionPool(RequestHandler):
     @RequestHandler.handler
     def call(self):
         c = self.request.client.coalition
-        self.response.attach_file('clt_pooladd.html', nb_page='account/dashboard', cpool='%.2f' % c.pool,
+        self.response.attach_file('group/coalition/deposit.html', nb_page='account/dashboard/index.html', cpool='%.2f' % c.pool,
                              blc=('%.2f' % ground((self.request.client.balance - (self.request.client.coal_pct_loaned * c.max_pool)), 0)))
 
 class HandlerCoalitionLoan(RequestHandler):
     @RequestHandler.handler
     def call(self):
         c = self.request.client.coalition
-        self.response.attach_file('loan.html', nb_page='account/dashboard', ceiling=cap(c.max_pool * c.get_loan_size(), c.pool))
+        self.response.attach_file('group/coalition/loan.html', nb_page='account/dashboard/index.html', ceiling=cap(c.max_pool * c.get_loan_size(), c.pool))
 
 class HandlerCoalitionLoanJS(RequestHandler):
     @RequestHandler.handler
     def call(self):
-        self.response.attach_file('loan_view.js', loan_ceiling=self.request.client.coalition.max_pool)
+        self.response.attach_file('group/coalition/loan_view.js', loan_ceiling=self.request.client.coalition.max_pool)
 
 class HandlerHuntList(RequestHandler):
     @RequestHandler.handler
@@ -336,7 +335,7 @@ class HandlerHuntList(RequestHandler):
             '%x')
         for h in hunts:
             if not h.complete and not (len(h.participants) / h.max_contributors >= 1):
-                l.append("""<a href="h-{4}"><div class="hunt">
+                l.append("""<a href="/h-{4}"><div class="hunt">
                             <img class="hunt-img" src="google_doc.png">
                             <div class="dark-overlay"></div>
                             <div class="dark-bar {5}"></div>
@@ -357,17 +356,17 @@ class HandlerHuntList(RequestHandler):
             t = '<span style="color:#D7D7D7; font-size: 36px">There aren\'t any hunts available!</span>'
         else:
             t = '\n'.join(l)
-        self.response.attach_file('hunts.html', hunts=t)
+        self.response.attach_file('hunt/list/index.html', hunts=t)
 
 class HandlerMyHuntList(RequestHandler):
     @RequestHandler.handler
     def call(self):
-        self.response.attach_file('my_hunts.html', nb_page='hunts',
+        self.response.attach_file('account/my_hunts.html', nb_page='hunt/list/index.html',
              phunts='\n'.join(
-                 ['<li><a href="h-{1}">{0}</a></li>'.format(h.title, h.id) for h in self.request.client.working_hunts if
+                 ['<li><a href="/h-{1}">{0}</a></li>'.format(h.title, h.id) for h in self.request.client.working_hunts if
                   not h.complete]),
              mhunts='\n'.join(
-                 ['<li><a href="h-{1}">{0}</a></li>'.format(h.title, h.id) for h in self.request.client.my_hunts if
+                 ['<li><a href="/h-{1}">{0}</a></li>'.format(h.title, h.id) for h in self.request.client.my_hunts if
                   not h.complete]))
 
 class HandlerHuntViewer(RequestHandler):
@@ -380,7 +379,7 @@ class HandlerHuntViewer(RequestHandler):
             return self.throwError(1, 'c')
 
         client = self.request.client
-        self.response.attach_file('hunt.html', nb_page='hunts',
+        self.response.attach_file('hunt/index.html', nb_page='hunt/list/index.html',
                              hunt_name=hunt.title,
                              creator=hunt.creator.get_name(),
                              posted_date=hunt.posted_date,
@@ -394,7 +393,7 @@ class HandlerHuntViewer(RequestHandler):
                                  hunt.link) if client in hunt.participants + hunt.completers + [hunt.creator] else '',
                              hid=hunt.id,
                              completers=len(hunt.completers),
-                             edit='<a href="he-{}" style="margin-top: -10px;">Edit Hunt Information</a>'.format(
+                             edit='<a href="/he-{}" style="margin-top: -10px;">Edit Hunt Information</a>'.format(
                                  hunt.id) if client is hunt.creator else ''
                              )
 
@@ -457,13 +456,13 @@ class HandlerEditHunt(RequestHandler):
             hunt = next(h for h in hunts if h.id == hid)
         except StopIteration:
             return self.throwError(1, 'e')
-        self.response.attach_file('hunt_edit.html', nb_page='hunts', hid=hid, name=hunt.title, link=hunt.link,
+        self.response.attach_file('hunt_edit.html', nb_page='hunt/list/index.html', hid=hid, name=hunt.title, link=hunt.link,
                              desc=hunt.desc)
 
 class HandlerHuntSubmit(RequestHandler):
     @RequestHandler.handler
     def call(self):
-        self.response.attach_file('hunt_submit.html', nb_page='account/dashboard')
+        self.response.attach_file('hunt/submit.html', nb_page='account/dashboard/index.html')
 
 class HandlerMarket(RequestHandler):
     @RequestHandler.handler
@@ -474,7 +473,7 @@ class HandlerMarket(RequestHandler):
                             <div class="product">{2}</div>
                             <div class="price">&#8354;{3}</div>
                         </div></a>""".format(s.id, s.img, s.name, '%.2f' % s.cost) for s in sales if not s.sold]
-        self.response.attach_file('market.html', nb_page='account/dashboard',
+        self.response.attach_file('market/list/index.html', nb_page='account/dashboard/index.html',
                              sales='\n'.join(s) if s else '<span class="empty-msg">It\'s an open market!</span>')
 
 class HandlerPostSale(RequestHandler):
@@ -482,19 +481,19 @@ class HandlerPostSale(RequestHandler):
     def call(self):
         img_opts = open('conf/clt_img.cfg').read().split('\n')
         opts = ['<option value="{}">{}</option>'.format(*line.split('|')) for line in img_opts]
-        self.response.attach_file('post_sale.html', nb_page='account/dashboard', img_opts='\n'.join(list(opts)))
+        self.response.attach_file('market/submit.html', nb_page='account/dashboard/index.html', img_opts='\n'.join(list(opts)))
 
 class HandlerMarketJS(RequestHandler):
     @RequestHandler.handler
     def call(self):
         data = ['"{}":["{}", "{}", "{}"]'.format(s.id, s.name, s.cost, s.seller.get_name()) for s in sales]
-        self.response.attach_file('market.js', data='{' + ','.join(data) + '}', bal=int(self.request.client.balance))
+        self.response.attach_file('market/list/market.js', data='{' + ','.join(data) + '}', bal=int(self.request.client.balance))
 
 class HandlerConsolePage(RequestHandler):
     @RequestHandler.handler
     def call(self):
         consoles[self.addr[0]] = console.Console(accounts)
-        self.response.attach_file('console.html')        
+        self.response.attach_file('console/console.html')
 
 
 class HandlerLogoutGA(RequestHandler):
@@ -502,7 +501,7 @@ class HandlerLogoutGA(RequestHandler):
     def call(self):
         self.response.add_cookie('client-id', 'none')
         self.response.add_cookie('validator', 'none')
-        self.response.set_status_code(303, location='home.html')
+        self.response.set_status_code(303, location='home/index.html')
 
 class HandlerShutdownGA(RequestHandler):
     @RequestHandler.handler
@@ -543,7 +542,7 @@ class HandlerHuntButtonGA(RequestHandler):
             hunt.end()
             for acnt in hunt.participants + hunt.completers:
                 acnt.active_hunts -= 1
-            self.response.set_status_code(303, location='/hunts.html')
+            self.response.set_status_code(303, location='/hunt/list/index.html')
         else:  # Join
             self.request.client.active_hunts += 1
             hunt.join(self.request.client)
@@ -565,7 +564,7 @@ class HandlerCoalitionDisbandGA(RequestHandler):
     @RequestHandler.handler
     def call(self):
         self.request.client.coalition.dismantle(pm_group)
-        self.response.set_status_code(303, location='coalitions.html')
+        self.response.set_status_code(303, location='group/list/index.html')
     
 
 class HandlerCollectSalaryGA(RequestHandler):
@@ -618,7 +617,7 @@ class HandlerRequestGroupJoinGA(RequestHandler):
                 coalition.owner
             )
 
-            self.response.set_status_code(303, location="/coalitions.html")
+            self.response.set_status_code(303, location="/group/list/index.html")
 
 class HandlerAcceptGroupJoinGA(RequestHandler):
     @RequestHandler.handler
@@ -647,14 +646,18 @@ class HandlerLeaveCoalitionGA(RequestHandler):
         if isinstance(client.coalition, Guild):
             client.coalition.budget += client.coalition.credit[client]
             client.coalition.credit[client] = 0
-        self.response.set_status_code(303, location='coalitions.html')
+        self.response.set_status_code(303, location='/group/list/index.html')
 
 
 class HandlerMarketPurchase(RequestHandler):
     @RequestHandler.handler
     def call(self):
         id = self.request.address[0][4:].split('.')[0]
-        sale = next(s for s in sales if s.id.strip() == id.strip() and not s.sold)
+        try:
+            sale = next(s for s in sales if s.id.strip() == id.strip() and not s.sold)
+        except StopIteration:
+            self.throwError(3, 'd')
+            return
         seller = sale.seller
         buyer = self.request.client
         guild = sale.guild
@@ -692,7 +695,7 @@ class HandlerMarketPurchase(RequestHandler):
                             sale.name, sale.cost), buyer)
         sale.sold = True
 
-        self.response.set_status_code(303, location="market.html")
+        self.response.set_status_code(303, location="/market/list/index.html")
 
 
 class HandlerGroupViewer(RequestHandler):
@@ -700,7 +703,8 @@ class HandlerGroupViewer(RequestHandler):
     def call(self):
         client = self.request.client
         try:
-            id, type = self.request.address[1].split('.')
+            id, type = self.request.address[-1].split('.')
+            id = id.split('-')[-1]
             othertype = False
         except ValueError:
             othertype = True
@@ -715,7 +719,7 @@ class HandlerGroupViewer(RequestHandler):
             owner = coalition.owner is client
             member = client.coalition is coalition
             disabled = lambda condition: 'disabled' if condition else ''
-            self.response.attach_file('coalition.html',
+            self.response.attach_file('group/viewer/coalition/index.html',
                                  members='\n'.join(tuple(map(lambda x: li(x.get_name()), coalition.members))),
                                  c_id=coalition.cid,
                                  c_desc=coalition.description,
@@ -738,7 +742,7 @@ class HandlerGroupViewer(RequestHandler):
                                  d4=disabled(not member),
                                  d5=disabled(not owner),
                                  d6=disabled(not member or not client.coal_pct_loaned > 0),
-                                 nb_page='account/dashboard')
+                                 nb_page='account/dashboard/index.html')
         elif not othertype and type == 'gld':
             try:
                 coalition = next(i for i in groups if i.cid == id and i.exists)
@@ -748,17 +752,15 @@ class HandlerGroupViewer(RequestHandler):
             owner = coalition.owner is client
             member = client.coalition is coalition
             disabled = lambda condition: 'disabled' if condition else ''
-            if len(self.request.address) > 2:
-                if self.request.address[2] == 'budget.html':
-                    self.response.attach_file('budget.html', nb_page='account/dashboard',
-                                         name=coalition.name,
-                                         budget=coalition.budget,
-                                         credit=coalition.credit[client]
-                                         )
-                else:
-                    self.response.set_status_code(303, location='/' + self.request.address[2])
+
+            if '/'.join(self.request.address) == 'group/guild/budget/index.html':
+                self.response.attach_file('group/guild/budget/index.html', nb_page='account/dashboard/index.html',
+                                     name=coalition.name,
+                                     budget=coalition.budget,
+                                     credit=coalition.credit[client]
+                                     )
             else:
-                self.response.attach_file('guild.html',
+                self.response.attach_file('group/viewer/guild/index.html',
                                      coalition_name=coalition.name,
                                      members='\n'.join(tuple(map(lambda x: li(x.get_name()), coalition.members))),
                                      c_id=coalition.cid,
@@ -774,7 +776,7 @@ class HandlerGroupViewer(RequestHandler):
                                      d5=disabled(not owner),
                                      d6=disabled(not owner),
                                      d7=disabled(not member),
-                                     nb_page='account/dashboard')
+                                     nb_page='account/dashboard/index.html')
         elif othertype or type == 'std':
             return self.throwError(15, 'a')
         else:
@@ -838,7 +840,7 @@ class HandlerLoginPA(RequestHandler):
             self.response.add_cookie('client-id', acnt.id, 'Max-Age=604800')  # 2 weeks
             self.response.add_cookie('validator', acnt.validator, 'Max-Age=604800', 'HttpOnly')
 
-            self.response.set_status_code(303, location='/account/dashboard')
+            self.response.set_status_code(303, location='/account/dashboard/index.html')
             if log_signin: self.server.log.log('Log in:', u.id)
         except IndexError:
             return self.throwError(4, 'a')
@@ -883,7 +885,7 @@ class HandlerSignupPA(RequestHandler):
         self.response.add_cookie('client-id', id, 'Max-Age=604800')  # 2 weeks
         self.response.add_cookie('validator', acnt.validator, 'Max-Age=604800', 'HttpOnly')
 
-        self.response.set_status_code(303, location='account.html')
+        self.response.set_status_code(303, location='account/dashboard/index.html')
         if log_signup: self.server.log.log('Sign up:', acnt.get_name(), acnt.id)
 
 class HandlerTransactionPA(RequestHandler):
@@ -909,7 +911,7 @@ class HandlerTransactionPA(RequestHandler):
         amount -= taxed
 
         if not a.pay(amount, recipient_acnt):
-            self.response.set_status_code(303, location='account.html')
+            self.response.set_status_code(303, location='account/dashboard/index.html')
             tid = '%19d' % random.randint(1, 2 ** 64)
             record_transaction(self.server, a, ar, tid, amount, taxed, log_transactions)
             a.transaction_history.append(
@@ -952,7 +954,7 @@ class HandlerMessagePA(RequestHandler):
         subject = self.request.get_post('subject')
         self.request.client.send_message(subject, msg, recipient)
 
-        self.response.set_status_code(303, location="messages.html")
+        self.response.set_status_code(303, location="account/messages/index.html")
 
 class HandlerSaveSettingsPA(RequestHandler):
     @RequestHandler.handler
@@ -977,7 +979,7 @@ class HandlerSaveSettingsPA(RequestHandler):
         if new_usr:
             self.request.client.username = new_usr
 
-        self.response.set_status_code(303, location='account.html')
+        self.response.set_status_code(303, location='account/dashboard/index.html')
 
 class HandlerCreateCoalitionPA(RequestHandler):
     @RequestHandler.handler
@@ -1000,7 +1002,7 @@ class HandlerCreateCoalitionPA(RequestHandler):
             new = Guild(name, img, client, desc)
 
         groups.append(new)
-        self.response.set_status_code(303, location="coalition.html")
+        self.response.set_status_code(303, location="group/viewer/index.html")
 
 class HandlerTransferOwnershipPA(RequestHandler):
     @RequestHandler.handler
@@ -1017,7 +1019,7 @@ class HandlerTransferOwnershipPA(RequestHandler):
         else:
             return self.throwError(16, 'a')
 
-        self.response.set_status_code(303, location='coalitions.html')
+        self.response.set_status_code(303, location='group/list/index.html')
 
 class HandlerPayCoalitionMemberPA(RequestHandler):
     @RequestHandler.handler
@@ -1030,7 +1032,7 @@ class HandlerPayCoalitionMemberPA(RequestHandler):
             return self.throwError(6, 'c')
 
         self.request.client.coalition.pay_member(float(self.request.post_values.get('amt')), target)
-        self.response.set_status_code(303, location='coalitions.html')
+        self.response.set_status_code(303, location='group/list/index.html')
 
 class HandlerEditCoalitionPA(RequestHandler):
     @RequestHandler.handler
@@ -1056,7 +1058,7 @@ class HandlerEditCoalitionPA(RequestHandler):
                 m = get_account_by_id(km)
                 c.remove_member(m, pm_group)
                 get_account_by_id('1377').send_message('Coalition Kick', msg, m)
-        self.response.set_status_code(303, location='coalitions.html')
+        self.response.set_status_code(303, location='group/list/index.html')
 
 class HandlerCoalitionPoolPA(RequestHandler):
     @RequestHandler.handler
@@ -1071,7 +1073,7 @@ class HandlerCoalitionPoolPA(RequestHandler):
             '&#8354;{0} donated to {1}|&#8354;{2}|3{3}|{4}'.format('%.2f' % amt, c.name, 'EXEMPT', tid,
                                                                    time.strftime('%X - %x')))
         record_transaction(self.server, client.id, c.cid, tid, amt, 0, log_transactions)
-        self.response.set_status_code(303, location='coalitions.html')
+        self.response.set_status_code(303, location='group/list/index.html')
 
 class HandlerCoalitionLoanPA(RequestHandler):
     @RequestHandler.handler
@@ -1079,7 +1081,7 @@ class HandlerCoalitionLoanPA(RequestHandler):
         c = self.request.client.coalition
         amt = float(self.request.get_post('amt'))
         c.loan(amt, self.request.client)
-        self.response.set_status_code(303, location="coalitions.html")
+        self.response.set_status_code(303, location="group/list/index.html")
 
 class HandlerEditHuntPA(RequestHandler):
     @RequestHandler.handler
@@ -1132,48 +1134,47 @@ class HandlerPostSalePA(RequestHandler):
         s.guild = '' if not guild or not isinstance(client.coalition, Guild) else client.coalition
         client.my_sales.append(s)
         sales.append(s)
-        self.response.set_status_code(303, location='market.html')
+        self.response.set_status_code(303, location='market/list/index.html')
 
 
 # Access by addr[0].split('-')[0]
 GET = {
     '': HandlerBlank,
-    'home': HandlerHome,
-    'home/news/list': HandlerNews,
-    'home/about': HandlerAbout,
-    'n': HandlerNewsItem,
-    'faq.html': HandlerFAQ,
-    'treaty.html': HandlerTreaty,
-    'account/dashboard': HandlerAccount,
-    'home/login': HandlerLogin,
-    'pay.html': HandlerPay,
-    'progress.html': HandlerProgress,
-    'signup.html': HandlerSignup,
-    'transaction_history.html': HandlerTransactionHistory,
-    'registry.html': HandlerRegistry,
-    'messages.html': HandlerMessages,
-    'settings.html': HandlerSettings,
-    'coalitions.html': HandlerCoalitionRedirect,
-    'coalition_list.html': HandlerCoalitionList,
-    'coalition.html': HandlerCoalition,
-    'create.html': HandlerCreateCoalition,
-    'transfer.html': HandlerTransferCoalition,
-    'pay_member.html': HandlerPayCoalitionMember,
-    'edit.html': HandlerEditCoalition,
-    'clt_pooladd.html': HandlerCoalitionPool,
-    'loan.html': HandlerCoalitionLoan,
-    'loan_view.js': HandlerCoalitionLoanJS,
-    'hunts.html': HandlerHuntList,
-    'my_hunts.html': HandlerMyHuntList,
+    'home/index.html': HandlerHome,
+    'home/news/list/index.html': HandlerNews,
+    'home/about.html': HandlerAbout,
+    'home/faq.html': HandlerFAQ,
+    'home/treaty.html': HandlerTreaty,
+    'account/dashboard/index.html': HandlerAccount,
+    'home/login.html': HandlerLogin,
+    'account/pay.html': HandlerPay,
+    'home/progress/index.html': HandlerProgress,
+    'home/signup.html': HandlerSignup,
+    'account/transaction_history.html': HandlerTransactionHistory,
+    'home/registry.html': HandlerRegistry,
+    'account/messages.html': HandlerMessages,
+    'account/settings/index.html': HandlerSettings,
+    'group/list/redirect.html': HandlerCoalitionRedirect,
+    'group/list/index.html': HandlerCoalitionList,
+    'group/viewer/index.html': HandlerCoalition,
+    'group/create/index.html': HandlerCreateCoalition,
+    'group/transfer.html': HandlerTransferCoalition,
+    'group/guild/pay.html': HandlerPayCoalitionMember,
+    'group/edit.html': HandlerEditCoalition,
+    'group/coalition/deposit.html': HandlerCoalitionPool,
+    'group/coalition/loan.html': HandlerCoalitionLoan,
+    'group/coalition/loan_view.js': HandlerCoalitionLoanJS,
+    'hunt/list/index.html': HandlerHuntList,
+    'account/my_hunts.html': HandlerMyHuntList,
     'h': HandlerHuntViewer,
     'hd': HandlerHuntCompleteDenied,
     'hp': HandlerHuntCompleteAccepted,
     'he': HandlerEditHunt,
-    'hunt_submit.html': HandlerHuntSubmit,
-    'market.html': HandlerMarket,
-    'post_sale.html': HandlerPostSale,
-    'market.js': HandlerMarketJS,
-    'console.html': HandlerConsolePage,
+    'hunt/submit.html': HandlerHuntSubmit,
+    'market/list/index.html': HandlerMarket,
+    'market/submit.html': HandlerPostSale,
+    'market/list/market.js': HandlerMarketJS,
+    'console/console.html': HandlerConsolePage,
 
     'logout.act': HandlerLogoutGA,
     'shutdown_normal.act': HandlerShutdownGA,
@@ -1186,9 +1187,11 @@ GET = {
     'accept_request.act': HandlerAcceptGroupJoinGA,
     'leave_coalition.act': HandlerLeaveCoalitionGA,
 
-    'c': HandlerGroupViewer,
+    'n': HandlerNewsItem,
+    'group/viewer/c': HandlerGroupViewer,
     'm': HandlerMessageFetch,
     'cmd':HandlerConsoleCommand,
+    'buy': HandlerMarketPurchase,
 }
 
 POST = {

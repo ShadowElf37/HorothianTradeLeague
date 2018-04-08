@@ -5,7 +5,7 @@
     <title>[[coalition_name]] | Project Mercury</title>
     <link rel="stylesheet" type="text/css" href="general.css">
     <link rel="stylesheet" type="text/css" href="buttons.css">
-    <link rel="stylesheet" type="text/css" href="coalition_page.css">
+    <link rel="stylesheet" type="text/css" href="guild.css">
     <script src="confirmation.js"></script>
 </head>
 <body>
@@ -25,10 +25,11 @@
     		<div id="button-holder">
 	    		<a href="request_join.act/[[c_id]]"><button class="theme-button" [[d1]]>Request Join</button></a>
 	    		<a href="edit_coalition.html"><button class="theme-button" [[d2]]>Edit</button></a><br>
-	    		<a href="clt_pooladd.html"><button class="theme-button" [[d3]]>Add to Pool</button></a>
-	    		<a href="loan.html"><button class="theme-button" [[d4]]>Loan</button></a><br>
-                <a href="javascript:confirmRedirect('clt_transfer_ownership.html')" [[d5]]><button class="red-button">Change Owner</button></a>
-	    		<a href="javascript:confirmRedirect('[[disleave]]')"><button class="red-button" [[d6]]>[[disleavet]]</button></a>
+	    		<a href="collect_guild_salary.act"><button class="theme-button" [[d3]]>Collect Wages</button></a>
+				<a href="[[c_id]].gld/budget.html"><button class="theme-button" [[d4]]>View Budget</button></a>
+				<a href="pay_member.html"><button class="theme-button" [[d5]]>Pay Member</button></a><br>
+	    		<a href="javascript:confirmRedirect('clt_transfer_ownership.html')"><button class="red-button" [[d6]]>Change Owner</button></a>
+				<a href="javascript:confirmRedirect('[[disleave]]')"><button class="red-button" [[d7]]>[[disleavet]]</button></a>
     		</div>
     		<br><br>
     		<a href="coalition_list.html">Full coalition list</a>
@@ -39,13 +40,6 @@
 	    		<ul>
 	    			[[members]]
 	    		</ul>
-	    	</div>
-	    	<div class="member-list" style="line-height: initial">
-	    		<h3>Current Pool</h3><br>
-	    		<h4 style="color: black; font-size: 70px">&#8354;[[pool]]</h4>
-	    		<h5 style="font-size: 24px;">out of <span class="black" style="margin-left: 5px">&#8354;[[max_pool]]</span></h5>
-	    		<h5>Individual loan is <span class="black">[[pct_loan]]%</span> (<span class="black">&#8354;[[amt_loan]]</span>)</h5>
-                <h5 style="font-size: 28px">Current loans: <span class="black">[[pct_client_loan]]%</span> (<span class="black">&#8354;[[amt_client_loan]]</span>)</h5>
 	    	</div>
 	    </div>
     </div>

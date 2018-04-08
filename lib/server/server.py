@@ -127,14 +127,10 @@ class Server:
             self.connection = None
 
     # Sends a user-friendly error message
-    def throwError(self, code, id, page, c='', response=None):
+    def throwError(self, code, id, page, c='', response=Response()):
         err = get_error(code, id)
-        if response is None:
-            r = Response()
-        else:
-            r = response
-        r.set_status_code(303, location=page)
-        self.send(r, c)
+        response.set_status_code(307, location=('/' if page[0] != '/' else '')+page)
+        self.send(response, c)
         return err
 
     def do_handle(self, request):

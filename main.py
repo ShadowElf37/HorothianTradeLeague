@@ -20,7 +20,7 @@ from threading import Thread
 
 
 # Config
-require_validator = True
+require_validator = False
 log_request = True
 log_transactions = False
 log_signin = True
@@ -59,7 +59,8 @@ import handler  # Again, I don't know why, but it just cannot handle being put b
 
 def handle(self, conn, addr, request):
     global error
-    while self.paused.get(addr[0], False): pass
+    while self.paused.get(addr[0], False):
+        time.sleep(0.001)
     self.pause(addr[0])
     Thread(target=self.unpause, args=(addr[0],)).start()
 
@@ -86,7 +87,7 @@ def handle(self, conn, addr, request):
         response.add_cookie('client-id', 'none')
         response.add_cookie('validator', 'none')
         response.logged_in = False
-        error = self.throwError(5, 'a', '/login.html', conn, response=response)
+        error = self.throwError(5, 'a', '/home/login.html', conn, response=response)
         self.log.log(addr[0], '- Client\'s cookies don\'t match.', lvl=Log.ERROR)
         return
     elif response.logged_in:
