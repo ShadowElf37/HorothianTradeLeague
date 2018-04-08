@@ -26,12 +26,11 @@ ISSUE TRACKER
     [SOLVED] 4. Guild pages and coalition listings are not destroyed when disbanded via joining other group
     [SOLVED] 5. Unicode is not properly supported
     [SOLVED] 6. Hunt payments always throw 17a
-    [] 7. Server fails to change cookies to 'none' if the SID is invalid unless client goes to /, which causes an infinite loop server-side
+    [SOLVED] 7. Server fails to change cookies to 'none' if the SID is invalid unless client goes to /, which causes an infinite loop server-side
     [] 8. Coalition debt payments can go beyond their intended ceilings
 
 LAUNCH PREPARATION:
-    1. Treaty
-    2. Console commands
+    1. Console commands
 
-    3. SSL
-    4. Port forward
+    2. SSL
+    3. Port forward
