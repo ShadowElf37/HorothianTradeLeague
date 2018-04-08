@@ -80,9 +80,10 @@ def handle(self, conn, addr, request):
     render_defaults = {'error':error, 'number_of_messages':len(list(filter(lambda x: not x.read, client.messages))), 'host':host, 'port':port, 'username':client.username, 'id':client.id, 'hunt_total':client.total_hunts, 'hunt_count':client.active_hunts, 'balance':client.balance}
     response.default_renderopts = render_defaults
 
-    # Make sure client has a cookie and that it's valid - activity time is recorded
+    # Make sure client has a cookie
     if client.id is None:
         response.add_cookie('client-id', 'none')
+    # Make sure SID is valid
     elif request.get_cookie('validator') != client.validator and response.logged_in and require_validator:
         response.add_cookie('client-id', 'none')
         response.add_cookie('validator', 'none')
@@ -90,6 +91,7 @@ def handle(self, conn, addr, request):
         error = self.throwError(5, 'a', '/home/login.html', conn, response=response)
         self.log.log(addr[0], '- Client\'s cookies don\'t match.', lvl=Log.ERROR)
         return
+    # Record activity
     elif response.logged_in:
         client.last_activity = time.strftime('%X (%x)')
 

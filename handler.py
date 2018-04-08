@@ -640,6 +640,8 @@ class HandlerAcceptGroupJoinGA(RequestHandler):
                                                    'Your request to join the coalition was approved! You can access it with the COALITIONS button in your account.',
                                                    get_account_by_id(r[0]))
 
+        self.response.set_status_code(303, location='/group/viewer/index.html')
+
 
 class HandlerLeaveCoalitionGA(RequestHandler):
     @RequestHandler.handler
@@ -742,7 +744,7 @@ class HandlerGroupViewer(RequestHandler):
                                  d1=disabled(member),
                                  d2=disabled(not owner),
                                  d3=disabled(not member),
-                                 d4=disabled(not member),
+                                 d4=disabled(not member or not client.coal_pct_loaned > 0),
                                  d5=disabled(not member),
                                  d6=disabled(not owner),
                                  d7=disabled(not member or client.coal_pct_loaned > 0),
@@ -786,6 +788,11 @@ class HandlerGroupViewer(RequestHandler):
         else:
             self.response.set_status_code(303, location='/' + '/'.join(self.request.address[1:]))
 
+class HandlerPayDebt(RequestHandler):
+    @RequestHandler.handler
+    def call(self):
+        c = self.request.client.coalition
+        self.response.attach_file('group/coalition/pay_debt.html', nb_page='account/dashboard/index.html', ceiling=self.request.client.coal_pct_loaned*c.max_pool)
 
 class HandlerMessageFetch(RequestHandler):
     @RequestHandler.handler
@@ -1077,7 +1084,7 @@ class HandlerCoalitionPoolPA(RequestHandler):
             '&#8354;{0} donated to {1}|&#8354;{2}|3{3}|{4}'.format('%.2f' % amt, c.name, 'EXEMPT', tid,
                                                                    time.strftime('%X - %x')))
         record_transaction(self.server, client.id, c.cid, tid, amt, 0, log_transactions)
-        self.response.set_status_code(303, location='group/list/index.html')
+        self.response.set_status_code(303, location="/group/viewer/index.html")
 
 class HandlerCoalitionLoanPA(RequestHandler):
     @RequestHandler.handler
@@ -1085,7 +1092,7 @@ class HandlerCoalitionLoanPA(RequestHandler):
         c = self.request.client.coalition
         amt = float(self.request.get_post('amt'))
         c.loan(amt, self.request.client)
-        self.response.set_status_code(303, location="/c-{}".format(self.request.client.coalition.cid))
+        self.response.set_status_code(303, location="/group/viewer/index.html")
 
 class HandlerEditHuntPA(RequestHandler):
     @RequestHandler.handler
@@ -1144,7 +1151,7 @@ class HandlerPayDebtPA(RequestHandler):
     def call(self):
         amt = float(self.request.get_post('amt'))
         self.request.client.coalition.pay_loan(amt, self.request.client)
-        self.response.set_status_code(303, location='/c-{}'.format(self.request.client.coalition.cid))
+        self.response.set_status_code(303, location="/group/viewer/index.html")
 
 
 GET = {

@@ -255,3 +255,4 @@ BETA v0.3.0.0 (4/7/18)
 BETA v0.3.0.1 (4/8/18)
     - Fixed many bugs with new URI compatibility
     - Added way to pay back loans (that was quite an oversight)
+    - Solved issues 1 through 5

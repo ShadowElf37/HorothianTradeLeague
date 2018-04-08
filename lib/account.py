@@ -280,19 +280,22 @@ class Coalition(Group):  # Get with your friends and make a living together
         return 1
 
     def loan(self, amt, acnt):
+        print('AMT', amt)
         percent = amt / self.max_pool
+        print('PCT', percent)
         if percent + acnt.coal_pct_loaned <= 1.3/(len(self.members)):  # A user cannot loan more than 26% for 5 members etc.
-            self.pool -= self.pool * percent
+            self.pool -= amt
             acnt.coal_pct_loaned += percent
-            acnt.balance += self.pool * percent
+            acnt.balance += amt
+            print('BAL', acnt.balance)
             return 0
         return 1
 
     def pay_loan(self, amt, acnt):
         percent = amt / self.max_pool
-        self.pool += self.pool * percent
+        self.pool += amt
         acnt.coal_pct_loaned -= percent
-        acnt.balance -= self.pool * percent
+        acnt.balance -= amt
         return 0
 
 # Join a guild and enjoy the benefits of capitalism!
