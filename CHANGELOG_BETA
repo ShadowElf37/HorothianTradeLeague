@@ -251,3 +251,7 @@ BETA v0.3.0.0 (4/7/18)
     - Reorganized to-do, added better bug listing
     - Moved hunt style into the HTML file because server was unable to find the CSS; the cause of this is unknown
     - Fixed issue #6
+
+BETA v0.3.0.1 (4/8/18)
+    - Fixed many bugs with new URI compatibility
+    - Added way to pay back loans (that was quite an oversight)

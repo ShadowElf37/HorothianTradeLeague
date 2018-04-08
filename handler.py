@@ -36,7 +36,7 @@ class DefaultHandler(RequestHandler):
     @RequestHandler.handler
     def call(self):
         self.response.attach_file('/'.join(self.request.address), rendr=True, rendrtypes=('html', 'htm', 'js', 'css'),
-                             nb_page='/'.join(self.request.address))
+                             nb_page='account/dashboard/index.html')#'/'.join(self.request.address))
 
 
 # Handlers
@@ -236,9 +236,9 @@ class HandlerCoalitionRedirect(RequestHandler):
     @RequestHandler.handler
     def call(self):
         if not self.request.client.coalition.default:
-            self.response.set_status_code(303, location='group/viewer/index.html')
+            self.response.set_status_code(303, location='/group/viewer/index.html')
         else:
-            self.response.set_status_code(303, location='group/list/index.html')
+            self.response.set_status_code(303, location='/group/list/index.html')
 
 class HandlerCoalitionList(RequestHandler):
     @RequestHandler.handler
@@ -524,7 +524,7 @@ class HandlerHuntButtonGA(RequestHandler):
     @RequestHandler.handler
     def call(self):
         try:
-            hunt = next(h for h in hunts if h.id == self.request.address[1])
+            hunt = next(h for h in hunts if h.id == self.request.address[-1].split('-')[1])
         except StopIteration:
             return self.throwError(2, 'b')
         if self.request.client in hunt.participants:  # Complete
@@ -553,7 +553,7 @@ class HandlerMessageDeleteGA(RequestHandler):
     def call(self):
         client = get_account_by_id(self.request.address[2])
         try:
-            msg = next(m for m in client.messages if m.id == self.request.address[1])
+            msg = next(m for m in client.messages if m.id == self.request.address[-1])
             client.messages.remove(msg)
         except StopIteration:
             self.server.log.log(self.addr[0], '- Client tried to delete non-existant message.')
@@ -590,9 +590,9 @@ class HandlerRequestGroupJoinGA(RequestHandler):
     @RequestHandler.handler
     def call(self):
         try:
-            coalition = next(i for i in groups if i.cid == self.request.address[1] and i.exists)
+            coalition = next(i for i in groups if i.cid == self.request.address[-1].split('-')[1] and i.exists)
         except StopIteration:
-            print(self.request.address[1])
+            print(self.request.address)
             for c in groups:
                 print(c.cid)
             return
@@ -612,8 +612,7 @@ class HandlerRequestGroupJoinGA(RequestHandler):
                                                        coalition.cid), self.request.client)
             get_account_by_id('1377').send_message(
                 'Join Coalition Request',
-                self.request.client.get_name() + ' (' + self.request.client.id + ') requested to join your coalition!\nYou can accept it by going to &#x7B;this link&#x7C;http://' + host + ':' + str(
-                    port) + '/accept_request.act/' + rid + '&#x7D;.',
+                self.request.client.get_name() + ' (' + self.request.client.id + ') requested to join your coalition!\nYou can accept it by going to &#x7B;this link&#x7C;/accept_request.act-' + rid + '&#x7D;.',
                 coalition.owner
             )
 
@@ -624,15 +623,19 @@ class HandlerAcceptGroupJoinGA(RequestHandler):
     def call(self):
         data = open('data/clt_join_reqs.dat', 'r').read().split('\n')
         try:
-            r = tuple(filter(lambda x: x.split('|')[2] == self.request.address[1], data))[0].split('|')
+            r = tuple(filter(lambda x: x.split('|')[2] == self.request.address[-1].split('-')[1], data))[0].split('|')
         except IndexError:
             print("REALLY BAD ERROR")
             self.server.send('Well that didn\'t work!')
             return
 
         a = get_account_by_id(r[0])
-        if a not in tuple(filter(lambda x: x.cid == r[1], groups))[0].members:
-            tuple(filter(lambda x: x.cid == r[1], groups))[0].add_member(a)
+        c = tuple(filter(lambda x: x.cid == r[1], groups))[0]
+        if a not in c.members:
+            a.coalition.remove_member(a, pm_group)
+            if a.coalition.owner is a:
+                a.coalition.dismantle(pm_group)
+            c.add_member(a)
             get_account_by_id('1377').send_message('Join Coalition Request',
                                                    'Your request to join the coalition was approved! You can access it with the COALITIONS button in your account.',
                                                    get_account_by_id(r[0]))
@@ -740,8 +743,9 @@ class HandlerGroupViewer(RequestHandler):
                                  d2=disabled(not owner),
                                  d3=disabled(not member),
                                  d4=disabled(not member),
-                                 d5=disabled(not owner),
-                                 d6=disabled(not member or not client.coal_pct_loaned > 0),
+                                 d5=disabled(not member),
+                                 d6=disabled(not owner),
+                                 d7=disabled(not member or client.coal_pct_loaned > 0),
                                  nb_page='account/dashboard/index.html')
         elif not othertype and type == 'gld':
             try:
@@ -788,19 +792,19 @@ class HandlerMessageFetch(RequestHandler):
     def call(self):
         try:
             # Open message, ignore metadata first line
-            d = open('data/messages/' + self.request.address[1] + '.msg', 'r').read()
+            d = open('data/messages/' + self.request.address[-1].split('-')[1] + '.msg', 'r').read()
             head = d.split('\n')[0]
             id = head[head.find('->') + 2:head.find(' |')].strip()
             d = '\n'.join(d.split('\n')[1:])
             # Set message to read for account.html message button rendering
             client = get_account_by_id(id)
             try:
-                msg = next(m for m in client.messages if m.id == self.request.address[1])
+                msg = next(m for m in client.messages if m.id == self.request.address[-1].split('-')[1])
             except StopIteration:
                 print('@', [m.id for m in client.messages])
                 print('!', client.id)
                 print('$', id)
-                print('#', self.request.address[1])
+                print('#', self.request.address[-1].split('-')[1])
                 self.server.log.log(self.addr[0], "- SOMETHING VERY BAD HAPPENED IN MESSAGE FETCH")
                 return
             msg.read = True
@@ -1081,7 +1085,7 @@ class HandlerCoalitionLoanPA(RequestHandler):
         c = self.request.client.coalition
         amt = float(self.request.get_post('amt'))
         c.loan(amt, self.request.client)
-        self.response.set_status_code(303, location="group/list/index.html")
+        self.response.set_status_code(303, location="/c-{}".format(self.request.client.coalition.cid))
 
 class HandlerEditHuntPA(RequestHandler):
     @RequestHandler.handler
@@ -1107,11 +1111,10 @@ class HandlerSubmitHuntPA(RequestHandler):
         name = self.request.get_post('name')
         link = self.request.get_post('link')
         if link[:4] != 'http':
-            link = 'https://' + link
+            link = 'http://' + link
         desc = self.request.get_post('desc')
         due = self.request.get_post('due').split('-')
         due = due[1] + '/' + due[2] + '/' + due[0][2:]
-        print(due)
         contributors = self.request.get_post('cntrb')
         reward = self.request.get_post('reward')
 
@@ -1135,6 +1138,13 @@ class HandlerPostSalePA(RequestHandler):
         client.my_sales.append(s)
         sales.append(s)
         self.response.set_status_code(303, location='market/list/index.html')
+
+class HandlerPayDebtPA(RequestHandler):
+    @RequestHandler.handler
+    def call(self):
+        amt = float(self.request.get_post('amt'))
+        self.request.client.coalition.pay_loan(amt, self.request.client)
+        self.response.set_status_code(303, location='/c-{}'.format(self.request.client.coalition.cid))
 
 
 GET = {
@@ -1208,6 +1218,7 @@ POST = {
     'edit_hunt.act': HandlerEditHuntPA,
     'submit_hunt.act': HandlerSubmitHuntPA,
     'post_sale.act': HandlerPostSalePA,
+    'pay_debt.act': HandlerPayDebtPA,
 }
 
 INDEX = {}

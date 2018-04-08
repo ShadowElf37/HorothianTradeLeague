@@ -156,6 +156,7 @@ class Account:
     def pay(self, amt, account):
         if amt <= self.balance:
             account.balance += amt
+            print('!!!', amt)
             if self.id != '1377':
                 self.balance -= amt
             account.balance = float('%.2f' % account.balance)
@@ -240,6 +241,8 @@ class Group:
         self.members.remove(account)
         self.member_ids.remove(account.id)
         self.lost_members.append(account.id)
+        if len(self.members) == 0:
+            self.exists = False
         account.coalition = default_group
 
     def change_owner(self, new_account):
@@ -284,6 +287,13 @@ class Coalition(Group):  # Get with your friends and make a living together
             acnt.balance += self.pool * percent
             return 0
         return 1
+
+    def pay_loan(self, amt, acnt):
+        percent = amt / self.max_pool
+        self.pool += self.pool * percent
+        acnt.coal_pct_loaned -= percent
+        acnt.balance -= self.pool * percent
+        return 0
 
 # Join a guild and enjoy the benefits of capitalism!
 # Note that payments to a Guild should ONLY go through a sales.html

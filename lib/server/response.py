@@ -8,6 +8,7 @@ ENCODING = 'UTF-8'
 
 from os.path import dirname, realpath
 from re import split
+from urllib.parse import unquote
 
 def create_navbar(active, logged_in):
     """kwargs should be 'Home="home.html"'; active should be "home.html" """
@@ -252,7 +253,7 @@ class Request:
         return p
 
     def get_post(self, key):
-        return js_escape(self.post_values.get(key, ''))
+        return unquote(self.post_values.get(key, '').replace('+', ' '), 'UTF-8')
 
     @staticmethod
     def parse(request):
