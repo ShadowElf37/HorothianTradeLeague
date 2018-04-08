@@ -256,3 +256,9 @@ BETA v0.3.0.1 (4/8/18)
     - Fixed many bugs with new URI compatibility
     - Added way to pay back loans (that was quite an oversight)
     - Solved issues 1 through 5
+
+BETA v0.3.0.2 (4/8/18)
+    - Fixed a bug where taxes were paid twice in direct transactions
+    - Fixed other things
+    - Filled up the FAQ
+    - Made some treaty

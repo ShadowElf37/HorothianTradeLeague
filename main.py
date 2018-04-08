@@ -20,7 +20,7 @@ from threading import Thread
 
 
 # Config
-require_validator = True
+require_validator = False
 log_request = True
 log_transactions = False
 log_signin = True

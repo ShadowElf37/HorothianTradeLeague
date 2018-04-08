@@ -10,3 +10,10 @@
 1377 -> 542452; Cr1.00 [-EXEMPT] (867300) -- 13:28:20 - 04/08/18
 1377 -> 745327; Cr2.00 [-EXEMPT] (794414) -- 13:31:06 - 04/08/18
 1377 -> 874121; Cr200.00 [-EXEMPT] (284585) -- 13:32:09 - 04/08/18
+<lib.account.Account object at 0x0000000002818470> -> <lib.account.Account object at 0x0000000002818668>; Cr0.95 [-0.05] (1463169189171530955) -- 15:56:51 - 04/08/18
+<lib.account.Account object at 0x0000000002818668> -> <lib.account.Account object at 0x0000000002818470>; Cr0.01 [-0.00] (1074361304199514764) -- 15:57:27 - 04/08/18
+<lib.account.Account object at 0x00000000028084A8> -> <lib.account.Account object at 0x00000000028086A0>; Cr0.95 [-0.05] (15794253905367006144) -- 15:59:05 - 04/08/18
+<lib.account.Account object at 0x00000000028084A8> -> <lib.account.Account object at 0x00000000028086A0>; Cr0.95 [-0.05] (17745226603174015227) -- 15:59:10 - 04/08/18
+<lib.account.Account object at 0x0000000002808438> -> <lib.account.Account object at 0x0000000002808668>; Cr0.95 [-0.05] (13642451437156768865) -- 15:59:34 - 04/08/18
+<lib.account.Account object at 0x00000000028684A8> -> <lib.account.Account object at 0x00000000028686A0>; Cr0.95 [-0.05] (13601431596081839703) -- 16:00:17 - 04/08/18
+<lib.account.Account object at 0x00000000028084A8> -> <lib.account.Account object at 0x0000000002808710>; Cr1.00 [-0.05] (15933453222493212784) -- 16:00:45 - 04/08/18

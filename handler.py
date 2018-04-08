@@ -98,21 +98,25 @@ class HandlerNewsItem(RequestHandler):
 class HandlerFAQ(RequestHandler):
     @RequestHandler.handler
     def call(self):
-        faq = open("conf/faq_content.cfg", 'r').read().split('\n')
-        questions = {}
+        faq = open("conf/faq_content.cfg", 'r').readlines()
+        questions = []
+        answers = []
         q = ''
+        i = -1
         for line in faq:
+            line = line.strip()
             if line != '':
                 if line[0] == '-':
+                    questions.append('')
+                    answers.append('')
                     l = line[1:].split('/')
-                    q = '<h6 id="' + l[1].strip() + '">' + l[0].strip() + "</h6>"
-                    questions[q] = ''
+                    i += 1
+                    q = '<h6 id="' + l[-1].strip() + '">' + l[0].strip() + "</h6>"
+                    questions[i] = q
                 else:
-                    questions[q] += '<p>' + line + '</p>'
+                    answers[i] += '<p>' + line + '</p>'
 
-        faqs = []
-        for q in questions:
-            faqs.append(q + questions[q])
+        faqs = [questions[i]+answers[i] for i in range(len(questions))]
 
         self.response.attach_file('home/faq.html', nb_page='account/dashboard/index.html', questions='<br>'.join(faqs))
 
@@ -919,7 +923,6 @@ class HandlerTransactionPA(RequestHandler):
         ar = recipient_acnt
         tax = a.coalition.internal_tax if a.coalition == ar.coalition else a.coalition.tax
         taxed = tax * amount
-        amount -= taxed
 
         if not a.pay(amount, recipient_acnt):
             self.response.set_status_code(303, location='account/dashboard/index.html')
