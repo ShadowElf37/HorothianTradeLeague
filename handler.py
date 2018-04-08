@@ -1137,7 +1137,6 @@ class HandlerPostSalePA(RequestHandler):
         self.response.set_status_code(303, location='market/list/index.html')
 
 
-# Access by addr[0].split('-')[0]
 GET = {
     '': HandlerBlank,
     'home/index.html': HandlerHome,
@@ -1152,7 +1151,7 @@ GET = {
     'home/signup.html': HandlerSignup,
     'account/transaction_history.html': HandlerTransactionHistory,
     'home/registry.html': HandlerRegistry,
-    'account/messages.html': HandlerMessages,
+    'account/messages/index.html': HandlerMessages,
     'account/settings/index.html': HandlerSettings,
     'group/list/redirect.html': HandlerCoalitionRedirect,
     'group/list/index.html': HandlerCoalitionList,
