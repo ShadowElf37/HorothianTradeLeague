@@ -1,3 +1,6 @@
+# Handler.py
+# Project Mercury
+
 from lib.bootstrapper import *
 from lib.boilerplate import *
 from lib.server.log import *

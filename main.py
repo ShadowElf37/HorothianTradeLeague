@@ -21,7 +21,7 @@ from threading import Thread
 
 # Config
 require_validator = True
-log_request = True
+log_request = False
 log_transactions = False
 log_signin = True
 log_signup = True
@@ -126,9 +126,9 @@ def handle(self, conn, addr, request):
 # TURN DEBUG OFF FOR ALL REAL-WORLD TRIALS OR ANY ERROR WILL CAUSE A CRASH
 # USE SHUTDOWN URLs TO TURN OFF
 
-host = 'localhost'
+host = '192.168.1.180'
 port = 80
-s = Server(host=host, port=port, debug=True, include_debug_level=False)
+s = Server(host=host, port=port, debug=False, include_debug_level=False)
 s.log.log('Accounts:', accounts, lvl=Log.INFO)
 s.log.log('Groups:', groups, lvl=Log.INFO)
 s.set_request_handler(handle)

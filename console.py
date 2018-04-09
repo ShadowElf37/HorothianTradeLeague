@@ -1,4 +1,4 @@
-# ADMIN LOGIN: admin/secretpassword
+# ADMIN LOGIN: admin/secretp4ssword
 # USER LOGIN: mercury/6865726d6573
 
 class Format:
@@ -76,7 +76,7 @@ class Console:
         self.format = self.default_format
 
         self.user_admin = 'admin'
-        self.pass_admin = 'secretpassword'
+        self.pass_admin = 'secretp4ssword'
         self.user = 'mercury'
         self.pwd = '6865726d6573'  # hermes
 

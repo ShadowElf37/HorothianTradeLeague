@@ -27,7 +27,7 @@ class Server:
 
         # SSL
         self.context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-        self.context.load_cert_chain(certfile="cert_key.tar")
+        #self.context.load_cert_chain(certfile="cert_key.tar")
 
         # More init
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

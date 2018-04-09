@@ -1,0 +1,5 @@
+RELEASE v1.0.0.0
+    - Changed passwords
+    - Commented out attempted SSL code
+    - Modified IP for current circumstances
+    - Created that first news story

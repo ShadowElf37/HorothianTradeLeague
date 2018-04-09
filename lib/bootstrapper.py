@@ -41,7 +41,7 @@ del ids_to_hundred
 def load_users():
     userfile = open('data/users.dat', 'rb')
     groupfile = open('data/groups.dat', 'rb')
-    central_bank = Account('Central', 'Bank', 'CentralBank', 'password', 'ykey-cohen@emeryweiner.org', admin_accounts[100])
+    central_bank = Account('Central', 'Bank', 'CentralBank', 'p4ssword', 'ykey-cohen@emeryweiner.org', admin_accounts[100])
     try:
         groups = pickle.load(groupfile)
     except EOFError:
@@ -55,9 +55,9 @@ def load_users():
     except EOFError:
         print('User.dat empty, initializing with default values')
         users = [
-                    Account('Test', 'User', 'TestUser', 'password', '', admin_accounts[0]),
+                    Account('Test', 'User', 'TestUser', 'p4ssword', '', admin_accounts[0]),
                     # Account('League', 'Leader', 'LeagueLeader', 'password', '', admin_accounts[1]),
-                    Account('Yovel', 'Key-Cohen', 'ShadowElf37', 'password', 'yovelkeycohen@gmail.com', admin_accounts[99]),
+                    Account('Yovel', 'Key-Cohen', 'ShadowElf37', 'p4ssword', 'yovelkeycohen@gmail.com', admin_accounts[99]),
                     central_bank,
                  ]
 

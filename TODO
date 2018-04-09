@@ -1,5 +1,3 @@
-Upon completion of all FINAL PRODUCT work, the project will be complete and ready for deployment. Then we'll celebrate the birth of a new bitcoin!
-
 URGENT
     All done!
 
@@ -12,24 +10,10 @@ LESS IMPORTANT
 FINAL WORK
     All done!
 
------------------------------
-
-IDEAL LAUNCH DATE: April 9th
-
------------------------------
-
-ISSUE TRACKER
-    [SOLVED] 1. Loans are completely broken
-    [SOLVED] 2. Hunt taxes may be not working
-    [SOLVED] 3. Crash when document link of hunt is initialized as 'localhost:8080' and the link is clicked
-    [SOLVED] 4. Guild pages and coalition listings are not destroyed when disbanded via joining other group
-    [SOLVED] 5. Unicode is not properly supported
-    [SOLVED] 6. Hunt payments always throw 17a
-    [SOLVED] 7. Server fails to change cookies to 'none' if the SID is invalid unless client goes to /, which causes an infinite loop server-side
-    [] 8. Coalition debt payments can go beyond their intended ceilings
-
 LAUNCH PREPARATION:
-    1. Console commands
+    All done!
 
+ONGOING DEVELOPMENT:
+    1. Console commands
     2. SSL
-    3. Port forward
+    3. Port forwarding my ethernet computer
