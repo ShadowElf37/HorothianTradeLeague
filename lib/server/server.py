@@ -8,6 +8,7 @@ import socket
 from lib.server.log import *
 from lib.server.response import *
 import threading
+import ssl
 
 def get_error(num, let=''):
     codes = open('conf/errors.cfg', 'r').readlines()
@@ -23,11 +24,17 @@ class Server:
         self.host = host if host else socket.gethostbyname(socket.gethostname())
         self.port = port if port else 8080
         self.buffer = 1024
+
+        # SSL
+        self.context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+        self.context.load_cert_chain(certfile="cert_key.tar")
+
+        # More init
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind((self.host, self.port))
-        self.running = True
 
+        self.running = True
         self.connection = None
         self.c_address = ['', 0]
         self.handled_counter = 0
@@ -105,10 +112,22 @@ class Server:
         self.log.log("Server open, listening...", lvl=Log.STATUS)
         while self.running:
             try:
-                self.connection, self.c_address = self.socket.accept()
+                c, self.c_address = self.socket.accept()
             except (OSError, KeyboardInterrupt):  # When the server closed but tried to use socket
                 break
-            request = Request(self.recv())
+
+            try:
+                self.connection=c#self.connection = self.context.wrap_socket(c, server_side=True)
+            except ssl.SSLError as e:
+                raise e
+                print(e)
+                continue
+                #self.connection = c
+
+            data = self.recv()
+            if data == '':
+                continue
+            request = Request(data)
             if request.req_list == 'ERROR_0':
                 self.log.log('Client request is empty, ignoring.', lvl=Log.INFO)
                 continue
@@ -123,6 +142,7 @@ class Server:
                         raise e
                     self.throwError(0, 'u', 'home.html')
                     self.log.log('A fatal error occurred in handle():', e, lvl=Log.ERROR)
+
             self.handled_counter += 1
             self.connection = None
 

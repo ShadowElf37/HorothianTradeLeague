@@ -5,3 +5,4 @@ logs/*.log
 data/users.dat
 data/log_counter.dat
 data/messages/*.msg
+cert_key.tar
