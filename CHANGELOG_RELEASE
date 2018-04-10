@@ -3,3 +3,7 @@ RELEASE v1.0.0.0
     - Commented out attempted SSL code
     - Modified IP for current circumstances
     - Created that first news story
+
+RELEASE v1.0.0.1
+    - Debug mode no longer throws uncaught errors
+    - Added browser caching (cache.cfg), load times are massively reduced

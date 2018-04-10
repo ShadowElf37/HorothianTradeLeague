@@ -139,7 +139,7 @@ class Server:
                     self.close()
                 except Exception as e:
                     if self.debug:
-                        raise e
+                        ...#raise e
                     self.throwError(0, 'u', 'home.html')
                     self.log.log('A fatal error occurred in handle():', e, lvl=Log.ERROR)
 

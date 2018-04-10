@@ -160,14 +160,36 @@ class Response:
             raise TypeError("rendrtypes requires tuple")
         prefixa = 'web/'
         prefixb = self.ext.get(faddr.split('.')[-1], '')
-        prefixc = ''#self.folders.get(faddr, '')
+        prefixc = '' #self.folders.get(faddr, '')
 
+        # Get browser caching config
+        name = faddr.split('/')[-1]
+        caching = open('conf/cache.cfg', 'r').read().split('\n')
+        cache = ''
+        last = ''
+        for line in caching:
+            l = line.split()
+            if (line+' ')[0] == 'f' and l[1] == name:
+                try:
+                    cache = last = l[2]
+                except IndexError:
+                    cache = last
+                    continue
+            elif (line+' ')[0] == 't' and l[1] == name.split('.')[-1]:
+                try:
+                    cache = last = l[2]
+                except IndexError:
+                    cache = last
+                    continue
+
+        if cache:
+            self.add_header_term('Cache-Control', 'max-age='+cache)
 
         fo = faddr.split('/')[-1]
         faddr = prefixa + prefixc + faddr
         found = False
         last = False
-        # Actual body set
+        # Actual body set and finding file in parent directories
         for i in range(10):  # Don't even try this more than ten times
             try:
                 if not faddr or faddr == fo:

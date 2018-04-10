@@ -127,7 +127,7 @@ def handle(self, conn, addr, request):
 # USE SHUTDOWN URLs TO TURN OFF
 
 #host = '192.168.1.180'
-host = 'localhost'
+host = '0.0.0.0'
 port = 8080
 s = Server(host=host, port=port, debug=True, include_debug_level=False)
 s.log.log('Accounts:', accounts, lvl=Log.INFO)
