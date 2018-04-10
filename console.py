@@ -1,5 +1,5 @@
 # ADMIN LOGIN: admin/secretp4ssword
-# USER LOGIN: mercury/6865726d6573
+# USER LOGIN: mercury/hermes
 
 class Format:
     bold = 'b'
@@ -46,6 +46,7 @@ class Console:
         self.functions_normal = {
             'echo':self.echo,
             'login':self.login,
+            'hint':lambda *args: 'A Roman trader and a Greek messenger walk into a bar. Now they\'re in the bar or something funny I don\'t know.',
             'help':self.help_normal,
         }
         self.functions_special = {
@@ -78,7 +79,7 @@ class Console:
         self.user_admin = 'admin'
         self.pass_admin = 'secretp4ssword'
         self.user = 'mercury'
-        self.pwd = '6865726d6573'  # hermes
+        self.pwd = 'hermes'
 
         self.files = [
             File('data.txt', open('data/console_files/data.txt').read()),
@@ -127,6 +128,7 @@ class Console:
         return	''' help - list available commands
                     echo <args> - print a message
                     login <user> <pass> - grants access to MERCURY
+                    hint - prints login hint
                 '''
 
     def echo(self, *args):

@@ -838,8 +838,9 @@ class HandlerConsoleCommand(RequestHandler):
     @RequestHandler.handler
     def call(self):
         cons = consoles[self.addr[0]]
-        command = self.request.address[1]
-        args = self.request.address[2].split('-')
+        r = ('-'.join(self.request.address[0].split('-')[1:])).split('+')
+        command = r[0]
+        args = r[1].split('-')
 
         self.response.set_body(cons.call(command, args))
 
