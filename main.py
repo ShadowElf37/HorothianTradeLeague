@@ -77,7 +77,7 @@ def handle(self, conn, addr, request):
 
     # Default render values - these are input automatically to renders
     global host, port
-    render_defaults = {'error':error, 'number_of_messages':len(list(filter(lambda x: not x.read, client.messages))), 'host':host, 'port':port, 'username':client.username, 'id':client.id, 'hunt_total':client.total_hunts, 'hunt_count':client.active_hunts, 'balance':client.balance}
+    render_defaults = {'error':error, 'number_of_messages':len(list(filter(lambda x: not x.read, client.messages))), 'host':publichost, 'port':port, 'username':client.username, 'id':client.id, 'hunt_total':client.total_hunts, 'hunt_count':client.active_hunts, 'balance':client.balance}
     response.default_renderopts = render_defaults
 
     # Make sure client has a cookie
@@ -128,7 +128,8 @@ def handle(self, conn, addr, request):
 
 #host = '192.168.1.180'
 host = '0.0.0.0'
-port = 8080
+publichost = 'projectmercury.asuscomm.com'
+port = 80
 s = Server(host=host, port=port, debug=True, include_debug_level=False)
 s.log.log('Accounts:', accounts, lvl=Log.INFO)
 s.log.log('Groups:', groups, lvl=Log.INFO)
