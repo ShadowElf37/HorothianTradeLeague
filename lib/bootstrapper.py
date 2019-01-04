@@ -103,6 +103,15 @@ def get_account_by_email(email):
         return ShellAccount()
     return a
 
+def get_group_by_id(id):
+    if id == 'none':
+        return groups[0]
+    try:
+        g = list(filter(lambda g: g.cid == id, groups))[0]
+    except IndexError:
+        return groups[0]
+    return g
+
 def record_transaction(self, sender_id, recipient_id, tid, amount, taxed, log_transactions=True):
     f = open('logs/transactions.log', 'at')
     gl = '{0} -> {1}; Cr{2} [-{3}] ({4}) -- {5}\n'.format(sender_id, recipient_id, '%.2f' % amount, '%.2f' % taxed if taxed != 0 else 'EXEMPT', tid, time.strftime('%X - %x'))

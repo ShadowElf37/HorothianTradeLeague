@@ -155,12 +155,17 @@ class Account:
 
     def pay(self, amt, account):
         if amt <= self.balance:
-            account.balance += amt
+            if isinstance(account, Coalition):
+                account.pool += amt
+                account.pool = float('%.2f' % account.pool)
+            elif isinstance(account, Guild):
+                account.budget += amt
+                account.budget = float('%.2f' % account.budget)
+            else:
+                account.balance += amt
             print('!!!', amt)
             if self.id != '1377':
                 self.balance -= amt
-            account.balance = float('%.2f' % account.balance)
-            self.balance = float('%.2f' % self.balance)
             return 0
         return 1
 
@@ -231,6 +236,7 @@ class Group:
 
     def add_member(self, account):
         if len(self.members) < self.max_members:
+            account.coal_pct_loaned = 0
             self.members.append(account)
             self.member_ids.append(account.id)
             account.coalition = self
@@ -264,6 +270,10 @@ class Coalition(Group):  # Get with your friends and make a living together
         self.internal_tax = 0.0
         self.pool = 0.0
         self.max_pool = 0.0
+
+    def dismantle(self, default_group):
+        self.owner.balance += self.pool
+        super().dismantle(default_group)
 
     def get_loan_size(self):
         return boilerplate.cap(130 // (len(self.members)), 100) / 100.0

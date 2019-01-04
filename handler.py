@@ -782,6 +782,8 @@ class HandlerGroupViewer(RequestHandler):
                                  members='\n'.join(tuple(map(lambda x: li(x.get_name()), coalition.members))),
                                  c_id=coalition.cid,
                                  c_desc=coalition.description,
+                                 act_collect_addbudget='collect_guild_salary.act' if not owner else 'collect_guild_salary.act',
+                                 collect_addbudget='Collect Wages' if not owner else 'Collect Wages',
                                  c_owner=coalition.owner.get_name(),
 
                                  disleave='disband_coalition.act' if owner else 'leave_coalition.act',
@@ -916,20 +918,28 @@ class HandlerTransactionPA(RequestHandler):
     def call(self):
         if not all(self.request.post_values.values()):
             return self.throwError(13, 'c')
-        elif get_account_by_id(self.request.get_post('recp')).blacklisted:
-            return self.throwError(14, 'b')
 
         recipient_id = self.request.get_post('recp')
+        g = False
+        if get_group_by_id(recipient_id) != pm_group:
+            recipient_acnt = get_group_by_id(recipient_id)
+            g = True
+        else:
+            recipient_acnt = get_account_by_id(recipient_id)
+
+        if get_account_by_id(recipient_id).blacklisted:
+            return self.throwError(14, 'b')
+
+
         try:
             amount = int(self.request.get_post('amt'))
         except ValueError:
             amount = float(self.request.get_post('amt'))
-        recipient_acnt = get_account_by_id(recipient_id)
-        if recipient_acnt.shell:
+        if not g and recipient_acnt.shell:
             return self.throwError(6, 'a')
         a = self.request.client
         ar = recipient_acnt
-        tax = a.coalition.internal_tax if a.coalition == ar.coalition else a.coalition.tax
+        tax = ar.tax if g else a.coalition.internal_tax if a.coalition == ar.coalition else a.coalition.tax
         taxed = tax * amount
 
         if not a.pay(amount, recipient_acnt):
@@ -940,18 +950,19 @@ class HandlerTransactionPA(RequestHandler):
                 '&#8354;{0} sent to {1}|&#8354;{2}|3{3}|{4}'.format('%.2f' % amount, ar.get_name(),
                                                                     '%.2f' % taxed if taxed != 0 else 'EXEMPT', tid,
                                                                     time.strftime('%X - %x')))
-            if a.id != '1377':
+            if a.id != '1377' and not g:
                 ar.transaction_history.append(
                     '{0} sent you &#8354;{1}|&#8354;{2}|2{3}|{4}'.format(a.get_name(), '%.2f' % amount,
                                                                          '%.2f' % taxed if taxed != 0 else 'EXEMPT',
                                                                          tid, time.strftime('%X - %x')))
-            else:
+            elif not g:
                 ar.transaction_history.append('CB income of &#8354;{0}|&#8354;{1}|7{2}|{3}'.format('%.2f' % amount,
                                                                                                    '%.2f' % taxed if taxed != 0 else 'EXEMPT',
                                                                                                    tid,
                                                                                                    time.strftime(
                                                                                                        '%X - %x')))
-            ar.pay(float(taxed), get_account_by_id('0099'))
+            if not g: ar.pay(float(taxed), get_account_by_id('0099'))
+            else: get_account_by_id('0099').balance += taxed
             get_account_by_id('0099').transaction_history.append(
                 'Tax income of &#8354;{0} from {1} -> {2}|EXEMPT|7{3}|{4}'.format('%.2f' % taxed, a.get_name(),
                                                                                   ar.get_name(), tid,
@@ -1192,6 +1203,7 @@ GET = {
     'group/coalition/deposit.html': HandlerCoalitionPool,
     'group/coalition/loan.html': HandlerCoalitionLoan,
     'group/coalition/loan_view.js': HandlerCoalitionLoanJS,
+    'group/coalition/pay_debt.html':HandlerPayDebt,
     'hunt/list/index.html': HandlerHuntList,
     'account/my_hunts.html': HandlerMyHuntList,
     'h': HandlerHuntViewer,

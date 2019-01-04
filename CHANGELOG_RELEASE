@@ -7,3 +7,10 @@ RELEASE v1.0.0.0
 RELEASE v1.0.0.1
     - Debug mode no longer throws uncaught errors
     - Added browser caching (cache.cfg), load times are massively reduced
+
+RELEASE v1.0.0.2
+    - Changed some text
+
+RELEASE v1.0.0.3
+    - Fixed a number of contradictions, missing features, and bugs
+    - Updated text
