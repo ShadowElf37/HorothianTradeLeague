@@ -128,7 +128,7 @@ def handle(self, conn, addr, request):
 
 host = '192.168.1.225'
 host = '0.0.0.0'
-publichost = ''
+publichost = host
 port = 8080
 s = Server(host=host, port=port, debug=True, include_debug_level=False)
 s.log.log('Accounts:', accounts, lvl=Log.INFO)

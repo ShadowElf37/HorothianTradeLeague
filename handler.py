@@ -474,7 +474,8 @@ class HandlerHuntSubmit(RequestHandler):
 class HandlerMarket(RequestHandler):
     @RequestHandler.handler
     def call(self):
-        s = ["""<a href="javascript:purchase({0})"><div class="sale">
+        s = ["""<a href="javascript:purchase({0})">
+                        <div class="sale">
                             <img src="{1}">
                             <div class="dark-overlay"></div>
                             <div class="product">{2}</div>
@@ -483,6 +484,13 @@ class HandlerMarket(RequestHandler):
         self.response.attach_file('market/list/index.html', nb_page='account/dashboard/index.html',
                              sales='\n'.join(s) if s else '<span class="empty-msg">It\'s an open market!</span>')
 
+class HandlerMarketJS(RequestHandler):
+    @RequestHandler.handler
+    def call(self):
+        print(sales)
+        data = ['"{}":["{}", "{}", "{}"]'.format(s.id, s.name, s.cost, s.seller.get_name()) for s in sales]
+        self.response.attach_file('market/list/market.js', data='{' + ','.join(data) + '}', bal=int(self.request.client.balance))
+
 class HandlerPostSale(RequestHandler):
     @RequestHandler.handler
     def call(self):
@@ -490,11 +498,6 @@ class HandlerPostSale(RequestHandler):
         opts = ['<option value="{}">{}</option>'.format(*line.split('|')) for line in img_opts]
         self.response.attach_file('market/submit.html', nb_page='account/dashboard/index.html', img_opts='\n'.join(list(opts)))
 
-class HandlerMarketJS(RequestHandler):
-    @RequestHandler.handler
-    def call(self):
-        data = ['"{}":["{}", "{}", "{}"]'.format(s.id, s.name, s.cost, s.seller.get_name()) for s in sales]
-        self.response.attach_file('market/list/market.js', data='{' + ','.join(data) + '}', bal=int(self.request.client.balance))
 
 class HandlerConsolePage(RequestHandler):
     @RequestHandler.handler

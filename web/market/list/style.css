@@ -67,6 +67,10 @@
 	transition-duration: inherit;
 }
 
+.dark-overlay:hover{
+    opacity: 0.65;
+}
+
 .sale{
     width: 280px;
     height: 280px;

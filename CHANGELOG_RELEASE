@@ -14,3 +14,13 @@ RELEASE v1.0.0.2
 RELEASE v1.0.0.3
     - Fixed a number of contradictions, missing features, and bugs
     - Updated text
+
+RELEASE v1.0.0.4
+    - Rewrote news
+    - Added a few commands to Console for better admin and user access
+
+====================
+
+RELEASE v1.0.1.0
+    - Added easy way for digital content (e.g. links, text, embeds, etc.) to be sold on the marketplace
+    - Integrated Quizlet with marketplace
