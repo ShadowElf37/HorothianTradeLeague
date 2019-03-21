@@ -103,6 +103,8 @@ body{
   border-radius: 20px;
   padding: 15px;
   margin: 10% 10% 6% 10%;
+  transform: translateX(-15px);
+  -webkit-transform: translateX(-15px);
   line-height: 40px;
   width: 80%;
   background-color: #FAFAFA;

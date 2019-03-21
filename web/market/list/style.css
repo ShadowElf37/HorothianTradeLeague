@@ -38,7 +38,7 @@
 
 .product{
 	position: absolute;
-	top: 0%;
+	top: 4%;
 	padding: 10px 0px;
 	color: white;
 	font-size: 26px;
@@ -48,7 +48,7 @@
 
 .price{
 	position: absolute;
-	bottom: 0%;
+	bottom: 6%;
 	padding: 10px 0px;
 	color: #FFF;
 	animation: pulse 5s infinite ease-in-out;
@@ -105,14 +105,16 @@
 	border-radius: 5px;
 	width: 500px;
 	height: 200px;
-	position: absolute;
 	top: 30%;
 	box-shadow: 0 0 5px #E12;
 	padding: 10px;
 	text-align: center;
-	left: 30%; /*HOW DO YOU CENTER IT AGH*/
 	font-size: 18px;
 	animation: popin 0.8s 1 ease-in-out;
+	position: absolute;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
 }
 
 .popup *{

@@ -23,4 +23,5 @@ RELEASE v1.0.0.4
 
 RELEASE v1.0.1.0
     - Added easy way for digital content (e.g. links, text, embeds, etc.) to be sold on the marketplace
-    - Integrated Quizlet with marketplace
+    - Integrated Quizlet with marketplace through some neat webscraping
+    - Fixed marketplace purchase popup to be centered and added additional information
