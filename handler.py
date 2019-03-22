@@ -487,9 +487,10 @@ class HandlerMarket(RequestHandler):
 class HandlerMarketJS(RequestHandler):
     @RequestHandler.handler
     def call(self):
-        print(sales)
-        data = ['"{}":["{}", "{}", "{}"]'.format(s.id, s.name, s.cost, s.seller.get_name()) for s in sales]
-        self.response.attach_file('market/list/market.js', data='{' + ','.join(data) + '}', bal=int(self.request.client.balance))
+        # print(sales)
+        integration = ''''''
+        data = ['"{}":["{}", "{}", "{}", "{}", "{}", "{}"]'.format(s.id, s.name, s.cost, s.seller.get_name(), s.seller.id, s.seller == self.request.client, integration) for s in sales]
+        self.response.attach_file('market/list/market.js', data='{' + ','.join(data) + '}', bal=int(self.request.client.balance),)
 
 class HandlerPostSale(RequestHandler):
     @RequestHandler.handler
@@ -669,13 +670,19 @@ class HandlerLeaveCoalitionGA(RequestHandler):
 class HandlerMarketPurchase(RequestHandler):
     @RequestHandler.handler
     def call(self):
+        self.response.set_status_code(303, location="/market/list/index.html")
+
         id = self.request.address[0][4:].split('.')[0]
         try:
             sale = next(s for s in sales if s.id.strip() == id.strip() and not s.sold)
         except StopIteration:
             self.throwError(3, 'd')
             return
+
         seller = sale.seller
+        if seller == self.request.client:
+            sale.sold = True
+            return
         buyer = self.request.client
         guild = sale.guild
         tax = sale.cost * seller.coalition.tax
@@ -711,8 +718,6 @@ class HandlerMarketPurchase(RequestHandler):
                         'Here\'s confirmation of your purchase of {} for Cr{}. You can report dishonesty in a Court Appeal if you do not receive your product in a timely manner.'.format(
                             sale.name, sale.cost), buyer)
         sale.sold = True
-
-        self.response.set_status_code(303, location="/market/list/index.html")
 
 class HandlerGuildBudget(RequestHandler):
     @RequestHandler.handler
@@ -1160,12 +1165,18 @@ class HandlerPostSalePA(RequestHandler):
     def call(self):
         request = self.request
         client = request.client
-        name = request.get_post('name')
-        price = float(request.get_post('price'))
-        img = request.get_post('img')
-        guild = request.get_post('guild')
+        try:
+            name = request.get_post('name')
+            price = float(request.get_post('price'))
+            img = request.get_post('img')
+            assert name and price and img
+        except:
+            return self.throwError(13, 'i')
 
-        s = Sale(client, price, name, img)
+        guild = request.get_post('guild')
+        link = request.get_post('link')
+
+        s = Sale(client, price, name, img, link=link)
         s.guild = '' if not guild or not isinstance(client.coalition, Guild) else client.coalition
         client.my_sales.append(s)
         sales.append(s)

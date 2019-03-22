@@ -36,10 +36,11 @@ class Infinity:
 
 
 class Sale:
-    def __init__(self, seller, cost, name, img):
+    def __init__(self, seller, cost, name, img, link=''):
         self.cost = cost
         self.name = name
         self.img = img
+        self.link = link
         self.sold = False
         self.seller = seller
         self.buyer = ShellAccount()

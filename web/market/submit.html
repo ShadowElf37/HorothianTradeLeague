@@ -25,14 +25,18 @@
     	<form action="/post_sale.act" method="POST" style="color: black;">
     		<div id="a">
     			<span>
-	    			<h5>Product</h5>
-		    		<input type="text" name="name" max="25">
+	    			<h5>Product Name</h5>
+		    		<input type="text" name="name" max="25" required>
 		    	</span>
 		    	<span>
 		    		<h5>Price</h5>
-		    		<input type="number" step="0.01" name="price">
+		    		<input type="number" step="0.01" name="price" required>
 		    	</span>
 	    	</div>
+			<span>
+                <h5>Link (leave blank if not a digital product)</h5>
+                <input type="text" name="link">
+            </span>
 	    	<h5>For Guild</h5>
             <input type="checkbox" name="guild" value="g" style="box-shadow: none;">
 			<div class="tooltip">
